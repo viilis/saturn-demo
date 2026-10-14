@@ -14,12 +14,9 @@ game.cue
 game.map
 /jo_engine/*.o
 /Projects/*/*.o
+/Projects/*/cd/
 /Samples/*/*.o
 *.layout
 bios.bin
 logs.txt
 Doxygen/output
-
-/Projects/*/
-/Projects/*.zip
-/Projects/*.7z
