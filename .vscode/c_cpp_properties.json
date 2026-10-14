@@ -4,28 +4,15 @@
             "name": "Saturn - Linux",
             "includePath": [
                 "${workspaceFolder}/jo_engine/",
-                "${workspaceFolder}/Compiler/COMMON/SGL_302j/INC"
+                "${workspaceFolder}/Compiler/COMMON/SGL_302j/INC",
+                "${workspaceFolder}/Compiler/LINUX/sh-none-elf/include"
             ],
-            "defines": [
-                "JO_COMPILE_USING_SGL",
-                "JO_COMPILE_WITH_3D_SUPPORT",
-                "JO_COMPILE_WITH_TGA_SUPPORT",
-                "JO_COMPILE_WITH_PRINTF_SUPPORT",
-                "JO_COMPILE_WITH_SPRITE_HASHTABLE",
-                "JO_COMPILE_WITH_RAM_CARD_SUPPORT",
-                "JO_COMPILE_WITH_DUAL_CPU_SUPPORT",
-                "JO_DEBUG",
-                "JO_NTSC_VERSION",
-                "JO_FRAMERATE=1",
-                "JO_GLOBAL_MEMORY_SIZE_FOR_MALLOC=393216",
-                "JO_MAX_SPRITE=255",
-                "JO_MAX_FILE_IN_IMAGE_PACK=32",
-                "JO_MAP_MAX_LAYER=8",
-                "JO_MAX_SPRITE_ANIM=16",
-                "JO_MAX_FS_BACKGROUND_JOBS=1"
-            ],
+            "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
             "compilerPath": "${workspaceFolder}/Compiler/LINUX/bin/sh-none-elf-gcc-8.2.0",
-            "compilerArgs": ["-m2", "-fms-extensions"],
+            "compilerArgs": [
+                "-m2",
+                "-fms-extensions"
+            ],
             "cStandard": "gnu99",
             "intelliSenseMode": "linux-gcc-x86"
         }
