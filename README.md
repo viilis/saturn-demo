@@ -1,25 +1,35 @@
-![Jo Engine logo](https://jo-engine.org/images/design/HEADER_IMG-1.png)
-Welcome to the official Jo-Engine repository !
--------------
-Jo Engine is an open source 2D and 3D game engine for the Sega Saturn written in C under MIT license.
-It allows to develop game easily without extensive knowledge in embedded development.
-And... games run on emulator and also on the original system !
+# Demo / hobby project for experimenting Sega Saturn game development
 
-Website: https://jo-engine.org/
+Built on [Jo Engine](https://jo-engine.org/) (MIT, see `LICENSE`), trimmed down to a Linux-only setup.
 
-Main forum: https://segaxtreme.net/forums/saturn-dev.34/
+## Layout
+| Path | What |
+|---|---|
+| `Projects/*/` | The game: `main.c`, `makefile`, assets in `cd/` |
+| `jo_engine/` | Engine source code |
+| `Compiler/LINUX/` | SH-2 toolchain (gcc 8.2.0) + newlib 3.3.0 headers |
+| `Compiler/COMMON/` | Shared makefile, Sega SGL library, `IP.BIN` boot header for CDs |
+| `Samples/` | Jo Engine examples |
 
-X (aka Twitter): https://twitter.com/johannes_fetz
+## Build
+```sh
+cd Projects/demo3D
+./compile.sh
+```
 
-Wikipedia: https://en.wikipedia.org/wiki/Homebrew_(video_games)#Sega_Saturn
+Output: `game.iso` + `game.cue`, run in a Saturn emulator.
 
-Publications: 
+## Editor (VS Code)
+IntelliSense reads flags from `.vscode/compile_commands.json`. Regenerate after changing the makefile:
 
-* Homebrew Game Development and The Extra Lives of Consoles by Robin Wilde (ISBN: 9781399072656, 139907265X) Page 61-62, 78
-* Programación de Videojuegos Para SEGA Saturn by Rolando Fernández Benavidez (ISBN: 9801509687)
+```sh
+cd Projects/demo3D
+make clean && bear --output ../../.vscode/compile_commands.json -- make
+```
 
-Online articles:
+## Changes from upstream Jo Engine
+- Windows and MacOS toolchains removed.
+- newlib headers moved to `Compiler/LINUX/sh-none-elf/include`, makefile path fixed to match.
 
-* Entretien avec Johannes Fetz à propos de jo-engine : https://linuxfr.org/news/entretien-avec-johannes-fetz-a-propos-de-jo-engine
-* Jo Sega Saturn Engine - pour développer des jeux sans crise de nerfs https://www.rom-game.fr/news/2150-Jo+Sega+Saturn+Engine+-+pour+developper+des+jeux+sans+crise+de+nerfs.html
-* EnginesDatabase: https://enginesdatabase.com/engine/jo_engine/
+## Licensing
+Engine is MIT, newlib is permissive (BSD-style). SGL and `IP.BIN` are Sega's code.
