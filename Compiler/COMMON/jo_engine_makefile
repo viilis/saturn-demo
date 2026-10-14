@@ -239,7 +239,7 @@ else
 	CC=$(COMPILER_DIR)/LINUX/bin/sh-none-elf-gcc-8.2.0
 	CONV=$(COMPILER_DIR)/LINUX/bin/sh-none-elf-objcopy
 	CUE_MAKER="$(COMPILER_DIR)/LINUX/Other Utilities/CueMaker"
-	CCFLAGS+="-I$(COMPILER_DIR)/WINDOWS/sh-elf/include"
+	CCFLAGS+="-I$(COMPILER_DIR)/LINUX/sh-none-elf/include"
 endif
 
 ASSETS_DIR=./cd
