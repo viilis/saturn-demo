@@ -54,51 +54,48 @@
 **
 */
 
-__jo_force_inline jo_fixed                jo_fixed_mult(jo_fixed x, jo_fixed y)
-{
-	register volatile jo_fixed rtval;
-	asm(
-	"dmuls.l %[d1],%[d2];" // `dmuls.l % , %` -- dmuls.l being double-word multplication, inputs as longword from variable register (%)
-	"sts MACH,r1;"		// `sts` - store system register MACH at explicit general-purpose register r1
-	"sts MACL,%[out];"	// `sts` - store system register MACL at variable register (%)
-	"xtrct r1,%[out];" 	// `xtrct gpr0,gpr1` - extract the lower 16-bits of gpr0 (r1) and upper 16-bits of gpr1 (%), result to gpr1 (%)
-    :    [out] "=r" (rtval)       		 //OUT
-    :    [d1] "r" (x), [d2] "r" (y)    //IN
-	:		"r1"						//CLOBBERS
-	);
-	return rtval;
+__jo_force_inline jo_fixed jo_fixed_mult(jo_fixed x, jo_fixed y) {
+    register volatile jo_fixed rtval;
+    asm(
+        "dmuls.l %[d1],%[d2];"     // `dmuls.l % , %` -- dmuls.l being double-word multplication, inputs as longword from variable register (%)
+        "sts MACH,r1;"             // `sts` - store system register MACH at explicit general-purpose register r1
+        "sts MACL,%[out];"         // `sts` - store system register MACL at variable register (%)
+        "xtrct r1,%[out];"         // `xtrct gpr0,gpr1` - extract the lower 16-bits of gpr0 (r1) and upper 16-bits of gpr1 (%), result to gpr1 (%)
+        : [out] "=r"(rtval)        // OUT
+        : [d1] "r"(x), [d2] "r"(y) // IN
+        : "r1"                     // CLOBBERS
+    );
+    return rtval;
 }
 
-__jo_force_inline jo_fixed                 jo_fixed_dot(jo_fixed ptA[3], jo_fixed ptB[3]) //This can cause illegal instruction execution... I wonder why... fxm does not
+__jo_force_inline jo_fixed jo_fixed_dot(jo_fixed ptA[3], jo_fixed ptB[3]) // This can cause illegal instruction execution... I wonder why... fxm does not
 {
-	register volatile jo_fixed rtval;
-	asm(
-		"clrmac;"
-		"mac.l @%[ptr1]+,@%[ptr2]+;"
-		"mac.l @%[ptr1]+,@%[ptr2]+;"
-		"mac.l @%[ptr1]+,@%[ptr2]+;" //Expresses (ptA[X] * ptB[X]) + (ptA[Y] * ptB[Y]) + (ptA[Z] * ptB[Z])
-		"sts MACH,r1;"
-		"sts MACL,%[ox];"
-		"xtrct r1,%[ox];"			//Extracts to fixed-point
-		: 	[ox] "=r" (rtval)											//OUT
-		:	[ptr1] "r" (ptA) , [ptr2] "r" (ptB)							//IN
-		:	"r1"														//CLOBBERS
-	);
-	return rtval;
+    register volatile jo_fixed rtval;
+    asm(
+        "clrmac;"
+        "mac.l @%[ptr1]+,@%[ptr2]+;"
+        "mac.l @%[ptr1]+,@%[ptr2]+;"
+        "mac.l @%[ptr1]+,@%[ptr2]+;" // Expresses (ptA[X] * ptB[X]) + (ptA[Y] * ptB[Y]) + (ptA[Z] * ptB[Z])
+        "sts MACH,r1;"
+        "sts MACL,%[ox];"
+        "xtrct r1,%[ox];"                  // Extracts to fixed-point
+        : [ox] "=r"(rtval)                 // OUT
+        : [ptr1] "r"(ptA), [ptr2] "r"(ptB) // IN
+        : "r1"                             // CLOBBERS
+    );
+    return rtval;
 }
 
-jo_fixed            jo_fixed_pow(jo_fixed x, jo_fixed y)
-{
-    jo_fixed        result;
-    jo_fixed        n;
+jo_fixed jo_fixed_pow(jo_fixed x, jo_fixed y) {
+    jo_fixed result;
+    jo_fixed n;
 
     n = JO_DIV_BY_65536(y);
     if (n == 0)
         return (JO_FIXED_1);
     if (n == JO_FIXED_1)
         return (x);
-    for (result = JO_FIXED_1; n >= 0; --n)
-    {
+    for (result = JO_FIXED_1; n >= 0; --n) {
         result = jo_fixed_mult(x, result);
         if (result == (jo_fixed)JO_FIXED_OVERFLOW)
             return (result);
@@ -106,45 +103,43 @@ jo_fixed            jo_fixed_pow(jo_fixed x, jo_fixed y)
     return (result);
 }
 
-jo_fixed	jo_fixed_div(jo_fixed dividend, jo_fixed divisor)
-{
-	const int * DVSR = ( int*)0xFFFFFF00;
-	const int * DVDNTH = ( int*)0xFFFFFF10;
-	const int * DVDNTL = ( int*)0xFFFFFF14;
+jo_fixed jo_fixed_div(jo_fixed dividend, jo_fixed divisor) {
+    const int *DVSR = (int *)0xFFFFFF00;
+    const int *DVDNTH = (int *)0xFFFFFF10;
+    const int *DVDNTL = (int *)0xFFFFFF14;
 
-	/*
-	SH7604 Note
-	Saturn special CPU has a division unit. We use it here.
-	Our assembler is not aware of its existence, so we must address it via pointers.
-	When a value is placed in DVDNTL register, (64 bit / 32 bit) division begins,
-	with DVDNTH and DVDNTL representing the high and low 32 bits of the 64 bit dividend.
-	The divisor register (DVSR) is just 32-bit.
+    /*
+    SH7604 Note
+    Saturn special CPU has a division unit. We use it here.
+    Our assembler is not aware of its existence, so we must address it via pointers.
+    When a value is placed in DVDNTL register, (64 bit / 32 bit) division begins,
+    with DVDNTH and DVDNTL representing the high and low 32 bits of the 64 bit dividend.
+    The divisor register (DVSR) is just 32-bit.
 
-	Now, this *should* take 39 cycles to complete. It appears the SH7604 will just wait if you try and access it early.
-	But check with real hardware first, you know?
-	*/
+    Now, this *should* take 39 cycles to complete. It appears the SH7604 will just wait if you try and access it early.
+    But check with real hardware first, you know?
+    */
 
-	register volatile jo_fixed quotient;
-	asm(
-	"mov.l %[dvs], @%[dvsr];"
-	"mov %[dvd], r1;" //Move the dividend to a general-purpose register, to prevent weird misreading of data.
-	"shlr16 r1;"
-	"exts.w r1, r1;" //Sign extension in case value is negative
-	"mov.l r1, @%[nth];" //Expresses "*DVDNTH = dividend>>16"
-	"mov %[dvd], r1;"
-	"shll16 r1;"
-	"mov.l r1, @%[ntl];" //Expresses *DVDNTL = dividend<<16";
-	"mov.l @%[ntl], %[out];" //Get result.
-		: 	[out] "=r" (quotient)											//OUT
-		:	[dvs] "r" (divisor) , [dvd] "r" (dividend) ,					//IN
-			[dvsr] "r" (DVSR) ,	[nth] "r" (DVDNTH) , [ntl] "r" (DVDNTL)		//IN
-		:	"r1"															//CLOBBERS
-	);
-	return quotient;
+    register volatile jo_fixed quotient;
+    asm(
+        "mov.l %[dvs], @%[dvsr];"
+        "mov %[dvd], r1;" // Move the dividend to a general-purpose register, to prevent weird misreading of data.
+        "shlr16 r1;"
+        "exts.w r1, r1;"     // Sign extension in case value is negative
+        "mov.l r1, @%[nth];" // Expresses "*DVDNTH = dividend>>16"
+        "mov %[dvd], r1;"
+        "shll16 r1;"
+        "mov.l r1, @%[ntl];"                                     // Expresses *DVDNTL = dividend<<16";
+        "mov.l @%[ntl], %[out];"                                 // Get result.
+        : [out] "=r"(quotient)                                   // OUT
+        : [dvs] "r"(divisor), [dvd] "r"(dividend),               // IN
+          [dvsr] "r"(DVSR), [nth] "r"(DVDNTH), [ntl] "r"(DVDNTL) // IN
+        : "r1"                                                   // CLOBBERS
+    );
+    return quotient;
 }
 
-jo_fixed                jo_fixed_sin(jo_fixed rad)
-{
+jo_fixed jo_fixed_sin(jo_fixed rad) {
 #if JO_COMPILE_USING_SGL && !JO_COMPILE_WITH_FAST_BUT_LESS_ACCURATE_MATH
     return ((jo_fixed)slSin(jo_fixed_rad2ANGLE(rad)));
 #else
@@ -167,35 +162,34 @@ jo_fixed                jo_fixed_sin(jo_fixed rad)
 ** Taylor series approximation for fixed cos
 ** Code based on Austin Henley's cosine blog: https://austinhenley.com/blog/cosine.html
 */
-jo_fixed                jo_fixed_cos(jo_fixed rad)
-{
+jo_fixed jo_fixed_cos(jo_fixed rad) {
 #if JO_COMPILE_USING_SGL && !JO_COMPILE_WITH_FAST_BUT_LESS_ACCURATE_MATH
     return ((jo_fixed)slCos(jo_fixed_rad2ANGLE(rad)));
 #else
     int div = jo_fixed2int(jo_fixed_div(rad, JO_FIXED_PI));
-    rad = rad - jo_fixed_mult(jo_int2fixed(div) , JO_FIXED_PI);
+    rad = rad - jo_fixed_mult(jo_int2fixed(div), JO_FIXED_PI);
     char sign = 1;
-    if (div % 2 != 0){
+    if (div % 2 != 0) {
         sign = -1;
     }
 
     jo_fixed x2 = jo_fixed_mult(rad, rad);
-    jo_fixed inter = jo_fixed_div(x2 , 131072);
+    jo_fixed inter = jo_fixed_div(x2, 131072);
     jo_fixed result = JO_FIXED_1 - inter;
 
-    inter = jo_fixed_mult(inter, jo_fixed_div(x2 , 786432));
+    inter = jo_fixed_mult(inter, jo_fixed_div(x2, 786432));
     result += inter;
 
-    inter = jo_fixed_mult(inter, jo_fixed_div(x2 , 1966080));
+    inter = jo_fixed_mult(inter, jo_fixed_div(x2, 1966080));
     result -= inter;
 
-    inter = jo_fixed_mult(inter, jo_fixed_div(x2 , 3670016));
+    inter = jo_fixed_mult(inter, jo_fixed_div(x2, 3670016));
     result += inter;
 
-    inter = jo_fixed_mult(inter, jo_fixed_div(x2 , 5898240));
+    inter = jo_fixed_mult(inter, jo_fixed_div(x2, 5898240));
     result -= inter;
 
-    return jo_fixed_mult(jo_int2fixed(sign) , result);
+    return jo_fixed_mult(jo_int2fixed(sign), result);
 #endif
 }
 
@@ -203,22 +197,18 @@ jo_fixed                jo_fixed_cos(jo_fixed rad)
 ** OTHER
 */
 
-int     jo_gcd(int a, int b)
-{
+int jo_gcd(int a, int b) {
 #ifdef JO_DEBUG
-    if (a <= 0)
-    {
+    if (a <= 0) {
         jo_core_error("a <= 0 in jo_gcd()");
         return (-1);
     }
-    if (b <= 0)
-    {
+    if (b <= 0) {
         jo_core_error("b <= 0 in jo_gcd()");
         return (-1);
     }
 #endif
-    while (a != b)
-    {
+    while (a != b) {
         if (a > b)
             a -= b;
         else
@@ -227,13 +217,11 @@ int     jo_gcd(int a, int b)
     return (a);
 }
 
-float       jo_atan2f_rad(const float y, const float x)
-{
-    float   atan;
-    float   z;
+float jo_atan2f_rad(const float y, const float x) {
+    float atan;
+    float z;
 
-    if (JO_IS_FLOAT_NULL(x))
-    {
+    if (JO_IS_FLOAT_NULL(x)) {
         if (y > 0.0f)
             return (JO_PI_2);
         if (JO_IS_FLOAT_NULL(y))
@@ -241,18 +229,14 @@ float       jo_atan2f_rad(const float y, const float x)
         return (-JO_PI_2);
     }
     z = y / x;
-    if (JO_FABS(z) < 1.0f)
-    {
+    if (JO_FABS(z) < 1.0f) {
         atan = z / (1.0f + 0.28f * z * z);
-        if (x < 0.0f)
-        {
+        if (x < 0.0f) {
             if (y < 0.0f)
                 return (atan - JO_PI);
             return (atan + JO_PI);
         }
-    }
-    else
-    {
+    } else {
         atan = JO_PI_2 - z / (z * z + 0.28f);
         if (y < 0.0f)
             return (atan - JO_PI);
@@ -260,12 +244,11 @@ float       jo_atan2f_rad(const float y, const float x)
     return (atan);
 }
 
-void                        jo_planar_rotate(const jo_pos2D * const point, const jo_pos2D * const origin, const int angle, jo_pos2D * const result)
-{
-    register int            dx;
-    register int            dy;
-    register jo_fixed       cos_theta;
-    register jo_fixed       sin_theta;
+void jo_planar_rotate(const jo_pos2D *const point, const jo_pos2D *const origin, const int angle, jo_pos2D *const result) {
+    register int dx;
+    register int dy;
+    register jo_fixed cos_theta;
+    register jo_fixed sin_theta;
 
     dx = point->x - origin->x;
     dy = point->y - origin->y;
@@ -286,15 +269,14 @@ void                        jo_planar_rotate(const jo_pos2D * const point, const
 
 /* single phase linear congruential random integer generator */
 
-#define JO_RANDOM_M             (2147483647)
-#define JO_RANDOM_A             (16807)
-#define JO_RANDOM_Q             (JO_RANDOM_M / JO_RANDOM_A)
-#define JO_RANDOM_R             (JO_RANDOM_M % JO_RANDOM_A)
+#define JO_RANDOM_M (2147483647)
+#define JO_RANDOM_A (16807)
+#define JO_RANDOM_Q (JO_RANDOM_M / JO_RANDOM_A)
+#define JO_RANDOM_R (JO_RANDOM_M % JO_RANDOM_A)
 
-int                             jo_random_seed = 1;
+int jo_random_seed = 1;
 
-int                             jo_random(int max)
-{
+int jo_random(int max) {
     jo_random_seed = JO_RANDOM_A * (jo_random_seed % JO_RANDOM_Q) - JO_RANDOM_R * (jo_random_seed / JO_RANDOM_Q);
     if (jo_random_seed <= 0)
         jo_random_seed += JO_RANDOM_M;
@@ -310,11 +292,10 @@ int                             jo_random(int max)
   ╚═══╝  ╚══════╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
 */
 
-void            jo_vector_fixed_compute_bezier_point(const jo_fixed t, jo_vector_fixed p0, jo_vector_fixed p1, jo_vector_fixed p2, jo_vector_fixed p3, jo_vector_fixed *result)
-{
-    jo_fixed    tt = jo_fixed_mult(t, t);
-    jo_fixed    u = JO_FIXED_1 - t;
-    jo_fixed    uu = jo_fixed_mult(u, u);
+void jo_vector_fixed_compute_bezier_point(const jo_fixed t, jo_vector_fixed p0, jo_vector_fixed p1, jo_vector_fixed p2, jo_vector_fixed p3, jo_vector_fixed *result) {
+    jo_fixed tt = jo_fixed_mult(t, t);
+    jo_fixed u = JO_FIXED_1 - t;
+    jo_fixed uu = jo_fixed_mult(u, u);
 
     // first term
     jo_vector_fixed_muls(&p0, jo_fixed_mult(uu, u), result);
@@ -329,11 +310,10 @@ void            jo_vector_fixed_compute_bezier_point(const jo_fixed t, jo_vector
     jo_vector_fixed_add(result, &p3, result);
 }
 
-void            jo_vectorf_compute_bezier_point(const float t, jo_vectorf p0, jo_vectorf p1, jo_vectorf p2, jo_vectorf p3, jo_vectorf *result)
-{
-    float       tt = t * t;
-    float       u = 1.0f - t;
-    float       uu = u * u;
+void jo_vectorf_compute_bezier_point(const float t, jo_vectorf p0, jo_vectorf p1, jo_vectorf p2, jo_vectorf p3, jo_vectorf *result) {
+    float tt = t * t;
+    float u = 1.0f - t;
+    float uu = u * u;
 
     // first term
     jo_vectorf_muls(&p0, uu * u, result);
@@ -360,41 +340,33 @@ void            jo_vectorf_compute_bezier_point(const float t, jo_vectorf p0, jo
 /*
 ** Based on http://en.wikipedia.org/wiki/Methods_of_computing_square_roots
 */
-jo_fixed                jo_fixed_sqrt(jo_fixed value)
-{
-    unsigned int        bit;
-    unsigned char       n;
-    unsigned int        result;
+jo_fixed jo_fixed_sqrt(jo_fixed value) {
+    unsigned int bit;
+    unsigned char n;
+    unsigned int result;
 
     if (value < 0)
         return (JO_FIXED_OVERFLOW);
-    bit = (value & 0xFFF00000)? (unsigned int)1 << 30 : (unsigned int)1 << 18;
+    bit = (value & 0xFFF00000) ? (unsigned int)1 << 30 : (unsigned int)1 << 18;
     while (bit > (unsigned int)value)
         bit >>= 2;
     JO_ZERO(result);
-    for (n = 0u; n < 2u; ++n)
-    {
-        while (bit)
-        {
-            if (result + bit < (unsigned int)value)
-            {
+    for (n = 0u; n < 2u; ++n) {
+        while (bit) {
+            if (result + bit < (unsigned int)value) {
                 value -= result + bit;
                 result = (result >> 1) + bit;
-            }
-            else
+            } else
                 result = (result >> 1);
             bit >>= 2;
         }
         if (n != 0u)
             continue;
-        if (value > 65535)
-        {
+        if (value > 65535) {
             value -= result;
             value = (value << 16) - JO_FIXED_1_DIV_2;
             result = (result << 16) + JO_FIXED_1_DIV_2;
-        }
-        else
-        {
+        } else {
             value <<= 16;
             result <<= 16;
         }
@@ -403,29 +375,25 @@ jo_fixed                jo_fixed_sqrt(jo_fixed value)
     return ((jo_fixed)result);
 }
 
-unsigned int        jo_sqrt(unsigned int value)
-{
-    unsigned int    start;
-    unsigned int    end;
-    unsigned int    res;
-    unsigned int    mid;
+unsigned int jo_sqrt(unsigned int value) {
+    unsigned int start;
+    unsigned int end;
+    unsigned int res;
+    unsigned int mid;
 
     if (value == 0 || value == 1)
         return (value);
     JO_ZERO(res);
     start = 1;
     end = value;
-    while (start <= end)
-    {
+    while (start <= end) {
         mid = JO_DIV_BY_2(start + end);
         if (mid * mid == value)
             return (mid);
-        if (mid * mid < value)
-        {
+        if (mid * mid < value) {
             start = mid + 1;
             res = mid;
-        }
-        else
+        } else
             end = mid - 1;
     }
     return (res);
@@ -445,27 +413,22 @@ AKA RECIPROCAL SQUARE ROOT
 ** Based on trenki2 implementation and adapted for the Jo Engine
 */
 
-static __jo_force_inline unsigned int   __jo_fixed_inv_sqrt_leading_zeros(unsigned int x)
-{
-    unsigned int                        exp = 31;
+static __jo_force_inline unsigned int __jo_fixed_inv_sqrt_leading_zeros(unsigned int x) {
+    unsigned int exp = 31;
 
-    if (x & 0xffff0000)
-    {
+    if (x & 0xffff0000) {
         exp -= 16;
         x >>= 16;
     }
-    if (x & 0xff00)
-    {
+    if (x & 0xff00) {
         exp -= 8;
         x >>= 8;
     }
-    if (x & 0xf0)
-    {
+    if (x & 0xf0) {
         exp -= 4;
         x >>= 4;
     }
-    if (x & 0xc)
-    {
+    if (x & 0xc) {
         exp -= 2;
         x >>= 2;
     }
@@ -474,16 +437,22 @@ static __jo_force_inline unsigned int   __jo_fixed_inv_sqrt_leading_zeros(unsign
     return (exp);
 }
 
-jo_fixed        jo_fixed_rsqrt(jo_fixed value)
-{
+jo_fixed jo_fixed_rsqrt(jo_fixed value) {
     static const unsigned short rsq_tab[] =
-    {
-        /* domain 0.5 .. 1.0-1/16 */
-		0xb504, 0xaaaa, 0xa1e8, 0x9a5f, 0x93cd, 0x8e00, 0x88d6, 0x8432,
-    };
-    jo_fixed    result;
-    int         i;
-    int         exp;
+        {
+            /* domain 0.5 .. 1.0-1/16 */
+            0xb504,
+            0xaaaa,
+            0xa1e8,
+            0x9a5f,
+            0x93cd,
+            0x8e00,
+            0x88d6,
+            0x8432,
+        };
+    jo_fixed result;
+    int i;
+    int exp;
 
     if (value == 0)
         return (JO_FIXED_MAX);
@@ -491,31 +460,29 @@ jo_fixed        jo_fixed_rsqrt(jo_fixed value)
         return (value);
     exp = __jo_fixed_inv_sqrt_leading_zeros(value);
     result = rsq_tab[(value >> (28 - exp)) & 0x7] << 1;
-	exp -= 16;
+    exp -= 16;
     if (exp <= 0)
-		result >>= -exp >> 1;
+        result >>= -exp >> 1;
     else
-		result <<= (exp >> 1) + (exp & 1);
+        result <<= (exp >> 1) + (exp & 1);
     if (exp & 1)
         result = jo_fixed_mult(result, rsq_tab[0]);
     /* newton-raphson : x = x/2*(3-(a*x)*x) */
     i = 0;
-    do
-    {
-		result = jo_fixed_mult((result >> 1), (JO_FIXED_1 * 3 - jo_fixed_mult(jo_fixed_mult(value, result), result)));
-    } while(++i < 3);
+    do {
+        result = jo_fixed_mult((result >> 1), (JO_FIXED_1 * 3 - jo_fixed_mult(jo_fixed_mult(value, result), result)));
+    } while (++i < 3);
     return (result);
 }
 
 /*
 ** Wikipedia implementation : https://en.wikipedia.org/wiki/Fast_inverse_square_root
 */
-float               jo_rsqrt(float value)
-{
-    int             i;
-    float           x2;
-    float           y;
-    const float     threehalfs = 1.5f;
+float jo_rsqrt(float value) {
+    int i;
+    float x2;
+    float y;
+    const float threehalfs = 1.5f;
 
     x2 = value * 0.5f;
     y = value;

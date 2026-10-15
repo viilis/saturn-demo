@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_SPRITES_H__
-# define __JO_SPRITES_H__
+#define __JO_SPRITES_H__
 
 /*
 ██╗███╗   ██╗████████╗███████╗██████╗ ███╗   ██╗ █████╗ ██╗
@@ -48,26 +48,25 @@
 /** @brief Current displayed sprite attribute (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-extern jo_sprite_attributes    __jo_sprite_attributes;
+extern jo_sprite_attributes __jo_sprite_attributes;
 /** @brief (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-extern jo_texture_definition        __jo_sprite_def[JO_MAX_SPRITE];
+extern jo_texture_definition __jo_sprite_def[JO_MAX_SPRITE];
 /** @brief (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-extern jo_picture_definition   __jo_sprite_pic[JO_MAX_SPRITE];
+extern jo_picture_definition __jo_sprite_pic[JO_MAX_SPRITE];
 /** @brief (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-void    jo_sprite_draw(const int sprite_id, const jo_pos3D * const pos, const bool centered_style_coordinates, const bool billboard);
+void jo_sprite_draw(const int sprite_id, const jo_pos3D *const pos, const bool centered_style_coordinates, const bool billboard);
 /** @brief (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-void    jo_sprite_draw_rotate(const int sprite_id, const jo_pos3D * const pos, const int angle, const bool centered_style_coordinates, const bool billboard);
+void jo_sprite_draw_rotate(const int sprite_id, const jo_pos3D *const pos, const int angle, const bool centered_style_coordinates, const bool billboard);
 /** @brief Internal usage don't use it */
-static  __jo_force_inline void	__internal_jo_sprite_set_position3D(const int x, const int y, const int z)
-{
+static __jo_force_inline void __internal_jo_sprite_set_position3D(const int x, const int y, const int z) {
     extern jo_pos3D __jo_sprite_pos;
     __jo_sprite_pos.x = x;
     __jo_sprite_pos.y = y;
@@ -86,49 +85,48 @@ static  __jo_force_inline void	__internal_jo_sprite_set_position3D(const int x, 
 /** @brief Get last Sprite Id
  *  @return Last Sprite Id
  */
-int     jo_get_last_sprite_id(void);
+int jo_get_last_sprite_id(void);
 
 /** @brief Add a sprite
  *  @param img Pointer to a 15 bits image struct
  *  @return Sprite Id or -1 if failed
  */
-int		jo_sprite_add(const jo_img * const img);
+int jo_sprite_add(const jo_img *const img);
 
 /** @brief Add a 8 bits sprite
  *  @param img Pointer to a 8 bits bits image struct
  *  @return Sprite Id or -1 if failed
  *  @warning 255 colors maximum not 256 !
  */
-int     jo_sprite_add_8bits_image(const jo_img_8bits * const img);
+int jo_sprite_add_8bits_image(const jo_img_8bits *const img);
 
 /** @brief Replace a sprite
  *  @param img Pointer to a image struct
  *  @param sprite_id Sprite ID to replace
  *  @return sprite_id
  */
-int     jo_sprite_replace(const jo_img * const img, const int sprite_id);
+int jo_sprite_replace(const jo_img *const img, const int sprite_id);
 
 /** @brief Free all sprites from the given sprite_id
  *  @param sprite_id Sprite ID to replace
  *  @warning Don't use freed sprites after this call or the game may crash unexpectedly
  */
-void    jo_sprite_free_from(const int sprite_id);
+void jo_sprite_free_from(const int sprite_id);
 
 /** @brief Free all sprites
  *  @warning Don't use any sprites after this call or the game may crash unexpectedly
  */
-static  __jo_force_inline void	jo_sprite_free_all(void)
-{
+static __jo_force_inline void jo_sprite_free_all(void) {
     jo_sprite_free_from(0);
 }
 
-# ifdef JO_COMPILE_WITH_SPRITE_HASHTABLE
+#ifdef JO_COMPILE_WITH_SPRITE_HASHTABLE
 /** @brief Retrive the Sprite Id from filename based on the four first character in the filename
  *  @param filename Filename (upper case and shorter as possible like "A.TEX")
  *  @warning Slow, use carefully
  *  @return Sprite Id of the first image or -1 if not found
  */
-int		jo_sprite_name2id(const char *const filename);
+int jo_sprite_name2id(const char *const filename);
 #endif
 
 /*
@@ -146,15 +144,13 @@ int		jo_sprite_name2id(const char *const filename);
 
 /** @brief Activate screen doors filter for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_enable_screen_doors_filter(void)
-{
+static __jo_force_inline void jo_sprite_enable_screen_doors_filter(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.effect, 0x100);
 }
 
 /** @brief Disable screen doors filter for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_screen_doors_filter(void)
-{
+static __jo_force_inline void jo_sprite_disable_screen_doors_filter(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.effect, 0x100);
 }
 
@@ -164,15 +160,13 @@ static  __jo_force_inline void	jo_sprite_disable_screen_doors_filter(void)
 
 /** @brief Activate half transparency for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_enable_half_transparency(void)
-{
+static __jo_force_inline void jo_sprite_enable_half_transparency(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.effect, 0x3);
 }
 
 /** @brief Disable half transparency for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_half_transparency(void)
-{
+static __jo_force_inline void jo_sprite_disable_half_transparency(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.effect, 0x3);
 }
 
@@ -187,15 +181,13 @@ static  __jo_force_inline void	jo_sprite_disable_half_transparency(void)
 
 /** @brief Activate shadow filter for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_enable_shadow_filter(void)
-{
+static __jo_force_inline void jo_sprite_enable_shadow_filter(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.effect, 0x1);
 }
 
 /** @brief Disable shadow filter for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_shadow_filter(void)
-{
+static __jo_force_inline void jo_sprite_disable_shadow_filter(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.effect, 0x1);
 }
 
@@ -205,15 +197,13 @@ static  __jo_force_inline void	jo_sprite_disable_shadow_filter(void)
 
 /** @brief Activate dark filter for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_enable_dark_filter(void)
-{
+static __jo_force_inline void jo_sprite_enable_dark_filter(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.effect, 0x2);
 }
 
 /** @brief Disable dark filter for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_dark_filter(void)
-{
+static __jo_force_inline void jo_sprite_disable_dark_filter(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.effect, 0x2);
 }
 
@@ -227,7 +217,7 @@ static  __jo_force_inline void	jo_sprite_disable_dark_filter(void)
 */
 
 /** @brief Value used to keep the original color for jo_set_gouraud_shading_colors() */
-# define JO_NO_GOURAUD_COLOR            (0xc210)
+#define JO_NO_GOURAUD_COLOR (0xc210)
 
 /** @brief Change Gouraud Shading colors
  *  @param topleft_color Top left corner color in sprite
@@ -235,35 +225,33 @@ static  __jo_force_inline void	jo_sprite_disable_dark_filter(void)
  *  @param bottomright_color bottom right corner color in sprite
  *  @param bottomleft_color bottom left corner color in sprite
  */
-void	jo_set_gouraud_shading_colors(const jo_color topleft_color,
-                                      const jo_color topright_color,
-                                      const jo_color bottomright_color,
-                                      const jo_color bottomleft_color);
+void jo_set_gouraud_shading_colors(const jo_color topleft_color,
+                                   const jo_color topright_color,
+                                   const jo_color bottomright_color,
+                                   const jo_color bottomleft_color);
 
 /** @brief Activate Gouraud Shading for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_enable_gouraud_shading(void)
-{
+static __jo_force_inline void jo_sprite_enable_gouraud_shading(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.effect, 0x4);
 }
 
 /** @brief Disable Gouraud Shading for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_gouraud_shading(void)
-{
+static __jo_force_inline void jo_sprite_disable_gouraud_shading(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.effect, 0x4);
 }
 
 /** @brief Default brightness for jo_set_gouraud_shading_brightness() */
-# define JO_DEFAULT_BRIGHTNESS      (16)
+#define JO_DEFAULT_BRIGHTNESS (16)
 
 /** @brief Maximum brightness value for jo_set_gouraud_shading_brightness() */
-# define JO_MAX_BRIGHTNESS          (31)
+#define JO_MAX_BRIGHTNESS (31)
 
 /** @brief Change Gouraud Shading brightness
  *  @param brightness Brightness from 0 to 31
  */
-void     jo_set_gouraud_shading_brightness(const unsigned char brightness);
+void jo_set_gouraud_shading_brightness(const unsigned char brightness);
 
 /*
 ██╗  ██╗ ██████╗ ██████╗ ██╗███████╗    ██╗██╗   ██╗███████╗██████╗ ████████╗    ███████╗██╗     ██╗██████╗
@@ -276,28 +264,24 @@ void     jo_set_gouraud_shading_brightness(const unsigned char brightness);
 
 /** @brief Activate vertical flip for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_enable_vertical_flip(void)
-{
+static __jo_force_inline void jo_sprite_enable_vertical_flip(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.direction, 0x20);
 }
 
 /** @brief Disable vertical flip for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_vertical_flip(void)
-{
+static __jo_force_inline void jo_sprite_disable_vertical_flip(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.direction, 0x20);
 }
 
 /** @brief Activate horizontal flip for every sprite displayed after this call */
-static  __jo_force_inline void	jo_sprite_enable_horizontal_flip(void)
-{
+static __jo_force_inline void jo_sprite_enable_horizontal_flip(void) {
     JO_ADD_FLAG(__jo_sprite_attributes.direction, 0x10);
 }
 
 /** @brief Disable horizontal flip for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_horizontal_flip(void)
-{
+static __jo_force_inline void jo_sprite_disable_horizontal_flip(void) {
     JO_REMOVE_FLAG(__jo_sprite_attributes.direction, 0x10);
 }
 
@@ -311,13 +295,12 @@ static  __jo_force_inline void	jo_sprite_disable_horizontal_flip(void)
 */
 
 /** @brief Value used to keep the original scale */
-# define JO_NO_ZOOM             (65535)
+#define JO_NO_ZOOM (65535)
 
 /** @brief Change scale for every sprite displayed after this call
  *  @param scale Sprite scale
  */
-static  __jo_force_inline void	jo_sprite_change_sprite_scale(const float scale)
-{
+static __jo_force_inline void jo_sprite_change_sprite_scale(const float scale) {
     __jo_sprite_attributes.fixed_scale_x = jo_float2fixed(scale);
     __jo_sprite_attributes.fixed_scale_y = __jo_sprite_attributes.fixed_scale_x;
 }
@@ -326,8 +309,7 @@ static  __jo_force_inline void	jo_sprite_change_sprite_scale(const float scale)
  *  @param scale_x Horizontal sprite scale
  *  @param scale_y Vertical sprite scale
  */
-static  __jo_force_inline void	jo_sprite_change_sprite_scale_xy(const float scale_x, const float scale_y)
-{
+static __jo_force_inline void jo_sprite_change_sprite_scale_xy(const float scale_x, const float scale_y) {
     __jo_sprite_attributes.fixed_scale_x = jo_float2fixed(scale_x);
     __jo_sprite_attributes.fixed_scale_y = jo_float2fixed(scale_y);
 }
@@ -336,16 +318,14 @@ static  __jo_force_inline void	jo_sprite_change_sprite_scale_xy(const float scal
  *  @param scale_x Horizontal sprite scale
  *  @param scale_y Vertical sprite scale
  */
-static  __jo_force_inline void	jo_sprite_change_sprite_scale_xy_fixed(const jo_fixed scale_x, const jo_fixed scale_y)
-{
+static __jo_force_inline void jo_sprite_change_sprite_scale_xy_fixed(const jo_fixed scale_x, const jo_fixed scale_y) {
     __jo_sprite_attributes.fixed_scale_x = scale_x;
     __jo_sprite_attributes.fixed_scale_y = scale_y;
 }
 
 /** @brief Restore default scale for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_restore_sprite_scale(void)
-{
+static __jo_force_inline void jo_sprite_restore_sprite_scale(void) {
     __jo_sprite_attributes.fixed_scale_x = JO_NO_ZOOM;
     __jo_sprite_attributes.fixed_scale_y = JO_NO_ZOOM;
 }
@@ -362,8 +342,7 @@ static  __jo_force_inline void	jo_sprite_restore_sprite_scale(void)
 /** @brief Change palette for every 8 bits sprite displayed after this call
  *  @param palette_id Palette id from jo_create_palette()
  */
-static  __jo_force_inline void	jo_sprite_set_palette(int palette_id)
-{
+static __jo_force_inline void jo_sprite_set_palette(int palette_id) {
     __jo_sprite_attributes.color_table_index = JO_MULT_BY_256(palette_id);
 }
 
@@ -374,8 +353,7 @@ static  __jo_force_inline void	jo_sprite_set_palette(int palette_id)
  *  @param z Z index (depth)
  *  @param angle Angle (Z axe)
  */
-static  __jo_force_inline void	jo_sprite_draw3D_and_rotate(const int sprite_id, const int x, const int y, const int z, const int angle)
-{
+static __jo_force_inline void jo_sprite_draw3D_and_rotate(const int sprite_id, const int x, const int y, const int z, const int angle) {
     extern jo_pos3D __jo_sprite_pos;
     __internal_jo_sprite_set_position3D(x, y, z);
     jo_sprite_draw_rotate(sprite_id, &__jo_sprite_pos, angle, true, false);
@@ -387,8 +365,7 @@ static  __jo_force_inline void	jo_sprite_draw3D_and_rotate(const int sprite_id, 
  *  @param y Vertical position from the center of the screen
  *  @param z Z index (depth))
  */
-static  __jo_force_inline void	jo_sprite_draw3D(const int sprite_id, const int x, const int y, const int z)
-{
+static __jo_force_inline void jo_sprite_draw3D(const int sprite_id, const int x, const int y, const int z) {
     extern jo_pos3D __jo_sprite_pos;
     __internal_jo_sprite_set_position3D(x, y, z);
     jo_sprite_draw(sprite_id, &__jo_sprite_pos, true, false);
@@ -401,8 +378,7 @@ static  __jo_force_inline void	jo_sprite_draw3D(const int sprite_id, const int x
  *  @param z Z index (depth)
  *  @param angle Angle (Z axe)
  */
-static  __jo_force_inline void	jo_sprite_draw3D_and_rotate2(const int sprite_id, const int x, const int y, const int z, const int angle)
-{
+static __jo_force_inline void jo_sprite_draw3D_and_rotate2(const int sprite_id, const int x, const int y, const int z, const int angle) {
     extern jo_pos3D __jo_sprite_pos;
     __internal_jo_sprite_set_position3D(x, y, z);
     jo_sprite_draw_rotate(sprite_id, &__jo_sprite_pos, angle, false, false);
@@ -414,14 +390,13 @@ static  __jo_force_inline void	jo_sprite_draw3D_and_rotate2(const int sprite_id,
  *  @param y Vertical position from the top left corner
  *  @param z Z index (depth)
  */
-static  __jo_force_inline void	jo_sprite_draw3D2(const int sprite_id, const int x, const int y, const int z)
-{
+static __jo_force_inline void jo_sprite_draw3D2(const int sprite_id, const int x, const int y, const int z) {
     extern jo_pos3D __jo_sprite_pos;
     __internal_jo_sprite_set_position3D(x, y, z);
     jo_sprite_draw(sprite_id, &__jo_sprite_pos, false, false);
 }
 
-void        jo_sprite_draw_4p_fixed(const int sprite_id, const jo_pos2D_fixed * const four_points, const jo_fixed z, const bool centered_style_coordinates);
+void jo_sprite_draw_4p_fixed(const int sprite_id, const jo_pos2D_fixed *const four_points, const jo_fixed z, const bool centered_style_coordinates);
 
 /*
  ██████╗██╗     ██╗██████╗ ██████╗ ██╗███╗   ██╗ ██████╗
@@ -435,18 +410,15 @@ void        jo_sprite_draw_4p_fixed(const int sprite_id, const jo_pos2D_fixed * 
 /** @brief Activate sprite clipping for every sprite displayed after this call
  * @param outside Clip everything inside clipping area
  */
-static  __jo_force_inline void	jo_sprite_enable_clipping(bool outside)
-{
+static __jo_force_inline void jo_sprite_enable_clipping(bool outside) {
     __jo_sprite_attributes.clipping = outside ? Window_Out : Window_In;
 }
 
 /** @brief Disable sprite clipping for every sprite displayed after this call
  */
-static  __jo_force_inline void	jo_sprite_disable_clipping(void)
-{
+static __jo_force_inline void jo_sprite_disable_clipping(void) {
     __jo_sprite_attributes.clipping = No_Window;
 }
-
 
 /** @brief Set user clipping area
  * @param x Horizontal coord from top left corner
@@ -473,8 +445,7 @@ void jo_sprite_set_clipping_area(const unsigned int x, const unsigned int y, con
  *  @param image_width Image width (in pixels)
  *  @warning This method doesn't work for 8 bits image
  */
-static  __jo_force_inline jo_color        jo_sprite_get_pixel_color(const jo_color * const data, const unsigned int x, const unsigned int y, const unsigned int image_width)
-{
+static __jo_force_inline jo_color jo_sprite_get_pixel_color(const jo_color *const data, const unsigned int x, const unsigned int y, const unsigned int image_width) {
     return (data[x + y * image_width]);
 }
 
@@ -485,8 +456,7 @@ static  __jo_force_inline jo_color        jo_sprite_get_pixel_color(const jo_col
  *  @param image_width Image width (in pixels)
  *  @warning This method only works for 8 bits image
  */
-static  __jo_force_inline unsigned char     jo_sprite_get_pixel_palette_index(const unsigned char * const data, const unsigned int x, const unsigned int y, const unsigned int image_width)
-{
+static __jo_force_inline unsigned char jo_sprite_get_pixel_palette_index(const unsigned char *const data, const unsigned int x, const unsigned int y, const unsigned int image_width) {
     return (data[x + y * image_width]);
 }
 
@@ -498,8 +468,7 @@ static  __jo_force_inline unsigned char     jo_sprite_get_pixel_palette_index(co
  *  @param image_width Image width (in pixels)
  *  @warning This method doesn't work for 8 bits image
  */
-static  __jo_force_inline bool        jo_sprite_is_pixel_transparent(const jo_color * const data, const unsigned int x, const unsigned int y, const unsigned int image_width)
-{
+static __jo_force_inline bool jo_sprite_is_pixel_transparent(const jo_color *const data, const unsigned int x, const unsigned int y, const unsigned int image_width) {
     return (jo_sprite_get_pixel_color(data, x, y, image_width) == JO_COLOR_Transparent);
 }
 
@@ -507,8 +476,7 @@ static  __jo_force_inline bool        jo_sprite_is_pixel_transparent(const jo_co
  *  @param sprite_id Sprite Id returned by jo_sprite_add(), jo_sprite_add_tga() or jo_sprite_add_image_pack()
  *  @return Sprite width
  */
-static  __jo_force_inline int         jo_sprite_get_width(const int sprite_id)
-{
+static __jo_force_inline int jo_sprite_get_width(const int sprite_id) {
     return (__jo_sprite_def[sprite_id].width);
 }
 
@@ -516,8 +484,7 @@ static  __jo_force_inline int         jo_sprite_get_width(const int sprite_id)
  *  @param sprite_id Sprite Id returned by jo_sprite_add(), jo_sprite_add_tga() or jo_sprite_add_image_pack()
  *  @return Sprite height
  */
-static  __jo_force_inline int           jo_sprite_get_height(const int sprite_id)
-{
+static __jo_force_inline int jo_sprite_get_height(const int sprite_id) {
     return (__jo_sprite_def[sprite_id].height);
 }
 
@@ -525,8 +492,7 @@ static  __jo_force_inline int           jo_sprite_get_height(const int sprite_id
  *  @param sprite_id Sprite Id returned by jo_sprite_add(), jo_sprite_add_tga() or jo_sprite_add_image_pack()
  *  @return Raw image contents
  */
-static  __jo_force_inline void          *jo_sprite_get_raw_data(const int sprite_id)
-{
+static __jo_force_inline void *jo_sprite_get_raw_data(const int sprite_id) {
     return (__jo_sprite_pic[sprite_id].data);
 }
 
@@ -542,8 +508,7 @@ static  __jo_force_inline void          *jo_sprite_get_raw_data(const int sprite
 /** @brief Get sprite count
  *  @return Count
  */
-static  __jo_force_inline int         jo_sprite_count(void)
-{
+static __jo_force_inline int jo_sprite_count(void) {
     return (jo_get_last_sprite_id() + 1);
 }
 
@@ -551,7 +516,7 @@ static  __jo_force_inline int         jo_sprite_count(void)
  *  @return Sprite memory usage percent
  *  @remarks jo_printf(0, 0, "Sprite memory usage: %d%%  ", jo_sprite_usage_percent());
  */
-int                                   jo_sprite_usage_percent(void);
+int jo_sprite_usage_percent(void);
 
 #endif /* !__JO_SPRITES_H__ */
 

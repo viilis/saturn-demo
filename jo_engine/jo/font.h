@@ -32,16 +32,16 @@
  */
 
 #ifndef __JO_FONT_H__
-# define __JO_FONT_H__
+#define __JO_FONT_H__
 
 typedef struct
 {
-    char        start_ascii;
-    char        end_ascii;
-    char        *lookup_table;
-    char        spacing;
-    int         z_index;
-}               jo_font;
+    char start_ascii;
+    char end_ascii;
+    char *lookup_table;
+    char spacing;
+    int z_index;
+} jo_font;
 
 /** @brief Print arguments using a specific font (using top-left screen coordinates)
  *  @param F The font (returned by jo_font_load())
@@ -49,7 +49,11 @@ typedef struct
  *  @param Y Vertical location from the top border of the screen
  *  @param S Font scale
  */
-# define jo_font_printf(F, X, Y, S, ...)		        do {sprintf(__jo_sprintf_buf, __VA_ARGS__); jo_font_print((F), (X), (Y), (S), __jo_sprintf_buf);} while(0)
+#define jo_font_printf(F, X, Y, S, ...)                      \
+    do {                                                     \
+        sprintf(__jo_sprintf_buf, __VA_ARGS__);              \
+        jo_font_print((F), (X), (Y), (S), __jo_sprintf_buf); \
+    } while (0)
 
 /** @brief Print arguments using a specific font (using screen center coordinates)
  *  @param F The font (returned by jo_font_load())
@@ -57,7 +61,11 @@ typedef struct
  *  @param Y Vertical location from the center of the screen
  *  @param S Font scale
  */
-# define jo_font_printf_centered(F, X, Y, S, ...)		do {sprintf(__jo_sprintf_buf, __VA_ARGS__); jo_font_print_centered((F), (X), (Y), (S), __jo_sprintf_buf);} while(0)
+#define jo_font_printf_centered(F, X, Y, S, ...)                      \
+    do {                                                              \
+        sprintf(__jo_sprintf_buf, __VA_ARGS__);                       \
+        jo_font_print_centered((F), (X), (Y), (S), __jo_sprintf_buf); \
+    } while (0)
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
@@ -71,7 +79,7 @@ typedef struct
  *  @param mapping Image pattern : "0123456789ABCDEFGH..." (use \n to go to the next image line)
  *  @return Font object
  */
-jo_font         *jo_font_load(const char * const sub_dir, const char * const filename, const jo_color transparent_color, const int letter_width, const int letter_height, const int letter_spacing, const char * const mapping);
+jo_font *jo_font_load(const char *const sub_dir, const char *const filename, const jo_color transparent_color, const int letter_width, const int letter_height, const int letter_spacing, const char *const mapping);
 
 #endif
 
@@ -82,7 +90,7 @@ jo_font         *jo_font_load(const char * const sub_dir, const char * const fil
  *  @param scale Font scale
  *  @param str The string
  */
-void            jo_font_print(const jo_font * const font, int x, int y, float scale, char * str);
+void jo_font_print(const jo_font *const font, int x, int y, float scale, char *str);
 
 /** @brief Print a string using a specific font (using screen center coordinates)
  *  @param font The font (returned by jo_font_load())
@@ -91,7 +99,7 @@ void            jo_font_print(const jo_font * const font, int x, int y, float sc
  *  @param scale Font scale
  *  @param str The string
  */
-void            jo_font_print_centered(const jo_font * const font, int x, int y, float scale, char * str);
+void jo_font_print_centered(const jo_font *const font, int x, int y, float scale, char *str);
 
 #endif /* !__JO_FONT_H__ */
 

@@ -33,32 +33,36 @@
  */
 
 #ifndef __JO_CORE_H__
-# define __JO_CORE_H__
+#define __JO_CORE_H__
 
 #ifdef JO_DEBUG
 
 /** @brief Error handling (Internal usage)
  *  @warning MC Hammer: don't touch this
  */
-extern char		__jo_last_error[JO_PRINTF_BUF_SIZE];
-void    __jo_core_error(char *message, const char *function);
-# define jo_core_error(...)		do {sprintf(__jo_last_error, __VA_ARGS__); __jo_core_error(__jo_last_error, __FUNCTION__);} while(0)
+extern char __jo_last_error[JO_PRINTF_BUF_SIZE];
+void __jo_core_error(char *message, const char *function);
+#define jo_core_error(...)                              \
+    do {                                                \
+        sprintf(__jo_last_error, __VA_ARGS__);          \
+        __jo_core_error(__jo_last_error, __FUNCTION__); \
+    } while (0)
 
 #endif
 
 /** @brief Jo Engine Version */
-# define JO_ENGINE_VERSION  (2025.1)
+#define JO_ENGINE_VERSION (2025.1)
 
 /*
 ** TYPEDEFS
 */
 /** @brief Function prototype for jo_core_add_callback() */
-typedef void	(*jo_event_callback)(void);
+typedef void (*jo_event_callback)(void);
 
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
 
 /** @brief Function prototype for jo_core_exec_on_slave() */
-typedef void	(*jo_slave_callback)(void);
+typedef void (*jo_slave_callback)(void);
 
 #endif
 
@@ -66,35 +70,35 @@ typedef void	(*jo_slave_callback)(void);
  *  @param back_color Default background color (colors.h)
  *  @warning Must be the first function called in jo_main()
  */
-void	jo_core_init(const jo_color back_color);
+void jo_core_init(const jo_color back_color);
 
 /** @brief Run the game
  *  @warning Must be the last function called in jo_main()
  */
-void	jo_core_run(void);
+void jo_core_run(void);
 
 /** @brief Add a callback during VBLANK interruption
  *  @param callback Function name with no parameters and no return value
  *  @return VBLANK Event Id (usefull for jo_core_remove_vblank_callback())
  */
-int     jo_core_add_vblank_callback(const jo_event_callback callback);
+int jo_core_add_vblank_callback(const jo_event_callback callback);
 
 /** @brief Remove a callback during VBLANK interruption
  *  @param vblank_event_id Value returned by jo_core_add_vblank_callback()
  */
-void    jo_core_remove_vblank_callback(const int vblank_event_id);
+void jo_core_remove_vblank_callback(const int vblank_event_id);
 
 /** @brief Add a callback in the game loop on main CPU
  *  @param callback Function name with no parameters and no return value
  *  @warning Must be called before jo_core_run()
  *  @return Event Id (usefull for jo_core_remove_callback())
  */
-int     jo_core_add_callback(const jo_event_callback callback);
+int jo_core_add_callback(const jo_event_callback callback);
 
 /** @brief Remove a callback in the game loop from on main CPU
  *  @param event_id Value returned by jo_core_add_callback()
  */
-void    jo_core_remove_callback(const int event_id);
+void jo_core_remove_callback(const int event_id);
 
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
 
@@ -103,64 +107,60 @@ void    jo_core_remove_callback(const int event_id);
  *  @warning Must be called before jo_core_run()
  *  @return Event Id (usefull for jo_core_remove_slave_callback())
  */
-int     jo_core_add_slave_callback(const jo_event_callback callback);
+int jo_core_add_slave_callback(const jo_event_callback callback);
 
 /** @brief Remove a callback in the game loop from on slave CPU
  *  @param event_id Value returned by jo_core_add_slave_callback()
  */
-void    jo_core_remove_slave_callback(const int event_id);
+void jo_core_remove_slave_callback(const int event_id);
 
 #endif
 
 /** @brief Add a callback when A+B+C+Start is pressed on the first control pad
  *  @param callback Function name with no parameters and no return value
  */
-void    jo_core_set_restart_game_callback(const jo_event_callback callback);
+void jo_core_set_restart_game_callback(const jo_event_callback callback);
 
 /** @brief Return to the boot menu
  */
-void    jo_goto_boot_menu(void);
+void jo_goto_boot_menu(void);
 
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
 
 /** @brief Execute a callback on the slave CPU
  *  @param callback Function name with no parameters and no return value
  */
-void    jo_core_exec_on_slave(jo_slave_callback callback);
+void jo_core_exec_on_slave(jo_slave_callback callback);
 
 /** @brief Wait until slave callback is completed
  */
-void    jo_core_wait_for_slave(void);
+void jo_core_wait_for_slave(void);
 
 #endif
 
 /** @brief Disable reset button
  */
-static  __jo_force_inline void jo_core_disable_reset(void)
-{
+static __jo_force_inline void jo_core_disable_reset(void) {
     jo_smpc_begin_command();
     jo_smpc_end_command(DisableReset);
 }
 
 /** @brief Enable reset button
  */
-static  __jo_force_inline void jo_core_enable_reset(void)
-{
+static __jo_force_inline void jo_core_enable_reset(void) {
     jo_smpc_begin_command();
     jo_smpc_end_command(EnableReset);
 }
 
 /** @brief Turn OFF scroll drawing processing in the monitor
  */
-static  __jo_force_inline void      jo_core_tv_off(void)
-{
+static __jo_force_inline void jo_core_tv_off(void) {
     slTVOff();
 }
 
 /** @brief Turn ON scroll drawing processing in the monitor
  */
-static  __jo_force_inline void      jo_core_tv_on(void)
-{
+static __jo_force_inline void jo_core_tv_on(void) {
     slTVOn();
 }
 
@@ -168,17 +168,15 @@ static  __jo_force_inline void      jo_core_tv_on(void)
  *  @warning Works but I didn't found documentation about it
  *  @todo Investigate and give feedback to https://segaxtreme.net/threads/best-way-to-debug-saturn-bios.18644/
  */
-static  __jo_force_inline void jo_core_exit_to_multiplayer(void)
-{
+static __jo_force_inline void jo_core_exit_to_multiplayer(void) {
 
-    (**(void(**)(void))0x600026C)();
+    (**(void (**)(void))0x600026C)();
 }
 
 /** @brief Restart the Saturn
  *  @warning Doesn't work in Yabause
  */
-static  __jo_force_inline void jo_core_restart_saturn(void)
-{
+static __jo_force_inline void jo_core_restart_saturn(void) {
     jo_smpc_begin_command();
     jo_smpc_end_command(SystemReset);
 }
@@ -188,36 +186,35 @@ static  __jo_force_inline void jo_core_restart_saturn(void)
  *  @param args Other screens
  *  @remarks Default Jo Engine screen priority : NBG0 > SPR0 > SPR1 > RBG0 > NBG1 > NBG2 > NBG3
  */
-#define                             jo_core_set_screens_order(screen1, args...) __jo_core_set_screens_order(screen1, ## args, ~0);
+#define jo_core_set_screens_order(screen1, args...) __jo_core_set_screens_order(screen1, ##args, ~0);
 
 #ifdef JO_DEBUG
 
 /** @brief Stop the execution until someone press Start
  */
-void    jo_core_suspend(void);
+void jo_core_suspend(void);
 
 /** @brief Get last error
  *  @return Formated error
  */
-static  __jo_force_inline char * jo_get_last_error(void)
-{
+static __jo_force_inline char *jo_get_last_error(void) {
     return (__jo_last_error);
 }
 
 /** @brief Dump VDP1 registers
  */
-void                jo_dump_vdp1_registers(void);
+void jo_dump_vdp1_registers(void);
 
 /** @brief Dump VDP2 registers
  */
-void                jo_dump_vdp2_registers(void);
+void jo_dump_vdp2_registers(void);
 
 #endif
 
 /** @brief Screen order (Internal usage)
  *  @warning Use jo_core_set_screens_order instead
  */
-void                                __jo_core_set_screens_order(jo_scroll_screen screen1, ...);
+void __jo_core_set_screens_order(jo_scroll_screen screen1, ...);
 
 #endif /* !__JO_CORE_H__ */
 

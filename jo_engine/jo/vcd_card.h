@@ -37,19 +37,19 @@
 
 #ifdef JO_COMPILE_WITH_VCD_CARD_SUPPORT
 
- /** @brief Checks whether or not the VCD Card is inserted in the system
-  *  @return 0 if the VCD Card is present
-  */
+/** @brief Checks whether or not the VCD Card is inserted in the system
+ *  @return 0 if the VCD Card is present
+ */
 int jo_vcd_card_is_present(void);
 
- /** @brief Advanced feature to read the firmware of the VCD Card
-  *  @param index Which index to start with
-  *  @param num_indexes How many indexes to copy. Each index is 800 bytes
-  *  @param dest On success, the firmware gets written here
-  *  @param dest_size Size in bytes of dest
-  *  @return On success, the number of bytes written. On failure < 0 is returned.
-  */
-int jo_vcd_card_get_vcd_card_rom(unsigned int index, unsigned int num_indexes, void* dest, unsigned int dest_size);
+/** @brief Advanced feature to read the firmware of the VCD Card
+ *  @param index Which index to start with
+ *  @param num_indexes How many indexes to copy. Each index is 800 bytes
+ *  @param dest On success, the firmware gets written here
+ *  @param dest_size Size in bytes of dest
+ *  @return On success, the number of bytes written. On failure < 0 is returned.
+ */
+int jo_vcd_card_get_vcd_card_rom(unsigned int index, unsigned int num_indexes, void *dest, unsigned int dest_size);
 
 #endif /* !JO_COMPILE_WITH_VCD_CARD_SUPPORT */
 

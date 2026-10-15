@@ -33,39 +33,37 @@
  */
 
 #ifndef __JO_SPRITE_ANIMATOR_H__
-# define __JO_SPRITE_ANIMATOR_H__
+#define __JO_SPRITE_ANIMATOR_H__
 
 /** @brief Animation action */
-typedef enum
-{
+typedef enum {
     JO_SPRITE_ANIM_START,
     JO_SPRITE_ANIM_START_REVERSE,
     JO_SPRITE_ANIM_STOP,
     JO_SPRITE_ANIM_STOP_AT_LAST_FRAME,
-}					jo_sprite_anim_action;
+} jo_sprite_anim_action;
 
 /** @brief Internal animation struct */
 typedef struct
 {
-    unsigned short					frame0_sprite_id;
-    unsigned short					frame_count;
-    unsigned short					cur_frame;
-    unsigned char					frame_rate;
-    unsigned char					frame_skip;
-    jo_sprite_anim_action			action;
-}									jo_sprite_anim;
+    unsigned short frame0_sprite_id;
+    unsigned short frame_count;
+    unsigned short cur_frame;
+    unsigned char frame_rate;
+    unsigned char frame_skip;
+    jo_sprite_anim_action action;
+} jo_sprite_anim;
 
 /** @brief Internal animation table
  *  @warning MC Hammer: don't touch this
  */
-extern jo_sprite_anim		__jo_sprite_anim_tab[JO_MAX_SPRITE_ANIM];
+extern jo_sprite_anim __jo_sprite_anim_tab[JO_MAX_SPRITE_ANIM];
 
 /** @brief Get animation frame rate
  *  @param anim_id Id returned by jo_create_sprite_anim()
  *  @return animation frame index (from 0 to "number of sprite in animation")
  */
-static  __jo_force_inline unsigned char	jo_get_sprite_anim_frame_rate(const int anim_id)
-{
+static __jo_force_inline unsigned char jo_get_sprite_anim_frame_rate(const int anim_id) {
     return __jo_sprite_anim_tab[anim_id].frame_rate;
 }
 
@@ -73,8 +71,7 @@ static  __jo_force_inline unsigned char	jo_get_sprite_anim_frame_rate(const int 
  *  @param anim_id Id returned by jo_create_sprite_anim()
  *  @return animation frame index (from 0 to "number of sprite in animation")
  */
-static  __jo_force_inline unsigned short	jo_get_sprite_anim_frame_count(const int anim_id)
-{
+static __jo_force_inline unsigned short jo_get_sprite_anim_frame_count(const int anim_id) {
     return __jo_sprite_anim_tab[anim_id].frame_count;
 }
 
@@ -82,8 +79,7 @@ static  __jo_force_inline unsigned short	jo_get_sprite_anim_frame_count(const in
  *  @param anim_id Id returned by jo_create_sprite_anim()
  *  @return animation frame index (from 0 to "number of sprite in animation")
  */
-static  __jo_force_inline unsigned short	jo_get_sprite_anim_frame(const int anim_id)
-{
+static __jo_force_inline unsigned short jo_get_sprite_anim_frame(const int anim_id) {
     return __jo_sprite_anim_tab[anim_id].cur_frame;
 }
 
@@ -91,16 +87,14 @@ static  __jo_force_inline unsigned short	jo_get_sprite_anim_frame(const int anim
  *  @param anim_id Id returned by jo_create_sprite_anim()
  *  @param frame Frame of animation to be displayed, where 0 is the first frame.
  */
-static __jo_force_inline void	jo_set_sprite_anim_frame(const int anim_id, const unsigned char frame)
-{
+static __jo_force_inline void jo_set_sprite_anim_frame(const int anim_id, const unsigned char frame) {
     __jo_sprite_anim_tab[anim_id].cur_frame = frame;
 }
 
 /** @brief Start animation loop
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline void	jo_start_sprite_anim_loop(const int anim_id)
-{
+static __jo_force_inline void jo_start_sprite_anim_loop(const int anim_id) {
     __jo_sprite_anim_tab[anim_id].action = JO_SPRITE_ANIM_START;
 }
 
@@ -108,32 +102,28 @@ static  __jo_force_inline void	jo_start_sprite_anim_loop(const int anim_id)
  *  @param anim_id Id returned by jo_create_sprite_anim()
  *  @return true if the animation is stopped otherwise false
  */
-static  __jo_force_inline bool	jo_is_sprite_anim_stopped(const int anim_id)
-{
+static __jo_force_inline bool jo_is_sprite_anim_stopped(const int anim_id) {
     return __jo_sprite_anim_tab[anim_id].action == JO_SPRITE_ANIM_STOP;
 }
 
 /** @brief Stop animation
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline void	jo_stop_sprite_anim(const int anim_id)
-{
+static __jo_force_inline void jo_stop_sprite_anim(const int anim_id) {
     __jo_sprite_anim_tab[anim_id].action = JO_SPRITE_ANIM_STOP;
 }
 
 /** @brief Start animation and stop it at the last frame
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline void	jo_start_sprite_anim(const int anim_id)
-{
+static __jo_force_inline void jo_start_sprite_anim(const int anim_id) {
     __jo_sprite_anim_tab[anim_id].action = JO_SPRITE_ANIM_STOP_AT_LAST_FRAME;
 }
 
 /** @brief Stop animation and reset the animation to the first frame
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline void	jo_reset_sprite_anim(const int anim_id)
-{
+static __jo_force_inline void jo_reset_sprite_anim(const int anim_id) {
     jo_stop_sprite_anim(anim_id);
     JO_ZERO(__jo_sprite_anim_tab[anim_id].frame_skip);
     JO_ZERO(__jo_sprite_anim_tab[anim_id].cur_frame);
@@ -142,8 +132,7 @@ static  __jo_force_inline void	jo_reset_sprite_anim(const int anim_id)
 /** @brief Restart animation and stop it at the last frame
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline void	jo_restart_sprite_anim(const int anim_id)
-{
+static __jo_force_inline void jo_restart_sprite_anim(const int anim_id) {
     jo_reset_sprite_anim(anim_id);
     jo_start_sprite_anim(anim_id);
 }
@@ -151,16 +140,14 @@ static  __jo_force_inline void	jo_restart_sprite_anim(const int anim_id)
 /** @brief Get the sprite to display according to the animation (current frame)
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline int	jo_get_anim_sprite(const int anim_id)
-{
+static __jo_force_inline int jo_get_anim_sprite(const int anim_id) {
     return __jo_sprite_anim_tab[anim_id].frame0_sprite_id + __jo_sprite_anim_tab[anim_id].cur_frame;
 }
 
 /** @brief Get the sprite to display according to the animation in reverse (current frame)
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-static  __jo_force_inline int	jo_get_anim_sprite_reverse(const int anim_id)
-{
+static __jo_force_inline int jo_get_anim_sprite_reverse(const int anim_id) {
     return __jo_sprite_anim_tab[anim_id].frame0_sprite_id + __jo_sprite_anim_tab[anim_id].frame_count - __jo_sprite_anim_tab[anim_id].cur_frame - 1;
 }
 
@@ -168,8 +155,7 @@ static  __jo_force_inline int	jo_get_anim_sprite_reverse(const int anim_id)
  *  @param anim_id Id returned by jo_create_sprite_anim()
  *  @param framerate Frame rate (linked to the global framerate)
  */
-static  __jo_force_inline int	jo_set_sprite_anim_frame_rate(const int anim_id, const unsigned char framerate)
-{
+static __jo_force_inline int jo_set_sprite_anim_frame_rate(const int anim_id, const unsigned char framerate) {
     return __jo_sprite_anim_tab[anim_id].frame_rate = framerate;
 }
 
@@ -180,7 +166,7 @@ static  __jo_force_inline int	jo_set_sprite_anim_frame_rate(const int anim_id, c
  *  @param frame_rate Framerate (linked to the global framerate)
  *  @return -1 if failed or the "at" param
  */
-int			jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate);
+int jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate);
 
 /** @brief Create an animation
  *  @param sprite_id First sprite id returned by jo_sprite_add() or similar functions
@@ -188,16 +174,16 @@ int			jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const
  *  @param frame_rate Framerate (linked to the global framerate)
  *  @return -1 if failed or Animation Id (ANIM_ID)
  */
-int			jo_create_sprite_anim(const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate);
+int jo_create_sprite_anim(const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate);
 
 /** @brief Remove a specific animation by ID
  *  @param anim_id Id returned by jo_create_sprite_anim()
  */
-void        jo_remove_sprite_anim(const int anim_id);
+void jo_remove_sprite_anim(const int anim_id);
 
 /** @brief Clear all sprite animation
  */
-void        jo_clear_all_sprite_anim(void);
+void jo_clear_all_sprite_anim(void);
 
 #endif /* !__JO_SPRITE_ANIMATOR_H__ */
 

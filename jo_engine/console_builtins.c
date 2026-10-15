@@ -54,8 +54,7 @@
 #ifdef JO_COMPILE_WITH_CONSOLE_SUPPORT
 #ifndef JO_COMPILE_NO_CONSOLE_BUILTINS
 
-static jo_color                       __jo_console_builtins_parse_color(const char * const str)
-{
+static jo_color __jo_console_builtins_parse_color(const char *const str) {
     if (jo_string_equals(str, "white"))
         return (JO_COLOR_White);
     if (jo_string_equals(str, "black"))
@@ -79,19 +78,16 @@ static jo_color                       __jo_console_builtins_parse_color(const ch
     return (JO_COLOR_MediumPurple);
 }
 
-static __jo_force_inline void               __jo_console_builtins_background(int argc, char **argv, int vertical_output)
-{
-    if (argc < 2)
-    {
+static __jo_force_inline void __jo_console_builtins_background(int argc, char **argv, int vertical_output) {
+    if (argc < 2) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too few argument (%d < 2). Usage:", argc);
         jo_printf_with_color(0, vertical_output + 1, JO_COLOR_INDEX_Red, "Usage: bkg <colorname>");
-        return ;
+        return;
     }
-    if (argc > 2)
-    {
+    if (argc > 2) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too many argument (%d > 2). Usage:", argc);
         jo_printf_with_color(0, vertical_output + 1, JO_COLOR_INDEX_Red, "Usage: bkg <colorname>");
-        return ;
+        return;
     }
     jo_vdp2_clear_bitmap_nbg1(__jo_console_builtins_parse_color(argv[1]));
     jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Green, "Done.");
@@ -99,25 +95,22 @@ static __jo_force_inline void               __jo_console_builtins_background(int
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-static __jo_force_inline void               __jo_console_builtins_load_sprite(int argc, char **argv, int vertical_output)
-{
-    int                                     result;
-    char                                    *subdir;
-    jo_color                                color;
+static __jo_force_inline void __jo_console_builtins_load_sprite(int argc, char **argv, int vertical_output) {
+    int result;
+    char *subdir;
+    jo_color color;
 
-    if (argc < 3)
-    {
+    if (argc < 3) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too few argument (%d < 3). Usage:", argc);
         jo_printf_with_color(0, vertical_output + 1, JO_COLOR_INDEX_Red, "Usage: load sprite <filename>");
         jo_printf_with_color(0, vertical_output + 2, JO_COLOR_INDEX_Red, "[transparent_color_name] [subdir]");
-        return ;
+        return;
     }
-    if (argc > 5)
-    {
+    if (argc > 5) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too many argument (%d > 5). Usage:", argc);
         jo_printf_with_color(0, vertical_output + 1, JO_COLOR_INDEX_Red, "Usage: load sprite <filename>");
         jo_printf_with_color(0, vertical_output + 2, JO_COLOR_INDEX_Red, "[transparent_color_name] [subdir]");
-        return ;
+        return;
     }
     subdir = argc >= 5 ? argv[4] : (char *)JO_CURRENT_DIR;
     color = argc >= 4 ? __jo_console_builtins_parse_color(argv[3]) : JO_COLOR_Transparent;
@@ -133,23 +126,20 @@ static __jo_force_inline void               __jo_console_builtins_load_sprite(in
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Error!");
 }
 
-static __jo_force_inline void               __jo_console_builtins_load_map(int argc, char **argv, int vertical_output)
-{
-    bool                                    succeeded;
+static __jo_force_inline void __jo_console_builtins_load_map(int argc, char **argv, int vertical_output) {
+    bool succeeded;
 
-    if (argc < 5)
-    {
+    if (argc < 5) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too few argument (%d < 5). Usage:", argc);
         jo_printf_with_color(0, vertical_output + 1, JO_COLOR_INDEX_Red, "Usage: load map <layer> <zindex>");
         jo_printf_with_color(0, vertical_output + 2, JO_COLOR_INDEX_Red, "<filename> [subdir]");
-        return ;
+        return;
     }
-    if (argc > 6)
-    {
+    if (argc > 6) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too many argument (%d > 6). Usage:", argc);
         jo_printf_with_color(0, vertical_output + 1, JO_COLOR_INDEX_Red, "Usage: load map <layer> <zindex>");
         jo_printf_with_color(0, vertical_output + 2, JO_COLOR_INDEX_Red, "<filename> [subdir]");
-        return ;
+        return;
     }
     if (argc > 5)
         succeeded = jo_map_load_from_file(jo_tools_atoi(argv[2]), jo_tools_atoi(argv[3]), argv[5], argv[4]);
@@ -161,39 +151,32 @@ static __jo_force_inline void               __jo_console_builtins_load_map(int a
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Error!");
 }
 
-static __jo_force_inline void               __jo_console_builtins_load_entry_point(int argc, char **argv, int vertical_output)
-{
-    if (argc < 2)
-    {
+static __jo_force_inline void __jo_console_builtins_load_entry_point(int argc, char **argv, int vertical_output) {
+    if (argc < 2) {
         jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Too few argument for: load");
-        return ;
+        return;
     }
-    if (jo_string_equals(argv[1], "map"))
-    {
+    if (jo_string_equals(argv[1], "map")) {
         __jo_console_builtins_load_map(argc, argv, vertical_output);
-        return ;
+        return;
     }
-    if (jo_string_equals(argv[1], "sprite"))
-    {
+    if (jo_string_equals(argv[1], "sprite")) {
         __jo_console_builtins_load_sprite(argc, argv, vertical_output);
-        return ;
+        return;
     }
     jo_printf_with_color(0, vertical_output, JO_COLOR_INDEX_Red, "Usage: load (map) ...");
 }
 
 #endif
 
-bool    __jo_console_builtins_command_handler(int argc, char **argv, int vertical_output, bool *exit)
-{
+bool __jo_console_builtins_command_handler(int argc, char **argv, int vertical_output, bool *exit) {
     JO_UNUSED_ARG(exit);
-    if (jo_string_equals(argv[0], "bkg"))
-    {
+    if (jo_string_equals(argv[0], "bkg")) {
         __jo_console_builtins_background(argc, argv, vertical_output);
         return (true);
     }
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
-    if (jo_string_equals(argv[0], "load"))
-    {
+    if (jo_string_equals(argv[0], "load")) {
         __jo_console_builtins_load_entry_point(argc, argv, vertical_output);
         return (true);
     }

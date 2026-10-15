@@ -39,41 +39,33 @@
 #include "jo/core.h"
 #include "jo/time.h"
 
-void                                    jo_time_init(unsigned char mode)
-{
-    unsigned char                       tcr;
+void jo_time_init(unsigned char mode) {
+    unsigned char tcr;
 
     tcr = jo_time_peek_byte(RegisterTCR) & ~JO_TIME_M_CKS;
-    if ((mode & JO_TIME_M_CKS) != JO_TIME_M_CKS)
-    {
+    if ((mode & JO_TIME_M_CKS) != JO_TIME_M_CKS) {
         tcr |= (mode & JO_TIME_M_CKS);
         jo_time_poke_byte(RegisterTCR, tcr);
     }
     jo_time_set_frc(0);
 }
 
-//Clock speed from framerate based on resolution register and NSTC vs PAL
-static  __jo_force_inline float         __jo_time_get_clock_speed(void)
-{
-    return (((*(unsigned short *)0x25f80004 & 0x1) == 0x1) ?
-             ((jo_time_peek_int(RegisterSysClock) == 0) ? (float)0.037470726 : (float)0.035164835) :
-             ((jo_time_peek_int(RegisterSysClock) == 0) ? (float)0.037210548 : (float)0.03492059));
+// Clock speed from framerate based on resolution register and NSTC vs PAL
+static __jo_force_inline float __jo_time_get_clock_speed(void) {
+    return (((*(unsigned short *)0x25f80004 & 0x1) == 0x1) ? ((jo_time_peek_int(RegisterSysClock) == 0) ? (float)0.037470726 : (float)0.035164835) : ((jo_time_peek_int(RegisterSysClock) == 0) ? (float)0.037210548 : (float)0.03492059));
 }
 
 //	Determine if clock is on 1/8, 1/32, or 1/128 of count
-static  __jo_force_inline unsigned int  __jo_time_get_clock_mode(void)
-{
+static __jo_force_inline unsigned int __jo_time_get_clock_mode(void) {
     return (8 << ((jo_time_peek_byte(RegisterTCR) & 3) << 1));
 }
 
-static  __jo_force_inline int           __jo_time_frame_count_to_mcr(int count)
-{
+static __jo_force_inline int __jo_time_frame_count_to_mcr(int count) {
     return (__jo_time_get_clock_speed() * count * __jo_time_get_clock_mode());
 }
 
-unsigned int                            jo_get_ticks(void)
-{
-    static unsigned int                 ticks = 0;
+unsigned int jo_get_ticks(void) {
+    static unsigned int ticks = 0;
 
     ticks += __jo_time_frame_count_to_mcr(jo_time_get_frc()) / 1000;
     jo_time_set_frc(0);
@@ -88,13 +80,12 @@ static jo_fixed oldtime = 0;
 jo_fixed time_in_seconds = 0;
 jo_fixed delta_time = 0;
 
-void                                    jo_fixed_point_time(void)
-{
-	oldtime = time_in_seconds;
-	jo_fixed time_add = (__jo_time_get_clock_speed() * jo_time_get_frc() * __jo_time_get_clock_mode() / 1000000) * 65536.0;
-	time_in_seconds += time_add;
-	delta_time = time_in_seconds - oldtime;
-	jo_time_set_frc(0);
+void jo_fixed_point_time(void) {
+    oldtime = time_in_seconds;
+    jo_fixed time_add = (__jo_time_get_clock_speed() * jo_time_get_frc() * __jo_time_get_clock_mode() / 1000000) * 65536.0;
+    time_in_seconds += time_add;
+    delta_time = time_in_seconds - oldtime;
+    jo_time_set_frc(0);
 }
 
 /*

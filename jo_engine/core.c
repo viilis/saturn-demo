@@ -58,120 +58,111 @@
 ** DEFINITIONS
 */
 
-extern jo_texture_definition                __jo_sprite_def[];
-extern int                                  __jo_gouraud_shading_runtime_index;
+extern jo_texture_definition __jo_sprite_def[];
+extern int __jo_gouraud_shading_runtime_index;
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
-extern unsigned int                         __jo_fs_background_job_count;
+extern unsigned int __jo_fs_background_job_count;
 #endif
-extern unsigned int                         _bstart;
-extern unsigned int                         _bend;
-extern void                                 jo_main(void);
-void                                        __jo_init_vdp2(const jo_color back_color);
+extern unsigned int _bstart;
+extern unsigned int _bend;
+extern void jo_main(void);
+void __jo_init_vdp2(const jo_color back_color);
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
-extern jo_list                              __slave_callbacks;
-void                                        jo_core_slave_init(void);
-void                                        jo_core_exec_on_slave(jo_slave_callback callback);
+extern jo_list __slave_callbacks;
+void jo_core_slave_init(void);
+void jo_core_exec_on_slave(jo_slave_callback callback);
 #endif
 #ifdef JO_COMPILE_WITH_STORYBOARD_SUPPORT
-extern jo_list                              __storyboards;
-void                                        jo_execute_storyboards(void);
-void                                        jo_init_storyboards(void);
+extern jo_list __storyboards;
+void jo_execute_storyboards(void);
+void jo_init_storyboards(void);
 #endif
 #ifdef JO_COMPILE_WITH_VIDEO_SUPPORT
-bool                                        jo_video_init(void);
+bool jo_video_init(void);
 #endif
 #ifdef JO_COMPILE_WITH_AUDIO_SUPPORT
-void                                        jo_audio_init(void);
+void jo_audio_init(void);
 #endif
 #ifdef JO_COMPILE_WITH_3D_SUPPORT
-void                                        jo_3d_init(void);
+void jo_3d_init(void);
 #endif
-void                                        jo_vdp1_buffer_init(void);
-void                                        jo_vdp1_buffer_reset(void);
-void                                        jo_vdp1_flush(void);
-void                                        jo_input_init(void);
+void jo_vdp1_buffer_init(void);
+void jo_vdp1_buffer_reset(void);
+void jo_vdp1_flush(void);
+void jo_input_init(void);
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
-int						                    jo_fs_init(void);
+int jo_fs_init(void);
 #endif
-void                                        jo_fs_do_background_jobs(void);
-void                                        jo_sprite_init(void);
-void                                        jo_time_init(unsigned char mode);
-void                                        jo_get_inputs_vblank(void);
+void jo_fs_do_background_jobs(void);
+void jo_sprite_init(void);
+void jo_time_init(unsigned char mode);
+void jo_get_inputs_vblank(void);
 
 #ifdef JO_DEBUG
-char                                        __jo_last_error[JO_PRINTF_BUF_SIZE];
+char __jo_last_error[JO_PRINTF_BUF_SIZE];
 #endif
 
-static jo_list                             __vblank_callbacks;
-static jo_list                             __callbacks;
-static jo_event_callback                   __jo_restart_game_callback = JO_NULL;
+static jo_list __vblank_callbacks;
+static jo_list __callbacks;
+static jo_event_callback __jo_restart_game_callback = JO_NULL;
 
 #ifdef JO_COMPILE_WITH_RAM_CARD_SUPPORT
 
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
-extern jo_list                              __slave_callbacks;
-void                                        jo_core_slave_init(void);
+extern jo_list __slave_callbacks;
+void jo_core_slave_init(void);
 #endif // JO_COMPILE_WITH_DUAL_CPU_SUPPORT
 
-static  __jo_force_inline void              jo_enable_extended_ram_cartridge_support(void)
-{
+static __jo_force_inline void jo_enable_extended_ram_cartridge_support(void) {
     *((int *)0x257efffe) = 1;
 }
 
-static  __jo_force_inline void              jo_set_a_bus_register(void)
-{
+static __jo_force_inline void jo_set_a_bus_register(void) {
     *((int *)0x25fe0080) = 0x23301ff0;
     *((int *)0x25fe0033) = 0x00000013;
 }
 
 #endif
 
-__jo_force_inline void __jo_call_event(jo_node *node)
-{
+__jo_force_inline void __jo_call_event(jo_node *node) {
     ((jo_event_callback)node->data.ptr)();
 }
 
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
-static void jo_slave_callbacks(void)
-{
+static void jo_slave_callbacks(void) {
     jo_list_foreach(&__slave_callbacks, __jo_call_event);
 }
 #endif
 
-static void __jo_vblank_callbacks(void)
-{
+static void __jo_vblank_callbacks(void) {
     jo_list_foreach(&__vblank_callbacks, __jo_call_event);
 }
 
 #if !JO_COMPILE_USING_SGL
 
-static __jo_force_inline void jo_wait_vblank_out(void)
-{
-    while ((JO_VDP2_TVSTAT & 8) == 8);
+static __jo_force_inline void jo_wait_vblank_out(void) {
+    while ((JO_VDP2_TVSTAT & 8) == 8)
+        ;
 }
 
-static __jo_force_inline void jo_wait_vblank_in(void)
-{
-    while ((JO_VDP2_TVSTAT & 8) == 0);
+static __jo_force_inline void jo_wait_vblank_in(void) {
+    while ((JO_VDP2_TVSTAT & 8) == 0)
+        ;
 }
 
 #endif
 
-static bool                 jo_init_memory(void)
-{
-    static unsigned char    global_memory[JO_GLOBAL_MEMORY_SIZE_FOR_MALLOC];
+static bool jo_init_memory(void) {
+    static unsigned char global_memory[JO_GLOBAL_MEMORY_SIZE_FOR_MALLOC];
 
     jo_add_memory_zone(global_memory, sizeof(global_memory));
 #ifdef JO_COMPILE_WITH_RAM_CARD_SUPPORT
-    if (jo_get_extended_ram_cartridge_type() == CART_8MBits)
-    {
+    if (jo_get_extended_ram_cartridge_type() == CART_8MBits) {
         jo_enable_extended_ram_cartridge_support();
         jo_set_a_bus_register();
         jo_add_memory_zone((unsigned char *)0x22400000, 0x80000);
         jo_add_memory_zone((unsigned char *)0x22600000, 0x80000);
-    }
-    else if (jo_get_extended_ram_cartridge_type() == CART_32MBits)
-    {
+    } else if (jo_get_extended_ram_cartridge_type() == CART_32MBits) {
         jo_enable_extended_ram_cartridge_support();
         jo_set_a_bus_register();
         jo_add_memory_zone((unsigned char *)0x22400000, 0x200000);
@@ -186,10 +177,9 @@ static bool                 jo_init_memory(void)
     return (true);
 }
 
-static void         jo_core_init_vdp(const jo_color back_color)
-{
+static void jo_core_init_vdp(const jo_color back_color) {
 #if JO_COMPILE_USING_SGL
-    slInitSystem(JO_TV_RES, (TEXTURE *)__jo_sprite_def, JO_FRAMERATE/*Real frame rate = (60 / JO_FRAMERATE)*/);
+    slInitSystem(JO_TV_RES, (TEXTURE *)__jo_sprite_def, JO_FRAMERATE /*Real frame rate = (60 / JO_FRAMERATE)*/);
     slTVOff();
     __jo_init_vdp2(back_color);
 #else
@@ -289,44 +279,52 @@ static void         jo_core_init_vdp(const jo_color back_color)
 /*Credit: slinga-homebrew, fafling and Ponut64
   https://github.com/johannes-fetz/joengine/pull/58
 */
-# if defined(JO_480i)
+#if defined(JO_480i)
     JO_VDP2_CRAOFB = 0x0010 | (JO_VDP2_CRAOFB & 0xFF0F);
-#  if defined(JO_COMPILE_WITH_PRINTF_SUPPORT)
+#if defined(JO_COMPILE_WITH_PRINTF_SUPPORT)
     jo_vdp2_zoom_nbg0(0.5f);
-#  endif
-# endif
+#endif
+#endif
 }
 
-void                    __jo_core_set_screens_order(jo_scroll_screen screen1, ...)
-{
+void __jo_core_set_screens_order(jo_scroll_screen screen1, ...) {
 #if JO_COMPILE_USING_SGL
-    va_list             va;
-    int                 priority;
-    jo_scroll_screen    screen;
+    va_list va;
+    int priority;
+    jo_scroll_screen screen;
 
     va_start(va, screen1);
     priority = 7;
     screen = screen1;
-    do
-    {
-        switch (screen)
-        {
-            case JO_NBG0_SCREEN: slPriorityNbg0(priority); break;
-            case JO_NBG1_SCREEN: slPriorityNbg1(priority); break;
-            case JO_NBG2_SCREEN: slPriorityNbg2(priority); break;
-            case JO_NBG3_SCREEN: slPriorityNbg3(priority); break;
-            case JO_RBG0_SCREEN: slPriorityRbg0(priority); break;
-            case JO_SPRITE_SCREEN:
-                slPrioritySpr0(priority);
-                slPrioritySpr1(priority);
-                slPrioritySpr2(priority);
-                slPrioritySpr3(priority);
-                slPrioritySpr4(priority);
-                slPrioritySpr5(priority);
-                slPrioritySpr6(priority);
-                slPrioritySpr7(priority);
-                break;
-            default: break;
+    do {
+        switch (screen) {
+        case JO_NBG0_SCREEN:
+            slPriorityNbg0(priority);
+            break;
+        case JO_NBG1_SCREEN:
+            slPriorityNbg1(priority);
+            break;
+        case JO_NBG2_SCREEN:
+            slPriorityNbg2(priority);
+            break;
+        case JO_NBG3_SCREEN:
+            slPriorityNbg3(priority);
+            break;
+        case JO_RBG0_SCREEN:
+            slPriorityRbg0(priority);
+            break;
+        case JO_SPRITE_SCREEN:
+            slPrioritySpr0(priority);
+            slPrioritySpr1(priority);
+            slPrioritySpr2(priority);
+            slPrioritySpr3(priority);
+            slPrioritySpr4(priority);
+            slPrioritySpr5(priority);
+            slPrioritySpr6(priority);
+            slPrioritySpr7(priority);
+            break;
+        default:
+            break;
         }
         screen = va_arg(va, jo_scroll_screen);
         --priority;
@@ -334,22 +332,21 @@ void                    __jo_core_set_screens_order(jo_scroll_screen screen1, ..
     va_end(va);
 #else
     JO_UNUSED_ARG(screen1);
-    //TODO
+    // TODO
 #endif // JO_COMPILE_USING_SGL
 }
 
-void			    jo_core_init(const jo_color back_color)
-{
+void jo_core_init(const jo_color back_color) {
 #ifdef JO_DEBUG
-    bool            is_memory_ok;
+    bool is_memory_ok;
 #endif
-    jo_datetime     dt;
+    jo_datetime dt;
 
 #ifdef JO_DEBUG
     JO_ZERO(__jo_last_error[0]);
     is_memory_ok =
 #endif
-    jo_init_memory();
+        jo_init_memory();
     jo_list_init(&__vblank_callbacks);
     jo_list_init(&__callbacks);
 #ifdef JO_COMPILE_WITH_DUAL_CPU_SUPPORT
@@ -374,7 +371,7 @@ void			    jo_core_init(const jo_color back_color)
     slTVOn();
 #else
     jo_vdp1_buffer_init();
-# if defined(JO_NTSC_VERSION)
+#if defined(JO_NTSC_VERSION)
     JO_VDP2_TVMD = 0x8110;
 #else
     JO_VDP2_TVMD = 0x8120;
@@ -385,16 +382,14 @@ void			    jo_core_init(const jo_color back_color)
         jo_core_error("Please reduce JO_GLOBAL_MEMORY_SIZE_FOR_MALLOC");
 #endif
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
-    if (jo_fs_init() == 0)
-    {
+    if (jo_fs_init() == 0) {
 #ifdef JO_DEBUG
         jo_core_error("Fail to initialize filesystem");
 #endif
     }
 #endif
 #if defined(JO_COMPILE_WITH_VIDEO_SUPPORT)
-    if (!jo_video_init())
-    {
+    if (!jo_video_init()) {
 #ifdef JO_DEBUG
         jo_core_error("Fail to initialize video");
 #endif
@@ -405,21 +400,19 @@ void			    jo_core_init(const jo_color back_color)
     // random seed initialization
     jo_getdate(&dt);
     jo_random_seed = JO_MULT_BY_4096(dt.second) +
-                    JO_MULT_BY_1024(dt.minute) +
-                    JO_MULT_BY_65536(dt.hour) +
-                    JO_MULT_BY_2048(dt.week) -
-                    JO_MULT_BY_32(dt.year) -
-                    JO_MULT_BY_256(dt.month) -
-                    JO_MULT_BY_16(dt.day);
+                     JO_MULT_BY_1024(dt.minute) +
+                     JO_MULT_BY_65536(dt.hour) +
+                     JO_MULT_BY_2048(dt.week) -
+                     JO_MULT_BY_32(dt.year) -
+                     JO_MULT_BY_256(dt.month) -
+                     JO_MULT_BY_16(dt.day);
 }
 
-inline int			jo_core_add_vblank_callback(const jo_event_callback callback)
-{
-    jo_node         *node;
+inline int jo_core_add_vblank_callback(const jo_event_callback callback) {
+    jo_node *node;
 
 #ifdef JO_DEBUG
-    if (callback == JO_NULL)
-    {
+    if (callback == JO_NULL) {
         jo_core_error("callback is null");
         return (0);
     }
@@ -434,11 +427,9 @@ inline int			jo_core_add_vblank_callback(const jo_event_callback callback)
     return (int)node;
 }
 
-inline void    jo_core_remove_vblank_callback(const int vblank_event_id)
-{
+inline void jo_core_remove_vblank_callback(const int vblank_event_id) {
 #ifdef JO_DEBUG
-    if (vblank_event_id == 0)
-    {
+    if (vblank_event_id == 0) {
         jo_core_error("Invalid vblank_event_id (%d)", vblank_event_id);
         return;
     }
@@ -450,13 +441,11 @@ inline void    jo_core_remove_vblank_callback(const int vblank_event_id)
 #endif // JO_COMPILE_USING_SGL
 }
 
-inline int			jo_core_add_callback(const jo_event_callback callback)
-{
-    jo_node         *node;
+inline int jo_core_add_callback(const jo_event_callback callback) {
+    jo_node *node;
 
 #ifdef JO_DEBUG
-    if (callback == JO_NULL)
-    {
+    if (callback == JO_NULL) {
         jo_core_error("callback is null");
         return (0);
     }
@@ -467,11 +456,9 @@ inline int			jo_core_add_callback(const jo_event_callback callback)
     return (int)node;
 }
 
-inline void    jo_core_remove_callback(const int event_id)
-{
+inline void jo_core_remove_callback(const int event_id) {
 #ifdef JO_DEBUG
-    if (event_id == 0)
-    {
+    if (event_id == 0) {
         jo_core_error("Invalid event_id (%d)", event_id);
         return;
     }
@@ -479,8 +466,7 @@ inline void    jo_core_remove_callback(const int event_id)
     jo_list_remove(&__callbacks, (jo_node *)event_id);
 }
 
-void            jo_goto_boot_menu(void)
-{
+void jo_goto_boot_menu(void) {
 #if JO_COMPILE_USING_SGL
     SYS_Exit(0);
 #endif
@@ -488,10 +474,9 @@ void            jo_goto_boot_menu(void)
 
 #ifdef JO_DEBUG
 
-void            __jo_core_error(char *message, const char *function)
-{
+void __jo_core_error(char *message, const char *function) {
 #ifdef JO_COMPILE_WITH_PRINTF_SUPPORT
-    int         usage;
+    int usage;
 
     jo_vdp2_clear_bitmap_nbg1(JO_COLOR_Blue);
     jo_set_printf_color_index(0);
@@ -527,18 +512,14 @@ void            __jo_core_error(char *message, const char *function)
 #endif
 
 #ifdef JO_DEBUG
-void            jo_core_suspend(void)
-{
-    int         wait_cursor;
-    int         frame;
+void jo_core_suspend(void) {
+    int wait_cursor;
+    int frame;
 
-    for (JO_ZERO(frame), JO_ZERO(wait_cursor);; ++frame)
-    {
+    for (JO_ZERO(frame), JO_ZERO(wait_cursor);; ++frame) {
 #ifdef JO_COMPILE_WITH_PRINTF_SUPPORT
-        if (frame > 4)
-        {
-            switch (wait_cursor)
-            {
+        if (frame > 4) {
+            switch (wait_cursor) {
             case 0:
                 jo_printf(0, 27, "-");
                 break;
@@ -564,43 +545,39 @@ void            jo_core_suspend(void)
 #endif
         if (jo_is_pad1_available() && (jo_is_pad1_key_down(JO_KEY_START)
 #ifdef JO_COMPILE_WITH_KEYBOARD_SUPPORT
-            || (jo_keyboard_get_special_key() == JO_KEYBOARD_ENTER)
+                                       || (jo_keyboard_get_special_key() == JO_KEYBOARD_ENTER)
 #endif // JO_COMPILE_WITH_KEYBOARD_SUPPORT
-                                       ))
-        {
+                                           )) {
 #ifdef JO_COMPILE_WITH_PRINTF_SUPPORT
             jo_printf(0, 27, " ");
 #endif // JO_COMPILE_WITH_PRINTF_SUPPORT
-            return ;
+            return;
         }
     }
 }
 #endif
 
-void    jo_core_set_restart_game_callback(const jo_event_callback callback)
-{
+void jo_core_set_restart_game_callback(const jo_event_callback callback) {
     __jo_restart_game_callback = callback;
 }
 
-void			        jo_core_run(void)
-{
-    for (;;)
-    {
+void jo_core_run(void) {
+    for (;;) {
 #if !JO_COMPILE_USING_SGL
         jo_vdp1_buffer_reset();
 #endif
 
 #ifdef JO_COMPILE_WITH_3D_SUPPORT
-    #if JO_COMPILE_USING_SGL
+#if JO_COMPILE_USING_SGL
         slUnitMatrix(0);
-    #else
+#else
         /* TODO slUnitMatrix replacement */
-    #endif
+#endif
 #endif
 
 #ifdef JO_COMPILE_WITH_CONSOLE_SUPPORT
-    if (jo_is_pad1_available() && jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_START))
-        jo_console_show_dialog();
+        if (jo_is_pad1_available() && jo_is_pad1_key_pressed(JO_KEY_DOWN) && jo_is_pad1_key_pressed(JO_KEY_START))
+            jo_console_show_dialog();
 #endif
 
 #ifdef JO_COMPILE_WITH_STORYBOARD_SUPPORT
@@ -613,7 +590,7 @@ void			        jo_core_run(void)
             jo_core_exec_on_slave(jo_slave_callbacks);
 #endif
         if (jo_is_pad1_key_pressed(JO_KEY_A) && jo_is_pad1_key_pressed(JO_KEY_B) &&
-                jo_is_pad1_key_pressed(JO_KEY_C) && jo_is_pad1_key_pressed(JO_KEY_START) && __jo_restart_game_callback != JO_NULL)
+            jo_is_pad1_key_pressed(JO_KEY_C) && jo_is_pad1_key_pressed(JO_KEY_START) && __jo_restart_game_callback != JO_NULL)
             __jo_restart_game_callback();
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
         if (__jo_fs_background_job_count)
@@ -640,17 +617,15 @@ void			        jo_core_run(void)
 
 #ifdef JO_DEBUG
 
-void                jo_dump_vdp1_registers(void)
-{
-    unsigned short  *ptr;
+void jo_dump_vdp1_registers(void) {
+    unsigned short *ptr;
 
     for (ptr = (unsigned short *)JO_VDP1_REG; ptr <= (unsigned short *)JO_VDP1_LAST_REG; ++ptr)
         jo_core_error("VDP1: 0x%X = 0x%X ", (int)ptr, *ptr);
 }
 
-void                jo_dump_vdp2_registers(void)
-{
-    unsigned short  *ptr;
+void jo_dump_vdp2_registers(void) {
+    unsigned short *ptr;
 
     for (ptr = (unsigned short *)JO_VDP2_REG; ptr <= (unsigned short *)JO_VDP2_LAST_REG; ++ptr)
         jo_core_error("VDP2: 0x%X = 0x%X ", (int)ptr, *ptr);
@@ -658,14 +633,12 @@ void                jo_dump_vdp2_registers(void)
 
 #endif
 
-int     main(void)
-{
-	jo_memset(&_bstart, 0, &_bend - &_bstart);
+int main(void) {
+    jo_memset(&_bstart, 0, &_bend - &_bstart);
     jo_memset((void *)JO_WORK_RAM_SYSTEM_WORK, 0, JO_WORK_RAM_SYSTEM_WORK_SIZE);
-	jo_main();
-	return (0);
+    jo_main();
+    return (0);
 }
-
 
 /*
 ** END OF FILE

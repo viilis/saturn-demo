@@ -45,23 +45,21 @@
 
 #if !JO_COMPILE_USING_SGL
 
-#define JO_COMMAND_TABLE_COUNT   (16)
-#define JO_COMMAND_TABLE_SIZE   (sizeof(jo_vdp1_command) * JO_COMMAND_TABLE_COUNT)
+#define JO_COMMAND_TABLE_COUNT (16)
+#define JO_COMMAND_TABLE_SIZE (sizeof(jo_vdp1_command) * JO_COMMAND_TABLE_COUNT)
 
 /*
 ** GLOBALS
 */
 
-static jo_list                  __jo_vdp1_buffer;
-static unsigned int             __jo_vdp1_current_table_size = 0;
-static unsigned int             __jo_vdp1_max_runtime_tables = 0;
+static jo_list __jo_vdp1_buffer;
+static unsigned int __jo_vdp1_current_table_size = 0;
+static unsigned int __jo_vdp1_max_runtime_tables = 0;
 
-static jo_vdp1_command          *__jo_create_new_command_table(void)
-{
-    jo_vdp1_command             *command_table;
+static jo_vdp1_command *__jo_create_new_command_table(void) {
+    jo_vdp1_command *command_table;
 
-    if ((command_table = jo_malloc_with_behaviour(JO_COMMAND_TABLE_SIZE, JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE)) == JO_NULL)
-    {
+    if ((command_table = jo_malloc_with_behaviour(JO_COMMAND_TABLE_SIZE, JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory");
 #endif
@@ -73,15 +71,13 @@ static jo_vdp1_command          *__jo_create_new_command_table(void)
     return command_table;
 }
 
-void                            jo_vdp1_buffer_init(void)
-{
+void jo_vdp1_buffer_init(void) {
     jo_list_init(&__jo_vdp1_buffer);
     __jo_create_new_command_table();
 }
 
-jo_vdp1_command*                jo_vdp1_create_command(void)
-{
-    jo_vdp1_command             *command_table;
+jo_vdp1_command *jo_vdp1_create_command(void) {
+    jo_vdp1_command *command_table;
 
     if (__jo_vdp1_current_table_size >= JO_COMMAND_TABLE_COUNT)
         command_table = __jo_create_new_command_table();
@@ -90,9 +86,8 @@ jo_vdp1_command*                jo_vdp1_create_command(void)
     return &command_table[__jo_vdp1_current_table_size++];
 }
 
-void                            jo_vdp1_buffer_reset(void)
-{
-    jo_vdp1_command             *command_table;
+void jo_vdp1_buffer_reset(void) {
+    jo_vdp1_command *command_table;
 
     JO_ZERO(__jo_vdp1_current_table_size);
     while (__jo_vdp1_buffer.count > 1)
@@ -147,21 +142,18 @@ void                            jo_vdp1_buffer_reset(void)
     while (!done);
 }*/
 
-void                            jo_vdp1_flush(void)
-{
-    jo_node                     *node;
-    unsigned char               *vdp1_vram_addr;
-    int                         fill;
+void jo_vdp1_flush(void) {
+    jo_node *node;
+    unsigned char *vdp1_vram_addr;
+    int fill;
 
     //__jo_vdp1_sort_commands();
     vdp1_vram_addr = (unsigned char *)JO_VDP1_VRAM;
-    for (node = __jo_vdp1_buffer.first; node != JO_NULL; node = node->next)
-    {
+    for (node = __jo_vdp1_buffer.first; node != JO_NULL; node = node->next) {
         jo_dma_copy(node->data.ptr, vdp1_vram_addr, JO_COMMAND_TABLE_SIZE);
         vdp1_vram_addr += JO_COMMAND_TABLE_SIZE;
     }
-    if (__jo_vdp1_max_runtime_tables)
-    {
+    if (__jo_vdp1_max_runtime_tables) {
         fill = __jo_vdp1_max_runtime_tables - __jo_vdp1_buffer.count;
         if (fill > 0)
             jo_memset(vdp1_vram_addr, 0xFFFF, JO_COMMAND_TABLE_SIZE * fill);

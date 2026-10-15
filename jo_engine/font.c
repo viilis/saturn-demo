@@ -47,34 +47,30 @@
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-jo_font             *jo_font_load(const char * const sub_dir, const char * const filename, const jo_color transparent_color, const int letter_width, const int letter_height, const int letter_spacing, const char * const mapping)
-{
-    int             char_count;
-    int             first_sprite_id;
-    jo_tile         *font_tileset;
-    jo_font         *font;
-    int             x;
-    int             y;
-    int             i;
-    int             c;
-    int             newlines;
-    int             end;
+jo_font *jo_font_load(const char *const sub_dir, const char *const filename, const jo_color transparent_color, const int letter_width, const int letter_height, const int letter_spacing, const char *const mapping) {
+    int char_count;
+    int first_sprite_id;
+    jo_tile *font_tileset;
+    jo_font *font;
+    int x;
+    int y;
+    int i;
+    int c;
+    int newlines;
+    int end;
 
 #ifdef JO_DEBUG
-    if (filename == JO_NULL)
-    {
+    if (filename == JO_NULL) {
         jo_core_error("filename is null");
         return (JO_NULL);
     }
-    if (mapping == JO_NULL)
-    {
+    if (mapping == JO_NULL) {
         jo_core_error("mapping is null");
         return (JO_NULL);
     }
 #endif
     font = (jo_font *)jo_malloc_with_behaviour(sizeof(*font), JO_MALLOC_TRY_REUSE_BLOCK);
-    if (font == JO_NULL)
-    {
+    if (font == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory #1");
 #endif
@@ -82,8 +78,7 @@ jo_font             *jo_font_load(const char * const sub_dir, const char * const
     }
     char_count = jo_strlen(mapping);
     font_tileset = (jo_tile *)jo_malloc_with_behaviour(sizeof(*font_tileset) * char_count, JO_MALLOC_TRY_REUSE_BLOCK);
-    if (font_tileset == JO_NULL)
-    {
+    if (font_tileset == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory #2");
 #endif
@@ -121,12 +116,12 @@ jo_font             *jo_font_load(const char * const sub_dir, const char * const
         }
 
         font->start_ascii = JO_MIN(mapping[i], font->start_ascii);
-        font->end_ascii   = JO_MAX(mapping[i], font->end_ascii);
+        font->end_ascii = JO_MAX(mapping[i], font->end_ascii);
 
-        font_tileset[c].width  = letter_width;
+        font_tileset[c].width = letter_width;
         font_tileset[c].height = letter_height;
-        font_tileset[c].x      = x;
-        font_tileset[c].y      = y;
+        font_tileset[c].x = x;
+        font_tileset[c].y = y;
 
         // used later for the lookup table
         charmap[c] = mapping[i];
@@ -141,8 +136,7 @@ jo_font             *jo_font_load(const char * const sub_dir, const char * const
         first_sprite_id = jo_sprite_add_tga_tileset(sub_dir, filename, transparent_color, font_tileset, char_count);
 #endif
     font->lookup_table = (char *)jo_malloc_with_behaviour(sizeof(*font->lookup_table) * (font->end_ascii - font->start_ascii + 1), JO_MALLOC_TRY_REUSE_BLOCK);
-    if (font->lookup_table == JO_NULL)
-    {
+    if (font->lookup_table == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory #3");
 #endif
@@ -153,35 +147,31 @@ jo_font             *jo_font_load(const char * const sub_dir, const char * const
     for (JO_ZERO(i); i < char_count; ++i)
         font->lookup_table[i] = first_sprite_id;
     for (JO_ZERO(i); i < char_count; ++i)
-        font->lookup_table[(charmap[i] -  font->start_ascii)] = first_sprite_id + i;
+        font->lookup_table[(charmap[i] - font->start_ascii)] = first_sprite_id + i;
     jo_free(font_tileset);
     return (font);
 }
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
-void            jo_font_print(const jo_font * const font, int x, int y, float scale, char *str)
-{
-    int         spacing;
+void jo_font_print(const jo_font *const font, int x, int y, float scale, char *str) {
+    int spacing;
 
-    if (font == JO_NULL)
-    {
+    if (font == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("font is null");
 #endif
-        return ;
+        return;
     }
-    if (str == JO_NULL)
-    {
+    if (str == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("str is null");
 #endif
-        return ;
+        return;
     }
     jo_sprite_change_sprite_scale(scale);
     spacing = font->spacing * scale;
-    while (*str)
-    {
+    while (*str) {
         if (*str == '\t')
             x += JO_MULT_BY_4(spacing);
         else if (*str != ' ' && *str >= font->start_ascii && *str <= font->end_ascii)
@@ -192,31 +182,27 @@ void            jo_font_print(const jo_font * const font, int x, int y, float sc
     jo_sprite_restore_sprite_scale();
 }
 
-void            jo_font_print_centered(const jo_font * const font, int x, int y, float scale, char *str)
-{
-    int         spacing;
-    int         len;
+void jo_font_print_centered(const jo_font *const font, int x, int y, float scale, char *str) {
+    int spacing;
+    int len;
 
-    if (font == JO_NULL)
-    {
+    if (font == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("font is null");
 #endif
-        return ;
+        return;
     }
-    if (str == JO_NULL)
-    {
+    if (str == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("str is null");
 #endif
-        return ;
+        return;
     }
     len = jo_strlen(str);
     jo_sprite_change_sprite_scale(scale);
     spacing = font->spacing * scale;
     x -= JO_DIV_BY_2((int)((len - 1) * font->spacing * scale));
-    while (*str)
-    {
+    while (*str) {
         if (*str == '\t')
             x += JO_MULT_BY_4(spacing);
         else if (*str != ' ' && *str >= font->start_ascii && *str <= font->end_ascii)

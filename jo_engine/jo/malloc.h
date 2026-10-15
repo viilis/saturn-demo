@@ -33,24 +33,23 @@
  */
 
 #ifndef __JO_MALLOC_H__
-# define __JO_MALLOC_H__
+#define __JO_MALLOC_H__
 
 /** @brief Define the total of memory zone available through jo_add_memory_zone()
-  * @remarks MAIN RAM + 32MB RAM Extension
-  * @warning Minimum is 9 for the engine with all modules
-*/
-#define JO_MALLOC_MAX_MEMORY_ZONE       (9)
+ * @remarks MAIN RAM + 32MB RAM Extension
+ * @warning Minimum is 9 for the engine with all modules
+ */
+#define JO_MALLOC_MAX_MEMORY_ZONE (9)
 
 /** @brief Extended RAM cartridge type */
-typedef enum
-{
+typedef enum {
     /** @brief No cartridge */
     CART_NONE,
     /** @brief 1 Mb cartridge */
     CART_8MBits,
     /** @brief 4 Mb cartridge */
     CART_32MBits
-}               jo_extended_ram_cartridge_type;
+} jo_extended_ram_cartridge_type;
 
 /** @brief Malloc behaviour
  * JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE
@@ -67,57 +66,55 @@ typedef enum
  *     V          |
  *   JO_FAST_ALLOCATION
  */
-typedef enum
-{
+typedef enum {
     /** @brief Default behaviour */
     JO_FAST_ALLOCATION,
     /** @brief A little bit slower but reduce memory fragmentation */
     JO_MALLOC_TRY_REUSE_BLOCK,
     /** @brief A little bit slower than JO_MALLOC_TRY_REUSE_BLOCK but reduce memory usage */
     JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE
-}       jo_malloc_behaviour;
+} jo_malloc_behaviour;
 
 /** @brief dynamic memory allocator with specific behaviour
  *  @param n Segment size
  *  @param behaviour Allocation Behaviour
  *  @return a pointer to the allocated memory or NULL if failed
  */
-void	        *jo_malloc_with_behaviour(unsigned int n, const jo_malloc_behaviour behaviour);
+void *jo_malloc_with_behaviour(unsigned int n, const jo_malloc_behaviour behaviour);
 
 /** @brief dynamic memory allocator
  *  @param n Segment size
  *  @return a pointer to the allocated memory or NULL if failed
  */
-static  __jo_force_inline void	*jo_malloc(unsigned int n)
-{
+static __jo_force_inline void *jo_malloc(unsigned int n) {
     return jo_malloc_with_behaviour(n, JO_FAST_ALLOCATION);
 }
 
 /** @brief function frees the memory space pointed to by p
  *  @param p pointer that must have been returned by a previous call to jo_malloc()
  */
-void	        jo_free(const void * const p);
+void jo_free(const void *const p);
 
 /** @brief Reduce memory fragmentation for faster memory allocation
  *  @remarks This function can be slow
  */
-void            jo_reduce_memory_fragmentation(void);
+void jo_reduce_memory_fragmentation(void);
 
 /** @brief Register a memory segment for jo_malloc() usage
  *  @param ptr Pointer to the beginning of the memory segment
  *  @param size_in_bytes Size of the memory segment in bytes
  *  @remarks See also JO_MALLOC_MAX_MEMORY_ZONE
  */
-void            jo_add_memory_zone(unsigned char *ptr, const unsigned int size_in_bytes);
+void jo_add_memory_zone(unsigned char *ptr, const unsigned int size_in_bytes);
 
 #ifdef JO_COMPILE_WITH_RAM_CARD_SUPPORT
 
 /** @brief Get the extended RAM cartridge type if available
  *  @return extended RAM cartridge type
  */
-static  __jo_force_inline jo_extended_ram_cartridge_type      jo_get_extended_ram_cartridge_type(void)
-{
-    return *((char *)0x24FFFFFF) == 0x5a ? CART_8MBits : *((char *)0x24FFFFFF) == 0x5c ? CART_32MBits : CART_NONE;
+static __jo_force_inline jo_extended_ram_cartridge_type jo_get_extended_ram_cartridge_type(void) {
+    return *((char *)0x24FFFFFF) == 0x5a ? CART_8MBits : *((char *)0x24FFFFFF) == 0x5c ? CART_32MBits
+                                                                                       : CART_NONE;
 }
 
 #endif
@@ -128,13 +125,13 @@ static  __jo_force_inline jo_extended_ram_cartridge_type      jo_get_extended_ra
  *  @return memory usage percent
  *  @remarks jo_printf(0, 0, "Dynamic memory usage: %d%%  ", jo_memory_usage_percent());
  */
-int             jo_memory_usage_percent(void);
+int jo_memory_usage_percent(void);
 
 /** @brief Get memory fragmentation (Number of fragment in memory)
  *  @return Memory fragmentation
  *  @remarks jo_printf(0, 0, "Dynamic memory fragmentation count: %d  ", jo_memory_fragmentation());
  */
-int             jo_memory_fragmentation(void);
+int jo_memory_fragmentation(void);
 
 #endif
 

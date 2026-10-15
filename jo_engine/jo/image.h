@@ -33,19 +33,19 @@
  */
 
 #ifndef __JO_IMAGE_H__
-# define __JO_IMAGE_H__
+#define __JO_IMAGE_H__
 
 /** @brief Get tile count in table (see Tileset Demo)
  *  @param TILE_TABLE jo_tile[] TABLE
  */
-# define JO_TILE_COUNT(TILE_TABLE)    (sizeof(TILE_TABLE) / sizeof(jo_tile))
+#define JO_TILE_COUNT(TILE_TABLE) (sizeof(TILE_TABLE) / sizeof(jo_tile))
 
 /** @brief Add a sprite
  *  @param img Pointer to an image struct
  *  @param src_color Color to replace
  *  @param dest_color New color
  */
-void	jo_replace_color(const jo_img * const img, const jo_color src_color, const jo_color dest_color);
+void jo_replace_color(const jo_img *const img, const jo_color src_color, const jo_color dest_color);
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
@@ -56,7 +56,7 @@ void	jo_replace_color(const jo_img * const img, const jo_color src_color, const 
  *  @param transparent_color Transparent color (see colors.h). Use JO_COLOR_Transparent by default
  *  @return true if succeeded otherwise false
  */
-bool        jo_bin_loader(jo_img *img, const char * const sub_dir, const char *const filename, const jo_color transparent_color);
+bool jo_bin_loader(jo_img *img, const char *const sub_dir, const char *const filename, const jo_color transparent_color);
 
 /** @brief Add tileset sprites from a BIN file
  *  @param sub_dir Sub directory name (use JO_ROOT_DIR if the file is on the root directory)
@@ -66,7 +66,7 @@ bool        jo_bin_loader(jo_img *img, const char * const sub_dir, const char *c
  *  @param tile_count Number of tile in the entire image
  *  @return Sprite Id of the first image or -1 if failed
  */
-int		jo_sprite_add_bin_tileset(const char * const sub_dir, const char * const filename, const jo_color transparent_color, const jo_tile * const tileset, const unsigned int tile_count);
+int jo_sprite_add_bin_tileset(const char *const sub_dir, const char *const filename, const jo_color transparent_color, const jo_tile *const tileset, const unsigned int tile_count);
 
 /** @brief Add a sprite from a BIN file
  *  @param sub_dir Sub directory name (use JO_ROOT_DIR if the file is on the root directory)
@@ -74,7 +74,7 @@ int		jo_sprite_add_bin_tileset(const char * const sub_dir, const char * const fi
  *  @param transparent_color Transparent color (see colors.h). Use JO_COLOR_Transparent by default
  *  @return Sprite Id or -1 if failed
  */
-int		jo_sprite_add_bin(const char * const sub_dir, const char * const filename, const jo_color transparent_color);
+int jo_sprite_add_bin(const char *const sub_dir, const char *const filename, const jo_color transparent_color);
 
 /** @brief Add a set of image from a TEX file format
  *  @param sub_dir Sub directory name (use JO_ROOT_DIR if the file is on the root directory)
@@ -86,7 +86,7 @@ int		jo_sprite_add_bin(const char * const sub_dir, const char * const filename, 
  *  @remarks  3.TGA
  *  @return Sprite Id of the first image or -1 if failed
  */
-int		jo_sprite_add_image_pack(const char * const sub_dir, const char * const filename, const jo_color transparent_color);
+int jo_sprite_add_image_pack(const char *const sub_dir, const char *const filename, const jo_color transparent_color);
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
@@ -96,19 +96,19 @@ int		jo_sprite_add_image_pack(const char * const sub_dir, const char * const fil
  *  @param transparent_color Transparent color (see colors.h). Use JO_COLOR_Transparent by default
  *  @return true if succeeded otherwise false
  */
-bool        jo_bin_loader_from_stream(jo_img *img, char *stream, const jo_color transparent_color);
+bool jo_bin_loader_from_stream(jo_img *img, char *stream, const jo_color transparent_color);
 
 /** @brief Add a sprite from a BIN file
  *  @param stream Raw bin file contents
  *  @param transparent_color Transparent color (see colors.h). Use JO_COLOR_Transparent by default
  *  @return Sprite Id or -1 if failed
  */
-int     jo_sprite_add_bin_from_stream(char *stream, const jo_color transparent_color);
+int jo_sprite_add_bin_from_stream(char *stream, const jo_color transparent_color);
 
 /** @brief Free an image loaded from CD
  *  @param img Pointer to an image struct (jo_img, jo_img_8bits or jo_raw_img)
  */
-void	jo_free_img(void * const img);
+void jo_free_img(void *const img);
 
 #endif /* !__JO_IMAGE_H__ */
 

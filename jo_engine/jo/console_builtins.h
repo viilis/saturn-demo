@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_CONSOLE_BUILTINS_H__
-# define __JO_CONSOLE_BUILTINS_H__
+#define __JO_CONSOLE_BUILTINS_H__
 
 #ifdef JO_COMPILE_WITH_CONSOLE_SUPPORT
 #ifndef JO_COMPILE_NO_CONSOLE_BUILTINS
@@ -62,7 +62,7 @@
 ** exit
 */
 
-bool    __jo_console_builtins_command_handler(int argc, char **argv, int vertical_output, bool *exit);
+bool __jo_console_builtins_command_handler(int argc, char **argv, int vertical_output, bool *exit);
 
 #endif /* JO_COMPILE_NO_CONSOLE_BUILTINS */
 #endif /* !JO_COMPILE_WITH_CONSOLE_SUPPORT */

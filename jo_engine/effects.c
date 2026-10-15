@@ -45,28 +45,23 @@
 
 #ifdef JO_COMPILE_WITH_EFFECTS_SUPPORT
 
-void                    jo_init_homing_laser(jo_homing_laser * const homing_laser, const int sprite_id, const unsigned short thickness, const int z, const unsigned short nb_sections)
-{
+void jo_init_homing_laser(jo_homing_laser *const homing_laser, const int sprite_id, const unsigned short thickness, const int z, const unsigned short nb_sections) {
 #ifdef JO_DEBUG
-    if (thickness < 1)
-    {
+    if (thickness < 1) {
         jo_core_error("thickness < 1");
-        return ;
+        return;
     }
-    if (nb_sections < 4)
-    {
+    if (nb_sections < 4) {
         jo_core_error("nb_sections < 4");
-        return ;
+        return;
     }
-    if (nb_sections > 64)
-    {
+    if (nb_sections > 64) {
         jo_core_error("nb_sections > 64");
-        return ;
+        return;
     }
-    if (JO_MOD_POW2(nb_sections, 2) != 0)
-    {
+    if (JO_MOD_POW2(nb_sections, 2) != 0) {
         jo_core_error("nb_sections must be a multiple of 2");
-        return ;
+        return;
     }
 #endif
 
@@ -96,35 +91,32 @@ void                    jo_init_homing_laser(jo_homing_laser * const homing_lase
     homing_laser->center_sprites_according_to_thickness = true;
 }
 
-void                    jo_draw_homing_laser(jo_homing_laser * const homing_laser)
-{
-    jo_pos2D_fixed      sp[4];
-    jo_fixed            t;
-    jo_fixed            horizontal_thickness_div2;
-    jo_fixed            vertical_thickness_div2;
+void jo_draw_homing_laser(jo_homing_laser *const homing_laser) {
+    jo_pos2D_fixed sp[4];
+    jo_fixed t;
+    jo_fixed horizontal_thickness_div2;
+    jo_fixed vertical_thickness_div2;
 
     if (homing_laser->length <= 0)
-        return ;
+        return;
     sp[0].x = homing_laser->source.x;
     sp[0].y = homing_laser->source.y;
     sp[1].x = homing_laser->source.x;
     sp[1].y = homing_laser->source.y;
     horizontal_thickness_div2 = JO_DIV_BY_2(homing_laser->horizontal_thickness);
     vertical_thickness_div2 = JO_DIV_BY_2(homing_laser->vertical_thickness);
-    for (JO_ZERO(t); t <= homing_laser->length && t <= JO_FIXED_1; t += homing_laser->section_step)
-    {
+    for (JO_ZERO(t); t <= homing_laser->length && t <= JO_FIXED_1; t += homing_laser->section_step) {
         jo_vector_fixed_compute_bezier_point(t,
                                              homing_laser->source,
                                              homing_laser->use_intermediate_point_a ? homing_laser->intermediate_point_a : homing_laser->source,
                                              homing_laser->use_intermediate_point_b ? homing_laser->intermediate_point_b : homing_laser->target,
                                              homing_laser->target,
-                                             (jo_vector_fixed *)&sp[2]/* Dirty optimization ^^ */);
+                                             (jo_vector_fixed *)&sp[2] /* Dirty optimization ^^ */);
 
         sp[3].x = sp[2].x + homing_laser->horizontal_thickness;
         sp[3].y = sp[2].y + homing_laser->vertical_thickness;
 
-        if (homing_laser->center_sprites_according_to_thickness)
-        {
+        if (homing_laser->center_sprites_according_to_thickness) {
             sp[2].x -= horizontal_thickness_div2;
             sp[3].x -= horizontal_thickness_div2;
             sp[2].y -= vertical_thickness_div2;

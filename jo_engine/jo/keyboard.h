@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_KEYBOARD_H__
-# define __JO_KEYBOARD_H__
+#define __JO_KEYBOARD_H__
 
 #ifdef JO_COMPILE_WITH_KEYBOARD_SUPPORT
 
@@ -64,15 +64,14 @@ extern char __internal_keyboard_caps_lock_mapping[];
 /** @brief Keyboard mapping size (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-# define __JO_KEYBOARD_MAPPING_SIZE     (128)
+#define __JO_KEYBOARD_MAPPING_SIZE (128)
 
 /*
 ** Special Keys
 */
 /** @brief Keyboard special keys
  */
-typedef enum
-{
+typedef enum {
     JO_KEYBOARD_NO_SPECIAL_KEY = 0,
     JO_KEYBOARD_RIGHT,
     JO_KEYBOARD_LEFT,
@@ -97,18 +96,17 @@ typedef enum
     JO_KEYBOARD_F10,
     JO_KEYBOARD_F11,
     JO_KEYBOARD_F12
-}           jo_keyboard_special_key;
+} jo_keyboard_special_key;
 
-jo_keyboard_special_key   jo_keyboard_get_special_key(void);
+jo_keyboard_special_key jo_keyboard_get_special_key(void);
 
-static  __jo_force_inline unsigned char             jo_keyboard_get_char(void)
-{
-    PerKeyBoard                                     *keyboard;
+static __jo_force_inline unsigned char jo_keyboard_get_char(void) {
+    PerKeyBoard *keyboard;
 
-	keyboard = (PerKeyBoard *)&Smpc_Peripheral[0];
-	if ((keyboard->cond & PER_KBD_MK) == 0 || keyboard->code >= __JO_KEYBOARD_MAPPING_SIZE)
+    keyboard = (PerKeyBoard *)&Smpc_Peripheral[0];
+    if ((keyboard->cond & PER_KBD_MK) == 0 || keyboard->code >= __JO_KEYBOARD_MAPPING_SIZE)
         return (0);
-	if (keyboard->cond & PER_KBD_CL)
+    if (keyboard->cond & PER_KBD_CL)
         return (__internal_keyboard_caps_lock_mapping[keyboard->code]);
     return (__internal_keyboard_normal_mapping[keyboard->code]);
 }

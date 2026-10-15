@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_EFFECTS_H__
-# define __JO_EFFECTS_H__
+#define __JO_EFFECTS_H__
 
 #ifdef JO_COMPILE_WITH_EFFECTS_SUPPORT
 
@@ -50,19 +50,19 @@
  */
 typedef struct
 {
-    jo_vector_fixed     source;
-    bool                use_intermediate_point_a;
-    jo_vector_fixed     intermediate_point_a;
-    bool                use_intermediate_point_b;
-    jo_vector_fixed     intermediate_point_b;
-    jo_vector_fixed     target;
-    jo_fixed            length;
-    jo_fixed            horizontal_thickness;
-    jo_fixed            vertical_thickness;
-    jo_fixed            section_step;
-    int                 sprite_id;
-    bool                center_sprites_according_to_thickness;
-}                       jo_homing_laser;
+    jo_vector_fixed source;
+    bool use_intermediate_point_a;
+    jo_vector_fixed intermediate_point_a;
+    bool use_intermediate_point_b;
+    jo_vector_fixed intermediate_point_b;
+    jo_vector_fixed target;
+    jo_fixed length;
+    jo_fixed horizontal_thickness;
+    jo_fixed vertical_thickness;
+    jo_fixed section_step;
+    int sprite_id;
+    bool center_sprites_according_to_thickness;
+} jo_homing_laser;
 
 /** @brief Init jo_homing_laser struct
  *  @param homing_laser Homing laser definition
@@ -72,14 +72,14 @@ typedef struct
  *  @param nb_sections Number of section in the curve aka smoothness (4 to 64 and must be a multiple of 2).
  *  @remarks nb_sections=20 Should be enough for most case
  */
-void    jo_init_homing_laser(jo_homing_laser * const homing_laser, const int sprite_id, const unsigned short thickness,
-                             const int z, const unsigned short nb_sections);
+void jo_init_homing_laser(jo_homing_laser *const homing_laser, const int sprite_id, const unsigned short thickness,
+                          const int z, const unsigned short nb_sections);
 
 /** @brief Draw homing laser effect
  *  @param homing_laser Homing laser definition
  *  @remarks source, intermediate_point_a, intermediate_point_b, target and length must be set before this call
  */
-void    jo_draw_homing_laser(jo_homing_laser * const homing_laser);
+void jo_draw_homing_laser(jo_homing_laser *const homing_laser);
 
 #endif /* !JO_COMPILE_WITH_EFFECTS_SUPPORT */
 

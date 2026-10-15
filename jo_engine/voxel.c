@@ -58,8 +58,7 @@
 #include "jo/software_renderer.h"
 #include "jo/voxel.h"
 
-void            jo_voxel_do_angle_computation(jo_voxel * const voxel_data)
-{
+void jo_voxel_do_angle_computation(jo_voxel *const voxel_data) {
     const jo_fixed sinangle_zfar = jo_fixed_mult(jo_fixed_sin(voxel_data->camera.angle), voxel_data->camera.zfar);
     const jo_fixed cosangle_zfar = jo_fixed_mult(jo_fixed_cos(voxel_data->camera.angle), voxel_data->camera.zfar);
     const jo_fixed plx = cosangle_zfar + sinangle_zfar;
@@ -74,32 +73,27 @@ void            jo_voxel_do_angle_computation(jo_voxel * const voxel_data)
     voxel_data->__cache.deltay_incr = jo_fixed_mult(py, voxel_data->__cache.inv_zfar);
 }
 
-void                        jo_voxel_redraw(const jo_voxel * const voxel_data)
-{
-    register jo_fixed       deltax = voxel_data->__cache.deltax_0;
-    register jo_fixed       deltay = voxel_data->__cache.deltay_0;
-    const bool              use_zbuffer = voxel_data->use_zbuffer;
-    const int               mapwidth_minus_1 = voxel_data->__cache.map_width_minus_1;
+void jo_voxel_redraw(const jo_voxel *const voxel_data) {
+    register jo_fixed deltax = voxel_data->__cache.deltax_0;
+    register jo_fixed deltay = voxel_data->__cache.deltay_0;
+    const bool use_zbuffer = voxel_data->use_zbuffer;
+    const int mapwidth_minus_1 = voxel_data->__cache.map_width_minus_1;
 
-    for (int x = 0; x < voxel_data->gfx->clipping_size.width; ++x)
-    {
+    for (int x = 0; x < voxel_data->gfx->clipping_size.width; ++x) {
         register jo_fixed rx = voxel_data->camera.x;
         register jo_fixed ry = voxel_data->camera.y;
         int maxheight = voxel_data->gfx->clipping_size.height;
 
-        for (jo_fixed z = JO_FIXED_1; z < voxel_data->camera.zfar; z += JO_FIXED_1)
-        {
+        for (jo_fixed z = JO_FIXED_1; z < voxel_data->camera.zfar; z += JO_FIXED_1) {
             rx += deltax;
             ry += deltay;
             const int mapoffset = ((voxel_data->terrain_img.width * (jo_fixed2int(ry) & mapwidth_minus_1)) + (jo_fixed2int(rx) & mapwidth_minus_1));
             // JO_COLOR_SATURN_GET_R: we use the red component arbitrary because it's a grayscale image
             const jo_fixed c = jo_int2fixed(JO_COLOR_SATURN_GET_R(voxel_data->height_pal.data[voxel_data->height_img.data[mapoffset] - 1]));
             const int projheight = jo_fixed2int(jo_fixed_mult(jo_fixed_div(voxel_data->camera.height - c, z), voxel_data->camera.scale) + voxel_data->camera.horizon);
-            if (projheight < maxheight)
-            {
+            if (projheight < maxheight) {
                 const jo_color color = voxel_data->terrain_pal.data[voxel_data->terrain_img.data[mapoffset] - 1];
-                for (int y = (projheight >= 0) ? projheight : 0; y < maxheight; ++y)
-                {
+                for (int y = (projheight >= 0) ? projheight : 0; y < maxheight; ++y) {
                     if (use_zbuffer)
                         jo_software_renderer_draw_pixel3D(voxel_data->gfx, jo_int2fixed(x), jo_int2fixed(y), z, color);
                     else
@@ -113,23 +107,19 @@ void                        jo_voxel_redraw(const jo_voxel * const voxel_data)
     }
 }
 
-void            jo_voxel_run(jo_voxel * const voxel_data)
-{
+void jo_voxel_run(jo_voxel *const voxel_data) {
 #ifdef JO_DEBUG
-    if (voxel_data == JO_NULL)
-    {
+    if (voxel_data == JO_NULL) {
         jo_core_error("voxel_data is null");
-        return ;
+        return;
     }
-    if (voxel_data->gfx == JO_NULL)
-    {
+    if (voxel_data->gfx == JO_NULL) {
         jo_core_error("gfx is not set");
-        return ;
+        return;
     }
-    if (!JO_IS_POW2(voxel_data->terrain_img.width))
-    {
+    if (!JO_IS_POW2(voxel_data->terrain_img.width)) {
         jo_core_error("terrain size must be a power of 2");
-        return ;
+        return;
     }
 #endif
 

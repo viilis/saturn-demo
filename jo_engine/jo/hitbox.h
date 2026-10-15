@@ -32,7 +32,7 @@
  */
 
 #ifndef __JO_HITBOX_H__
-# define __JO_HITBOX_H__
+#define __JO_HITBOX_H__
 
 /** @brief Fast method to get if two sprites intersects (HitBox processing)
  *  @param sprite_id1 Sprite Id of the first sprite
@@ -43,8 +43,7 @@
  *  @param y2 Vertical position of the second sprite
  *  @return true if sprites collides otherwise false
  */
-static  __jo_force_inline bool	jo_hitbox_detection(const int sprite_id1, const int x1, const int y1, const int sprite_id2, const int x2, const int y2)
-{
+static __jo_force_inline bool jo_hitbox_detection(const int sprite_id1, const int x1, const int y1, const int sprite_id2, const int x2, const int y2) {
     return jo_square_intersect(x1 - JO_DIV_BY_2(__jo_sprite_def[sprite_id1].width),
                                y1 - JO_DIV_BY_2(__jo_sprite_def[sprite_id1].height),
                                __jo_sprite_def[sprite_id1].width,
@@ -53,7 +52,6 @@ static  __jo_force_inline bool	jo_hitbox_detection(const int sprite_id1, const i
                                y2 - JO_DIV_BY_2(__jo_sprite_def[sprite_id2].height),
                                __jo_sprite_def[sprite_id2].width,
                                __jo_sprite_def[sprite_id2].height);
-
 }
 
 /** @brief Fast method to get if the sprite intersects with the box (HitBox processing)
@@ -66,8 +64,7 @@ static  __jo_force_inline bool	jo_hitbox_detection(const int sprite_id1, const i
  *  @param h2 Height of the second box
  *  @return true if sprites collides otherwise false
  */
-static  __jo_force_inline bool	jo_hitbox_detection_custom_boundaries(const int sprite_id1, const int x1, const int y1, const int x2, const int y2, const int w2, const int h2)
-{
+static __jo_force_inline bool jo_hitbox_detection_custom_boundaries(const int sprite_id1, const int x1, const int y1, const int x2, const int y2, const int w2, const int h2) {
     return jo_square_intersect(x1 - JO_DIV_BY_2(__jo_sprite_def[sprite_id1].width),
                                y1 - JO_DIV_BY_2(__jo_sprite_def[sprite_id1].height),
                                __jo_sprite_def[sprite_id1].width,
@@ -76,7 +73,6 @@ static  __jo_force_inline bool	jo_hitbox_detection_custom_boundaries(const int s
                                y2 - JO_DIV_BY_2(h2),
                                w2,
                                h2);
-
 }
 
 #endif /* !__JO_HITBOX_H__ */

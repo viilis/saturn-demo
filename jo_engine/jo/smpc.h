@@ -35,11 +35,10 @@
  */
 
 #ifndef __JO_SMPC_H__
-# define __JO_SMPC_H__
+#define __JO_SMPC_H__
 
 /** @brief SMPC Commands */
-typedef enum
-{
+typedef enum {
     /** @brief Resets and enables the SH-2 Master CPU. */
     EnableMasterCPU = 0x0,
     /** @brief Resets and enables the SH-2 Slave CPU. */
@@ -76,10 +75,9 @@ typedef enum
     EnableReset = 0x19,
     /** @brief Disables NMI requests to be sent when the Reset button is pressed. */
     DisableReset = 0x1A
-}               jo_smpc_command;
+} jo_smpc_command;
 
-typedef enum
-{
+typedef enum {
     /** @brief The command that's supposed to be issued by the SMPC */
     CommandRegister = 0x2010001f,
     /** @brief Status Register */
@@ -133,27 +131,23 @@ typedef enum
     DataDirectionRegister2 = 0x2010007b,
     InputOutputSelectRegister = 0x2010007d,
     ExternalLatchEnableRegister = 0x2010007f
-}               jo_smpc_memory_address;
+} jo_smpc_memory_address;
 
-static  __jo_force_inline void jo_smpc_write_byte(jo_smpc_memory_address addr, unsigned char data)
-{
+static __jo_force_inline void jo_smpc_write_byte(jo_smpc_memory_address addr, unsigned char data) {
     (*(volatile unsigned char *)(addr)) = data;
 }
-static  __jo_force_inline unsigned char jo_smpc_read_byte(jo_smpc_memory_address addr)
-{
+static __jo_force_inline unsigned char jo_smpc_read_byte(jo_smpc_memory_address addr) {
     return (*(volatile unsigned char *)(addr));
 }
-static  __jo_force_inline void jo_smpc_wait(void)
-{
-    while ((jo_smpc_read_byte(StatusFlag) & 0x1) == 0x1);
+static __jo_force_inline void jo_smpc_wait(void) {
+    while ((jo_smpc_read_byte(StatusFlag) & 0x1) == 0x1)
+        ;
 }
-static  __jo_force_inline void jo_smpc_begin_command(void)
-{
+static __jo_force_inline void jo_smpc_begin_command(void) {
     jo_smpc_wait();
     jo_smpc_write_byte(StatusFlag, 1);
 }
-static  __jo_force_inline void jo_smpc_end_command(jo_smpc_command command)
-{
+static __jo_force_inline void jo_smpc_end_command(jo_smpc_command command) {
     jo_smpc_write_byte(CommandRegister, command);
     jo_smpc_wait();
 }

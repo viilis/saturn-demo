@@ -33,18 +33,17 @@
  */
 
 #ifndef __JO_VDP1_COMMAND_PIPELINE_H__
-# define __JO_VDP1_COMMAND_PIPELINE_H__
+#define __JO_VDP1_COMMAND_PIPELINE_H__
 
 #if !JO_COMPILE_USING_SGL
 
 /** @brief (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-extern unsigned int                                 __jo_vdp1_command_index;
+extern unsigned int __jo_vdp1_command_index;
 
 /** @brief VDP1 commands */
-typedef enum  __attribute__ ((__packed__))
-{
+typedef enum __attribute__((__packed__)) {
     DrawNormalSprite = 0x0,
     DrawScaledSprite = 0x1,
     DrawDistortedSprite = 0x2,
@@ -56,48 +55,43 @@ typedef enum  __attribute__ ((__packed__))
     SetLocalCoordinates = 0xA,
     DrawEnd = 0x8000,
     __force_unsigned_short__ = 0xFFFFU
-}
-jo_vdp1_command_control;
+} jo_vdp1_command_control;
 
 /** @brief 32 byte VDP1 command table entry */
 typedef struct
 {
-    jo_vdp1_command_control     ctrl;
-    unsigned short              link;
-    unsigned short              pmod;
-    unsigned short              colr;
-    unsigned short              srca;
-    unsigned short              size;
-    short                       xa;
-    short                       ya;
-    short                       xb;
-    short                       yb;
-    short                       xc;
-    short                       yc;
-    short                       xd;
-    short                       yd;
-    unsigned short              grda;
-    short                       jo_engine_reserved;
-}                               jo_vdp1_command;
+    jo_vdp1_command_control ctrl;
+    unsigned short link;
+    unsigned short pmod;
+    unsigned short colr;
+    unsigned short srca;
+    unsigned short size;
+    short xa;
+    short ya;
+    short xb;
+    short yb;
+    short xc;
+    short yc;
+    short xd;
+    short yd;
+    unsigned short grda;
+    short jo_engine_reserved;
+} jo_vdp1_command;
 
-static  __jo_force_inline jo_vdp1_command   *jo_vdp1_get_command_entry_from_link(unsigned short link)
-{
+static __jo_force_inline jo_vdp1_command *jo_vdp1_get_command_entry_from_link(unsigned short link) {
     return (link ? (jo_vdp1_command *)(JO_VDP1_VRAM + (unsigned int)link * 0x8) : JO_NULL);
 }
-static  __jo_force_inline unsigned short   jo_vdp1_command_index_to_link(int command_index)
-{
+static __jo_force_inline unsigned short jo_vdp1_command_index_to_link(int command_index) {
     return ((JO_VDP1_VRAM + JO_MULT_BY_32(command_index)) / 0x8);
 }
-static  __jo_force_inline jo_vdp1_command   *jo_vdp1_get_command_entry(int command_index)
-{
+static __jo_force_inline jo_vdp1_command *jo_vdp1_get_command_entry(int command_index) {
     return (jo_vdp1_command *)(JO_VDP1_VRAM + JO_MULT_BY_32(command_index));
 }
-static  __jo_force_inline unsigned short   jo_vdp1_command_to_link(jo_vdp1_command *command)
-{
+static __jo_force_inline unsigned short jo_vdp1_command_to_link(jo_vdp1_command *command) {
     return (command ? (((unsigned int)command - (unsigned int)JO_VDP1_VRAM) / 0x8) : 0);
 }
 
-jo_vdp1_command*                jo_vdp1_create_command(void);
+jo_vdp1_command *jo_vdp1_create_command(void);
 
 #endif
 

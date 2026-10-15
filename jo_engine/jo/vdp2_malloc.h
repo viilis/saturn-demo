@@ -33,18 +33,17 @@
  */
 
 #ifndef __JO_VDP2_MALLOC_H__
-# define __JO_VDP2_MALLOC_H__
+#define __JO_VDP2_MALLOC_H__
 
 /*
 ** MACROS
 */
-# define JO_VDP2_KTABLE_SIZE                    (0x1FE00)
-# define JO_VDP2_ROTATION_TABLE_SIZE            (0x00080)
-# define JO_VDP2_MAP_SIZE                       (8192)
-# define JO_VDP2_CELL_TO_MAP_OFFSET(CELL_PTR)   JO_DIV_BY_32(JO_MOD_POW2((int)CELL_PTR, JO_VDP2_BANK_SIZE))
+#define JO_VDP2_KTABLE_SIZE (0x1FE00)
+#define JO_VDP2_ROTATION_TABLE_SIZE (0x00080)
+#define JO_VDP2_MAP_SIZE (8192)
+#define JO_VDP2_CELL_TO_MAP_OFFSET(CELL_PTR) JO_DIV_BY_32(JO_MOD_POW2((int)CELL_PTR, JO_VDP2_BANK_SIZE))
 
-typedef enum
-{
+typedef enum {
     /** @brief For user */
     JO_VDP2_RAM_USER,
     /** @brief MAP (for sl1MapRA, slMapNbg1, etc) */
@@ -74,28 +73,27 @@ typedef enum
     JO_VDP2_RAM_COLOR,
     /** @brief Line color table (for slLineColTable) */
     JO_VDP2_LINE_COLOR_TABLE
-}                               jo_vdp2_ram_usage;
+} jo_vdp2_ram_usage;
 
 /** @brief Dynamic VDP2 memory allocator
  *  @param usage VDP2 memory segment usage
  *  @param n Segment size
  *  @return a pointer to the allocated memory or NULL if failed
  */
-void                            *jo_vdp2_malloc(const jo_vdp2_ram_usage usage, const unsigned int n);
+void *jo_vdp2_malloc(const jo_vdp2_ram_usage usage, const unsigned int n);
 
 /** @brief Dynamic VDP2 memory allocator for known size usage (JO_VDP2_RAM_RTABLE, JO_VDP2_RAM_KTABLE, JO_VDP2_RAM_COLOR)
  *  @param usage VDP2 memory segment usage
  *  @return a pointer to the allocated memory or NULL if failed
  */
-static  __jo_force_inline void  *jo_vdp2_malloc_autosize(const jo_vdp2_ram_usage usage)
-{
+static __jo_force_inline void *jo_vdp2_malloc_autosize(const jo_vdp2_ram_usage usage) {
     return (jo_vdp2_malloc(usage, ~0));
 }
 
 /** @brief function frees VDP2 memory space pointed to by p
  *  @param p pointer that must have been returned by a previous call to jo_vdp2_malloc()
  */
-void                            jo_vdp2_free(const void * const p);
+void jo_vdp2_free(const void *const p);
 
 #endif /* !__JO_VDP2_MALLOC_H__ */
 

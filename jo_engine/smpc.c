@@ -34,7 +34,6 @@
 #include "jo/types.h"
 #include "jo/smpc.h"
 
-
 /*
 ** END OF FILE
 */

@@ -43,65 +43,63 @@
 
 /** @brief Read retry
  */
-# define JO_READ_RETRY_COUNT                (10)
+#define JO_READ_RETRY_COUNT (10)
 
 /** @brief Spin wait after each retry
  */
-# define JO_READ_SPIN_WAIT                  (16)
+#define JO_READ_SPIN_WAIT (16)
 
 /** @brief Sector size
  */
-# define JO_SECTOR_SIZE                     (2048)
+#define JO_SECTOR_SIZE (2048)
 
 /** @brief Max file opened at the same time
  */
 
 #if JO_MAX_FS_BACKGROUND_JOBS > 0
-# define JO_OPEN_MAX						(JO_MAX_FS_BACKGROUND_JOBS)
+#define JO_OPEN_MAX (JO_MAX_FS_BACKGROUND_JOBS)
 #else
-# define JO_OPEN_MAX						(1)
+#define JO_OPEN_MAX (1)
 #endif
 
 /** @brief Maximum sector fetched once (for jo_fs_read_file_async())
  */
-# define JO_MAXIMUM_SECTOR_FETCHED_ONCE_ASYNC     (8)
+#define JO_MAXIMUM_SECTOR_FETCHED_ONCE_ASYNC (8)
 
 /** @brief Size of each read jo(for jo_fs_do_background_jobs())
  */
-# define JO_READ_SIZE_ASYNC                       (JO_MAXIMUM_SECTOR_FETCHED_ONCE_ASYNC * JO_SECTOR_SIZE)
+#define JO_READ_SIZE_ASYNC (JO_MAXIMUM_SECTOR_FETCHED_ONCE_ASYNC * JO_SECTOR_SIZE)
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
 typedef struct
 {
-    bool                        active;
-    jo_fs_async_read_callback   callback;
-    GfsHn                       gfs;
-    int                         file_length;
-    char                        *contents;
-    char                        *ptr;
-    int                         token;
-}                               __jo_fs_background_job;
+    bool active;
+    jo_fs_async_read_callback callback;
+    GfsHn gfs;
+    int file_length;
+    char *contents;
+    char *ptr;
+    int token;
+} __jo_fs_background_job;
 
 /*
 ** GLOBALS
 */
-static char                     __jo_fs_work[GFS_WORK_SIZE(JO_OPEN_MAX)];
-static GfsDirTbl				__jo_fs_dirtbl;
-static GfsDirName				__jo_fs_dirname[JO_FS_MAX_FILES];
-static __jo_fs_background_job   __jo_fs_background_jobs[JO_MAX_FS_BACKGROUND_JOBS];
-unsigned int                    __jo_fs_background_job_count;
-static int                      __jo_fs_read_buffer_size = JO_SECTOR_SIZE;
+static char __jo_fs_work[GFS_WORK_SIZE(JO_OPEN_MAX)];
+static GfsDirTbl __jo_fs_dirtbl;
+static GfsDirName __jo_fs_dirname[JO_FS_MAX_FILES];
+static __jo_fs_background_job __jo_fs_background_jobs[JO_MAX_FS_BACKGROUND_JOBS];
+unsigned int __jo_fs_background_job_count;
+static int __jo_fs_read_buffer_size = JO_SECTOR_SIZE;
 
-int								jo_fs_init()
-{
-    register int                i;
+int jo_fs_init() {
+    register int i;
 
 #ifdef JO_DEBUG
     if (!JO_IS_ARRAY_INSIDE_USER_RAM_AREA(__jo_fs_work) ||
         !JO_IS_ARRAY_INSIDE_USER_RAM_AREA(__jo_fs_dirname) ||
-        !JO_IS_ARRAY_INSIDE_USER_RAM_AREA(__jo_fs_background_jobs))
-    {
+        !JO_IS_ARRAY_INSIDE_USER_RAM_AREA(__jo_fs_background_jobs)) {
         jo_core_error("Please reduce JO_GLOBAL_MEMORY_SIZE_FOR_MALLOC");
         return (0);
     }
@@ -112,8 +110,7 @@ int								jo_fs_init()
     GFS_DIRTBL_TYPE(&__jo_fs_dirtbl) = GFS_DIR_NAME;
     GFS_DIRTBL_DIRNAME(&__jo_fs_dirtbl) = __jo_fs_dirname;
     GFS_DIRTBL_NDIR(&__jo_fs_dirtbl) = JO_FS_MAX_FILES;
-    if (GFS_Init(JO_OPEN_MAX, __jo_fs_work, &__jo_fs_dirtbl) <= 2)
-    {
+    if (GFS_Init(JO_OPEN_MAX, __jo_fs_work, &__jo_fs_dirtbl) <= 2) {
 #ifdef JO_DEBUG
         jo_core_error("GFS_Init() failed");
 #endif
@@ -122,66 +119,55 @@ int								jo_fs_init()
     return (1);
 }
 
-void                    jo_fs_do_background_jobs(void)
-{
-    register int        i;
-    Sint32              stat;
-    Sint32              nbyte;
+void jo_fs_do_background_jobs(void) {
+    register int i;
+    Sint32 stat;
+    Sint32 nbyte;
 
-    for (JO_ZERO(i); i < JO_MAX_FS_BACKGROUND_JOBS; ++i)
-    {
+    for (JO_ZERO(i); i < JO_MAX_FS_BACKGROUND_JOBS; ++i) {
         if (!__jo_fs_background_jobs[i].active)
             continue;
         GFS_NwFread(__jo_fs_background_jobs[i].gfs, JO_MAXIMUM_SECTOR_FETCHED_ONCE_ASYNC, __jo_fs_background_jobs[i].ptr, JO_READ_SIZE_ASYNC);
-        do
-        {
+        do {
             GFS_NwExecOne(__jo_fs_background_jobs[i].gfs);
             GFS_NwGetStat(__jo_fs_background_jobs[i].gfs, &stat, &nbyte);
-        }
-        while (nbyte < JO_READ_SIZE_ASYNC && stat != GFS_SVR_COMPLETED);
-        if (stat == GFS_SVR_COMPLETED)
-        {
+        } while (nbyte < JO_READ_SIZE_ASYNC && stat != GFS_SVR_COMPLETED);
+        if (stat == GFS_SVR_COMPLETED) {
             GFS_Close(__jo_fs_background_jobs[i].gfs);
             --__jo_fs_background_job_count;
             JO_ZERO(__jo_fs_background_jobs[i].contents[__jo_fs_background_jobs[i].file_length]);
             __jo_fs_background_jobs[i].active = false;
             __jo_fs_background_jobs[i].callback(__jo_fs_background_jobs[i].contents, __jo_fs_background_jobs[i].file_length, __jo_fs_background_jobs[i].token);
-        }
-        else
+        } else
             __jo_fs_background_jobs[i].ptr += nbyte;
-        return ; //TODO
+        return; // TODO
     }
 }
 
-bool                    jo_fs_read_file_async_ptr(const char *const filename, jo_fs_async_read_callback callback, int optional_token, void *buf)
-{
-    register int        i;
-    int			        fid;
-    Sint32			    sctsize;
-    Sint32              nsct;
-    Sint32              lastsize;
+bool jo_fs_read_file_async_ptr(const char *const filename, jo_fs_async_read_callback callback, int optional_token, void *buf) {
+    register int i;
+    int fid;
+    Sint32 sctsize;
+    Sint32 nsct;
+    Sint32 lastsize;
 
 #ifdef JO_DEBUG
-    if (callback == JO_NULL)
-    {
+    if (callback == JO_NULL) {
         jo_core_error("callback is null");
         return (false);
     }
 #endif
-    for (JO_ZERO(i); i < JO_MAX_FS_BACKGROUND_JOBS; ++i)
-    {
+    for (JO_ZERO(i); i < JO_MAX_FS_BACKGROUND_JOBS; ++i) {
         if (__jo_fs_background_jobs[i].active)
             continue;
         fid = GFS_NameToId((Sint8 *)filename);
-        if (fid < 0)
-        {
+        if (fid < 0) {
 #ifdef JO_DEBUG
             jo_core_error("%s: File not found", filename);
 #endif
             return (false);
         }
-        if ((__jo_fs_background_jobs[i].gfs = GFS_Open(fid)) == JO_NULL)
-        {
+        if ((__jo_fs_background_jobs[i].gfs = GFS_Open(fid)) == JO_NULL) {
 #ifdef JO_DEBUG
             jo_core_error("%s: GFS_Open() failed", filename);
 #endif
@@ -191,8 +177,7 @@ bool                    jo_fs_read_file_async_ptr(const char *const filename, jo
         __jo_fs_background_jobs[i].file_length = (sctsize * (nsct - 1) + lastsize);
         if (buf != JO_NULL)
             __jo_fs_background_jobs[i].contents = buf;
-        else if ((__jo_fs_background_jobs[i].contents = jo_malloc(sctsize * nsct + 1)) == JO_NULL)
-        {
+        else if ((__jo_fs_background_jobs[i].contents = jo_malloc(sctsize * nsct + 1)) == JO_NULL) {
 #ifdef JO_DEBUG
             jo_core_error("%s: Out of memory", filename);
 #endif
@@ -216,15 +201,13 @@ bool                    jo_fs_read_file_async_ptr(const char *const filename, jo
     return (false);
 }
 
-void			        jo_fs_cd(const char *const sub_dir)
-{
-    Sint32			    fid;
+void jo_fs_cd(const char *const sub_dir) {
+    Sint32 fid;
 
 #ifdef JO_DEBUG
-    if (sub_dir == JO_NULL)
-    {
+    if (sub_dir == JO_NULL) {
         jo_core_error("sub_dir is null");
-        return ;
+        return;
     }
 #endif
     fid = GFS_NameToId((Sint8 *)sub_dir);
@@ -235,15 +218,13 @@ void			        jo_fs_cd(const char *const sub_dir)
     GFS_SetDir(&__jo_fs_dirtbl);
 }
 
-static int		        jo_fs_get_file_size(int file_id)
-{
-    GfsHn			    gfs;
-    Sint32			    sctsize;
-    Sint32              nsct;
-    Sint32              lastsize;
+static int jo_fs_get_file_size(int file_id) {
+    GfsHn gfs;
+    Sint32 sctsize;
+    Sint32 nsct;
+    Sint32 lastsize;
 
-    if ((gfs = GFS_Open(file_id)) == JO_NULL)
-    {
+    if ((gfs = GFS_Open(file_id)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("GFS_Open() failed");
 #endif
@@ -254,23 +235,20 @@ static int		        jo_fs_get_file_size(int file_id)
     return (sctsize * (nsct - 1) + lastsize);
 }
 
-char                    *jo_fs_read_file_ptr(const char *const filename, void *buf, int *len)
-{
-    int			        fid;
-    int			        fsize;
-    int                 retry;
-    char                *stream;
+char *jo_fs_read_file_ptr(const char *const filename, void *buf, int *len) {
+    int fid;
+    int fsize;
+    int retry;
+    char *stream;
 
 #ifdef JO_DEBUG
-    if (filename == JO_NULL)
-    {
+    if (filename == JO_NULL) {
         jo_core_error("filename is null");
         return (JO_NULL);
     }
 #endif
     fid = GFS_NameToId((Sint8 *)filename);
-    if (fid < 0)
-    {
+    if (fid < 0) {
 #ifdef JO_DEBUG
         jo_core_error("%s: File not found", filename);
 #endif
@@ -281,17 +259,14 @@ char                    *jo_fs_read_file_ptr(const char *const filename, void *b
         return (JO_NULL);
     if (buf != JO_NULL)
         stream = (char *)buf;
-    else if ((stream = (char *)jo_malloc_with_behaviour((fsize + 1) * sizeof(*stream), JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL)
-    {
+    else if ((stream = (char *)jo_malloc_with_behaviour((fsize + 1) * sizeof(*stream), JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("%s: Out of memory", filename);
 #endif
         return (JO_NULL);
     }
-    for (retry = JO_READ_RETRY_COUNT; GFS_Load(fid, 0, stream, fsize) <= 0; --retry)
-    {
-        if (!retry)
-        {
+    for (retry = JO_READ_RETRY_COUNT; GFS_Load(fid, 0, stream, fsize) <= 0; --retry) {
+        if (!retry) {
             if (buf == JO_NULL)
                 jo_free(stream);
 #ifdef JO_DEBUG
@@ -307,9 +282,8 @@ char                    *jo_fs_read_file_ptr(const char *const filename, void *b
     return stream;
 }
 
-char*					jo_fs_read_file_in_dir(const char *const filename, const char *const sub_dir, int *len)
-{
-    char                *stream;
+char *jo_fs_read_file_in_dir(const char *const filename, const char *const sub_dir, int *len) {
+    char *stream;
 
     if (sub_dir != JO_NULL)
         jo_fs_cd(sub_dir);
@@ -319,34 +293,29 @@ char*					jo_fs_read_file_in_dir(const char *const filename, const char *const s
     return stream;
 }
 
-bool                    jo_fs_open(jo_file * const file, const char *const filename)
-{
-    Sint32			    sctsize;
-    Sint32              nsct;
-    Sint32              lastsize;
+bool jo_fs_open(jo_file *const file, const char *const filename) {
+    Sint32 sctsize;
+    Sint32 nsct;
+    Sint32 lastsize;
 
 #ifdef JO_DEBUG
-    if (file == JO_NULL)
-    {
+    if (file == JO_NULL) {
         jo_core_error("file is null");
         return (false);
     }
-    if (filename == JO_NULL)
-    {
+    if (filename == JO_NULL) {
         jo_core_error("filename is null");
         return (false);
     }
 #endif
     file->id = GFS_NameToId((Sint8 *)filename);
-    if (file->id < 0)
-    {
+    if (file->id < 0) {
 #ifdef JO_DEBUG
         jo_core_error("%s: File not found", filename);
 #endif
         return (false);
     }
-    if ((file->handle = GFS_Open(file->id)) == JO_NULL)
-    {
+    if ((file->handle = GFS_Open(file->id)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("GFS_Open() failed");
 #endif
@@ -357,8 +326,7 @@ bool                    jo_fs_open(jo_file * const file, const char *const filen
     file->read_index = __jo_fs_read_buffer_size;
     JO_ZERO(file->read);
     if ((file->read_buffer = (char *)jo_malloc_with_behaviour(__jo_fs_read_buffer_size * sizeof(*file->read_buffer),
-                             JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL)
-    {
+                                                              JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("%s: Out of memory", filename);
 #endif
@@ -367,25 +335,21 @@ bool                    jo_fs_open(jo_file * const file, const char *const filen
     return (true);
 }
 
-bool                    jo_fs_seek_forward(jo_file * const file, unsigned int nbytes)
-{
-    int                 buffer_remaining;
-    int                 sectors;
-    int                 retry;
+bool jo_fs_seek_forward(jo_file *const file, unsigned int nbytes) {
+    int buffer_remaining;
+    int sectors;
+    int retry;
 
     file->read += nbytes;
     buffer_remaining = (__jo_fs_read_buffer_size - 1) - file->read_index;
-    if (buffer_remaining >= (int)nbytes)
-    {
+    if (buffer_remaining >= (int)nbytes) {
         file->read_index += nbytes;
         return (true);
     }
     nbytes -= buffer_remaining;
     sectors = nbytes / __jo_fs_read_buffer_size;
-    for (retry = JO_READ_RETRY_COUNT; GFS_Seek((GfsHn)file->handle, sectors, GFS_SEEK_CUR) < 0; --retry)
-    {
-        if (!retry)
-        {
+    for (retry = JO_READ_RETRY_COUNT; GFS_Seek((GfsHn)file->handle, sectors, GFS_SEEK_CUR) < 0; --retry) {
+        if (!retry) {
 #ifdef JO_DEBUG
             jo_core_error("Seek failed");
 #endif
@@ -396,10 +360,8 @@ bool                    jo_fs_seek_forward(jo_file * const file, unsigned int nb
     nbytes = nbytes % __jo_fs_read_buffer_size;
     if (!nbytes)
         return (true);
-    for (retry = JO_READ_RETRY_COUNT; GFS_Fread((GfsHn)file->handle, 1, file->read_buffer, __jo_fs_read_buffer_size) < 0; --retry)
-    {
-        if (!retry)
-        {
+    for (retry = JO_READ_RETRY_COUNT; GFS_Fread((GfsHn)file->handle, 1, file->read_buffer, __jo_fs_read_buffer_size) < 0; --retry) {
+        if (!retry) {
 #ifdef JO_DEBUG
             jo_core_error("Read failed");
 #endif
@@ -411,28 +373,24 @@ bool                    jo_fs_seek_forward(jo_file * const file, unsigned int nb
     return (true);
 }
 
-int                     jo_fs_read_next_bytes(jo_file * const file, char *buffer, unsigned int nbytes)
-{
-    int                 len;
-    int                 retry;
-    int                 readed = 0;
+int jo_fs_read_next_bytes(jo_file *const file, char *buffer, unsigned int nbytes) {
+    int len;
+    int retry;
+    int readed = 0;
 
 #ifdef JO_DEBUG
-    if (file == JO_NULL)
-    {
+    if (file == JO_NULL) {
         jo_core_error("file is null");
         return (-1);
     }
-    if (buffer == JO_NULL)
-    {
+    if (buffer == JO_NULL) {
         jo_core_error("buffer is null");
         return (-1);
     }
     JO_ZERO(readed);
 #endif
 fs_read_from_buffer:
-    while (file->read_index < __jo_fs_read_buffer_size && nbytes > 0 && file->read < file->size)
-    {
+    while (file->read_index < __jo_fs_read_buffer_size && nbytes > 0 && file->read < file->size) {
         *buffer++ = file->read_buffer[file->read_index++];
         --nbytes;
         ++file->read;
@@ -441,8 +399,7 @@ fs_read_from_buffer:
     if (nbytes <= 0 || file->read >= file->size)
         return (readed);
     JO_ZERO(file->read_index);
-    for (retry = JO_READ_RETRY_COUNT; (len = GFS_Fread((GfsHn)file->handle, 1, file->read_buffer, __jo_fs_read_buffer_size)) < 0; --retry)
-    {
+    for (retry = JO_READ_RETRY_COUNT; (len = GFS_Fread((GfsHn)file->handle, 1, file->read_buffer, __jo_fs_read_buffer_size)) < 0; --retry) {
         if (!retry)
             return (readed);
         jo_spin_wait(JO_READ_SPIN_WAIT);
@@ -452,26 +409,22 @@ fs_read_from_buffer:
     goto fs_read_from_buffer;
 }
 
-void                    jo_fs_close(jo_file * const file)
-{
+void jo_fs_close(jo_file *const file) {
 #ifdef JO_DEBUG
-    if (file == JO_NULL)
-    {
+    if (file == JO_NULL) {
         jo_core_error("file is null");
-        return ;
+        return;
     }
 #endif
     jo_free(file->read_buffer);
     GFS_Close((GfsHn)file->handle);
 }
 
-void            jo_fs_set_read_sector_count(const int count)
-{
+void jo_fs_set_read_sector_count(const int count) {
 #ifdef JO_DEBUG
-    if (count < 1)
-    {
+    if (count < 1) {
         jo_core_error("count < 1");
-        return ;
+        return;
     }
 #endif
     __jo_fs_read_buffer_size = count * JO_SECTOR_SIZE;

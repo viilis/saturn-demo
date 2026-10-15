@@ -41,13 +41,12 @@
 #include "jo/malloc.h"
 #include "jo/input.h"
 
-# define JO_INPUT_SPIN_WAIT     (16)
+#define JO_INPUT_SPIN_WAIT (16)
 
 #if !JO_COMPILE_USING_SGL
-jo_input                        jo_inputs[JO_INPUT_MAX_DEVICE];
+jo_input jo_inputs[JO_INPUT_MAX_DEVICE];
 
-void                            jo_input_init(void)
-{
+void jo_input_init(void) {
     jo_memset(&jo_inputs, 0, sizeof(jo_inputs));
     jo_smpc_write_byte(DataDirectionRegister1, 0x60);
     jo_smpc_write_byte(DataDirectionRegister2, 0x60);
@@ -55,9 +54,8 @@ void                            jo_input_init(void)
     jo_smpc_write_byte(ExternalLatchEnableRegister, 0x00);
 }
 
-static unsigned short       jo_read_input(const jo_smpc_memory_address port)
-{
-    unsigned short          temp;
+static unsigned short jo_read_input(const jo_smpc_memory_address port) {
+    unsigned short temp;
 
     jo_smpc_write_byte(port, 0x60);
     jo_spin_wait(JO_INPUT_SPIN_WAIT);
@@ -78,9 +76,8 @@ static unsigned short       jo_read_input(const jo_smpc_memory_address port)
     return (temp ^ 0x8FFF);
 }
 
-void                            jo_get_inputs_vblank(void)
-{
-    unsigned short              previous;
+void jo_get_inputs_vblank(void) {
+    unsigned short previous;
 
     previous = jo_inputs[0].pressed;
     jo_inputs[0].id = PER_ID_StnPad; /* TODO */
@@ -95,34 +92,31 @@ void                            jo_get_inputs_vblank(void)
     jo_inputs[1].on_keyup = (previous ^ jo_inputs[1].pressed) & previous;
 }
 #else
-PerDigital                      jo_inputs[JO_INPUT_MAX_DEVICE];
+PerDigital jo_inputs[JO_INPUT_MAX_DEVICE];
 
-#define __JO_SIZEOF_6_PerDigital_SIZE_DIV_SIZEOF_INT        (36)
-#define __JO_SECOND_MULTITAP_OFFSET                         (54)
+#define __JO_SIZEOF_6_PerDigital_SIZE_DIV_SIZEOF_INT (36)
+#define __JO_SECOND_MULTITAP_OFFSET (54)
 
-void                            jo_get_inputs_vblank(void)
-{
-    register unsigned int       i;
-    unsigned int                *src;
-    unsigned int                *dest;
+void jo_get_inputs_vblank(void) {
+    register unsigned int i;
+    unsigned int *src;
+    unsigned int *dest;
 
-    //We get the first 6 inputs
+    // We get the first 6 inputs
     src = (unsigned int *)Smpc_Peripheral;
     dest = (unsigned int *)&jo_inputs[0];
     for (JO_ZERO(i); i < __JO_SIZEOF_6_PerDigital_SIZE_DIV_SIZEOF_INT; ++i)
         *dest++ = *src++;
-    //Then, we get the last 6 inputs for the second multitap
-    //Thanks Slinga: https://github.com/johannes-fetz/joengine/issues/23
+    // Then, we get the last 6 inputs for the second multitap
+    // Thanks Slinga: https://github.com/johannes-fetz/joengine/issues/23
     src += __JO_SECOND_MULTITAP_OFFSET;
     for (JO_ZERO(i); i < __JO_SIZEOF_6_PerDigital_SIZE_DIV_SIZEOF_INT; ++i)
         *dest++ = *src++;
 }
 #endif
 
-jo_gamepad_type                 jo_get_input_type(const int port)
-{
-    switch (jo_inputs[port].id)
-    {
+jo_gamepad_type jo_get_input_type(const int port) {
+    switch (jo_inputs[port].id) {
     case PER_ID_NotConnect:
         return (JoNotConnectedGamepad);
     case PER_ID_StnPad:
@@ -144,57 +138,50 @@ jo_gamepad_type                 jo_get_input_type(const int port)
     }
 }
 
-int                             jo_get_input_count(void)
-{
-    register unsigned int       i;
-    register unsigned int       count;
+int jo_get_input_count(void) {
+    register unsigned int i;
+    register unsigned int count;
 
-    for (JO_ZERO(i), JO_ZERO(count); i < JO_INPUT_MAX_DEVICE; ++i)
-    {
+    for (JO_ZERO(i), JO_ZERO(count); i < JO_INPUT_MAX_DEVICE; ++i) {
         if (jo_get_input_type(i) != JoNotConnectedGamepad)
             ++count;
     }
     return (count);
 }
 
-unsigned char                   jo_get_input_axis(const int port, const jo_input_axis axis)
-{
+unsigned char jo_get_input_axis(const int port, const jo_input_axis axis) {
     // TODO: Implement other analog devices
-    switch (jo_get_input_type(port))
-    {
+    switch (jo_get_input_type(port)) {
     case JoRacingWheel:
-        switch (axis)
-        {
+        switch (axis) {
         case JoAxis1:
-            return ((PerAnalog *)(&jo_inputs[port]))->x;      // Wheel turn axis
+            return ((PerAnalog *)(&jo_inputs[port]))->x; // Wheel turn axis
         default:
             break;
         }
         break;
 
     case JoMissionStick:
-        switch (axis)
-        {
+        switch (axis) {
         case JoAxis1:
-            return ((PerAnalog *)(&jo_inputs[port]))->x;      // Stick X axis
+            return ((PerAnalog *)(&jo_inputs[port]))->x; // Stick X axis
         case JoAxis2:
-            return ((PerAnalog *)(&jo_inputs[port]))->y;      // Stick Y axis
+            return ((PerAnalog *)(&jo_inputs[port]))->y; // Stick Y axis
         case JoAxis3:
-            return ((PerAnalog *)(&jo_inputs[port]))->z;      // Throttle
+            return ((PerAnalog *)(&jo_inputs[port]))->z; // Throttle
         default:
             break;
         }
         break;
 
     case JoNightsPad:
-        switch (axis)
-        {
+        switch (axis) {
         case JoAxis1:
-            return ((PerAnalog *)(&jo_inputs[port]))->x;      // Thumb X axis
+            return ((PerAnalog *)(&jo_inputs[port]))->x; // Thumb X axis
         case JoAxis2:
-            return ((PerAnalog *)(&jo_inputs[port]))->y;      // Thumb Y axis
+            return ((PerAnalog *)(&jo_inputs[port]))->y; // Thumb Y axis
         case JoAxis3:
-            return ((PerAnalog *)(&jo_inputs[port]))->z;      // Right trigger
+            return ((PerAnalog *)(&jo_inputs[port]))->z; // Right trigger
         case JoAxis4:
             return ((PerAnalog *)(&jo_inputs[port]))->dummy1; // Left trigger
 

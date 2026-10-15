@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_VOXEL_H__
-# define __JO_VOXEL_H__
+#define __JO_VOXEL_H__
 
 #ifdef JO_COMPILE_WITH_SOFTWARE_RENDERER_SUPPORT
 
@@ -42,41 +42,41 @@
  */
 typedef struct
 {
-    jo_fixed        inv_clipping_size_width;
-    jo_fixed        inv_zfar;
-    int             map_width_minus_1;
-    jo_fixed        deltax_incr;
-    jo_fixed        deltay_incr;
-    jo_fixed        deltax_0;
-    jo_fixed        deltay_0;
-}                   __jo_voxel_computation_cache;
+    jo_fixed inv_clipping_size_width;
+    jo_fixed inv_zfar;
+    int map_width_minus_1;
+    jo_fixed deltax_incr;
+    jo_fixed deltay_incr;
+    jo_fixed deltax_0;
+    jo_fixed deltay_0;
+} __jo_voxel_computation_cache;
 
 /** @brief Voxel camera definition
  */
 typedef struct
 {
-    jo_fixed        scale;
-    jo_fixed        x;
-    jo_fixed        y;
-    jo_fixed        height;
-    jo_fixed        horizon;
-    jo_fixed        zfar;
-    jo_fixed        angle;
-}                   jo_voxel_camera;
+    jo_fixed scale;
+    jo_fixed x;
+    jo_fixed y;
+    jo_fixed height;
+    jo_fixed horizon;
+    jo_fixed zfar;
+    jo_fixed angle;
+} jo_voxel_camera;
 
 /** @brief Voxel main definition
  */
 typedef struct
 {
-    jo_software_renderer_gfx        *gfx;
-    jo_palette                      terrain_pal;
-    jo_palette                      height_pal;
-    jo_img_8bits                    terrain_img;
-    jo_img_8bits                    height_img;
-    jo_voxel_camera                 camera;
-    bool                            use_zbuffer;
-    __jo_voxel_computation_cache    __cache;
-}                                   jo_voxel;
+    jo_software_renderer_gfx *gfx;
+    jo_palette terrain_pal;
+    jo_palette height_pal;
+    jo_img_8bits terrain_img;
+    jo_img_8bits height_img;
+    jo_voxel_camera camera;
+    bool use_zbuffer;
+    __jo_voxel_computation_cache __cache;
+} jo_voxel;
 
 /*
  ██████╗ ██████╗ ██████╗ ███████╗
@@ -91,26 +91,25 @@ typedef struct
  *  @param voxel_data Voxel
  *  @remarks Must be called if you change camera.angle manually.
  */
-void            jo_voxel_do_angle_computation(jo_voxel * const voxel_data);
+void jo_voxel_do_angle_computation(jo_voxel *const voxel_data);
 
 /** @brief Draw voxels to gfx
  *  @param voxel_data Voxel
  *  @remarks You should call jo_software_renderer_flush() at some point
  */
-void            jo_voxel_redraw(const jo_voxel * const voxel_data);
+void jo_voxel_redraw(const jo_voxel *const voxel_data);
 
 /** @brief Draw voxels to gfx
  *  @param voxel_data Voxel
  *  @warning Must be call before calling jo_voxel_redraw() or jo_voxel_redraw_and_flush()
  */
-void            jo_voxel_run(jo_voxel * const voxel_data);
+void jo_voxel_run(jo_voxel *const voxel_data);
 
 /** @brief Draw voxels and flush the buffer
  *  @param voxel_data Voxel
  *  @remarks It's just an helper method
  */
-static  __jo_force_inline void      jo_voxel_redraw_and_flush(const jo_voxel * const voxel_data)
-{
+static __jo_force_inline void jo_voxel_redraw_and_flush(const jo_voxel *const voxel_data) {
     jo_software_renderer_clear(voxel_data->gfx, JO_COLOR_Black);
     jo_voxel_redraw(voxel_data);
     jo_software_renderer_flush(voxel_data->gfx);
@@ -129,8 +128,7 @@ static  __jo_force_inline void      jo_voxel_redraw_and_flush(const jo_voxel * c
  *  @param voxel_data Voxel
  *  @param Scale fixed value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_set_scale(jo_voxel * const voxel_data, const jo_fixed scale)
-{
+static __jo_force_inline void jo_voxel_set_scale(jo_voxel *const voxel_data, const jo_fixed scale) {
     voxel_data->camera.scale = scale;
 }
 
@@ -138,8 +136,7 @@ static  __jo_force_inline void      jo_voxel_set_scale(jo_voxel * const voxel_da
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_increase_view_distance(jo_voxel * const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_increase_view_distance(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.zfar += distance;
     voxel_data->__cache.inv_zfar = jo_fixed_div(JO_FIXED_1, voxel_data->camera.zfar);
     jo_voxel_do_angle_computation(voxel_data);
@@ -149,8 +146,7 @@ static  __jo_force_inline void      jo_voxel_increase_view_distance(jo_voxel * c
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_decrease_view_distance(jo_voxel * const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_decrease_view_distance(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.zfar -= distance;
     voxel_data->__cache.inv_zfar = jo_fixed_div(JO_FIXED_1, voxel_data->camera.zfar);
     jo_voxel_do_angle_computation(voxel_data);
@@ -160,8 +156,7 @@ static  __jo_force_inline void      jo_voxel_decrease_view_distance(jo_voxel * c
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_horizon_up(jo_voxel * const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_horizon_up(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.horizon += distance;
 }
 
@@ -169,8 +164,7 @@ static  __jo_force_inline void      jo_voxel_horizon_up(jo_voxel * const voxel_d
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_horizon_down(jo_voxel *const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_horizon_down(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.horizon -= distance;
 }
 
@@ -178,8 +172,7 @@ static  __jo_force_inline void      jo_voxel_horizon_down(jo_voxel *const voxel_
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_move_up(jo_voxel *voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_move_up(jo_voxel *voxel_data, const jo_fixed distance) {
     voxel_data->camera.height += distance;
 }
 
@@ -187,8 +180,7 @@ static  __jo_force_inline void      jo_voxel_move_up(jo_voxel *voxel_data, const
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_move_down(jo_voxel * const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_move_down(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.height -= distance;
 }
 
@@ -196,8 +188,7 @@ static  __jo_force_inline void      jo_voxel_move_down(jo_voxel * const voxel_da
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_move_forward(jo_voxel * const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_move_forward(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.x += jo_fixed_mult(jo_fixed_cos(voxel_data->camera.angle), distance);
     voxel_data->camera.y += jo_fixed_mult(jo_fixed_sin(voxel_data->camera.angle), distance);
 }
@@ -206,8 +197,7 @@ static  __jo_force_inline void      jo_voxel_move_forward(jo_voxel * const voxel
  *  @param voxel_data Voxel
  *  @param distance fixed distance value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_move_backward(jo_voxel * const voxel_data, const jo_fixed distance)
-{
+static __jo_force_inline void jo_voxel_move_backward(jo_voxel *const voxel_data, const jo_fixed distance) {
     voxel_data->camera.x -= jo_fixed_mult(jo_fixed_cos(voxel_data->camera.angle), distance);
     voxel_data->camera.y -= jo_fixed_mult(jo_fixed_sin(voxel_data->camera.angle), distance);
 }
@@ -216,8 +206,7 @@ static  __jo_force_inline void      jo_voxel_move_backward(jo_voxel * const voxe
  *  @param voxel_data Voxel
  *  @param angle_rad fixed rad value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_rotate_left(jo_voxel * const voxel_data, const jo_fixed angle_rad)
-{
+static __jo_force_inline void jo_voxel_rotate_left(jo_voxel *const voxel_data, const jo_fixed angle_rad) {
     voxel_data->camera.angle -= angle_rad;
     jo_voxel_do_angle_computation(voxel_data);
 }
@@ -226,8 +215,7 @@ static  __jo_force_inline void      jo_voxel_rotate_left(jo_voxel * const voxel_
  *  @param voxel_data Voxel
  *  @param angle_rad fixed rad value (see also jo_int2fixed() or jo_float2fixed())
  */
-static  __jo_force_inline void      jo_voxel_rotate_right(jo_voxel * const voxel_data, const jo_fixed angle_rad)
-{
+static __jo_force_inline void jo_voxel_rotate_right(jo_voxel *const voxel_data, const jo_fixed angle_rad) {
     voxel_data->camera.angle += angle_rad;
     jo_voxel_do_angle_computation(voxel_data);
 }

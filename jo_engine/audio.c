@@ -45,21 +45,20 @@
 
 #ifdef JO_COMPILE_WITH_AUDIO_SUPPORT
 
-# define CDC_PLY_PMODE_ENDLESS_REPEAT   (0x0f)
+#define CDC_PLY_PMODE_ENDLESS_REPEAT (0x0f)
 
-static PCM             __jo_internal_pcm[JO_SOUND_MAX_CHANNEL] =
-{
-    {(_Stereo | _PCM16Bit), 0, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
-    {(_Stereo | _PCM16Bit), 2, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
-    {(_Stereo | _PCM16Bit), 4, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
-    {(_Stereo | _PCM16Bit), 6, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
-    {(_Stereo | _PCM16Bit), 8, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
-    {(_Stereo | _PCM16Bit), 10, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
+static PCM __jo_internal_pcm[JO_SOUND_MAX_CHANNEL] =
+    {
+        {(_Stereo | _PCM16Bit), 0, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
+        {(_Stereo | _PCM16Bit), 2, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
+        {(_Stereo | _PCM16Bit), 4, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
+        {(_Stereo | _PCM16Bit), 6, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
+        {(_Stereo | _PCM16Bit), 8, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
+        {(_Stereo | _PCM16Bit), 10, JO_DEFAULT_AUDIO_VOLUME, 0, 0x0, 0, 0, 0, 0},
 };
 
-void			    jo_audio_play_cd_track(const int from_track, const int to_track, const bool repeat_infinitely)
-{
-    CdcPly		    plywk;
+void jo_audio_play_cd_track(const int from_track, const int to_track, const bool repeat_infinitely) {
+    CdcPly plywk;
 
     CDC_PLY_STYPE(&plywk) = CDC_PTYPE_TNO;
     CDC_PLY_STNO(&plywk) = from_track;
@@ -82,8 +81,7 @@ void			    jo_audio_play_cd_track(const int from_track, const int to_track, cons
     CDC_CdPlay(&plywk);
 }
 
-void		        jo_audio_set_volume(const unsigned char vol)
-{
+void jo_audio_set_volume(const unsigned char vol) {
 #if JO_COMPILE_USING_SGL
     slSndVolume(vol);
 #else
@@ -92,18 +90,16 @@ void		        jo_audio_set_volume(const unsigned char vol)
 #endif
 }
 
-void		        jo_audio_stop_cd(void)
-{
-    CdcPos	        poswk;
+void jo_audio_stop_cd(void) {
+    CdcPos poswk;
 
     CDC_POS_PTYPE(&poswk) = CDC_PTYPE_DFL;
     CDC_CdSeek(&poswk);
 }
 
-void		        jo_audio_init(void)
-{
+void jo_audio_init(void) {
 #if JO_COMPILE_USING_SGL
-    const char	map[] = {0xff, 0xff, 0xff, 0xff};
+    const char map[] = {0xff, 0xff, 0xff, 0xff};
 
     slInitSound((unsigned char *)sddrvstsk, sizeof(sddrvstsk), (unsigned char *)map, sizeof(map));
     *(volatile unsigned char *)(0x25a004e1) = 0x0;
@@ -114,19 +110,16 @@ void		        jo_audio_init(void)
 #endif
 }
 
-bool                jo_audio_is_channel_playing(const unsigned char channel)
-{
+bool jo_audio_is_channel_playing(const unsigned char channel) {
 #ifdef JO_DEBUG
-    if (channel >= JO_SOUND_MAX_CHANNEL)
-    {
+    if (channel >= JO_SOUND_MAX_CHANNEL) {
         jo_core_error("channel (%d) is too high (max=%d)", channel, JO_SOUND_MAX_CHANNEL - 1);
         return false;
     }
 #endif
 
     // Proteção redundante em builds release
-    if (channel >= JO_SOUND_MAX_CHANNEL)
-    {
+    if (channel >= JO_SOUND_MAX_CHANNEL) {
         return false;
     }
 
@@ -137,22 +130,19 @@ bool                jo_audio_is_channel_playing(const unsigned char channel)
     return (status & 0x01u) != 0;
 }
 
-void	            jo_audio_play_sound_on_channel(jo_sound * const sound, const unsigned char channel)
-{
+void jo_audio_play_sound_on_channel(jo_sound *const sound, const unsigned char channel) {
 #ifdef JO_DEBUG
-    if (sound == JO_NULL)
-    {
+    if (sound == JO_NULL) {
         jo_core_error("sound is null");
         return;
     }
-    if (channel >= JO_SOUND_MAX_CHANNEL)
-    {
+    if (channel >= JO_SOUND_MAX_CHANNEL) {
         jo_core_error("channel (%d) is too high (max=%d)", channel, JO_SOUND_MAX_CHANNEL);
         return;
     }
 #endif
     if (slPCMStat(&__jo_internal_pcm[(int)channel]))
-        return ;
+        return;
     slSndFlush();
     sound->current_playing_channel = channel;
     __jo_internal_pcm[(int)channel].level = (Uint8)sound->volume;
@@ -166,55 +156,46 @@ void	            jo_audio_play_sound_on_channel(jo_sound * const sound, const un
  Special thanks for VBT for sharing his experience with multiple PCMs.
  https://segaxtreme.net/threads/another-sonic-homebrew-for-saturn.23846/page-2
 */
-void	                    jo_audio_play_sound(jo_sound * const sound)
-{
-    register unsigned int   i;
+void jo_audio_play_sound(jo_sound *const sound) {
+    register unsigned int i;
 
     if (sound->volume == JO_MIN_AUDIO_VOLUME)
-        return ;
+        return;
 #ifdef JO_DEBUG
-    if (sound == JO_NULL)
-    {
+    if (sound == JO_NULL) {
         jo_core_error("sound is null");
         return;
     }
 #endif
-    if (slSndPCMNum(sound->mode) < 0)
-    {
+    if (slSndPCMNum(sound->mode) < 0) {
 #ifdef JO_DEBUG
         jo_core_error("No available channel");
 #endif
-        return ;
+        return;
     }
-    for (JO_ZERO(i); i < JO_SOUND_MAX_CHANNEL; ++i)
-    {
-        if (!slPCMStat(&__jo_internal_pcm[i]))
-        {
+    for (JO_ZERO(i); i < JO_SOUND_MAX_CHANNEL; ++i) {
+        if (!slPCMStat(&__jo_internal_pcm[i])) {
             jo_audio_play_sound_on_channel(sound, i);
-            return ;
+            return;
         }
     }
 }
 
-int                         jo_audio_usage_percent(void)
-{
-    register unsigned int   i;
-    int                     free_channel;
+int jo_audio_usage_percent(void) {
+    register unsigned int i;
+    int free_channel;
 
     JO_ZERO(free_channel);
-    for (JO_ZERO(i); i < JO_SOUND_MAX_CHANNEL; ++i)
-    {
+    for (JO_ZERO(i); i < JO_SOUND_MAX_CHANNEL; ++i) {
         if (!slPCMStat(&__jo_internal_pcm[i]))
             ++free_channel;
     }
     return (JO_PERCENT_USED(JO_SOUND_MAX_CHANNEL, free_channel));
 }
 
-void                jo_audio_free_pcm(jo_sound *sound)
-{
+void jo_audio_free_pcm(jo_sound *sound) {
 #ifdef JO_DEBUG
-    if (sound == JO_NULL)
-    {
+    if (sound == JO_NULL) {
         jo_core_error("sound is null");
         return;
     }
@@ -222,30 +203,26 @@ void                jo_audio_free_pcm(jo_sound *sound)
     jo_free(sound->data);
 }
 
-void	            jo_audio_stop_sound(const jo_sound * const sound)
-{
+void jo_audio_stop_sound(const jo_sound *const sound) {
 #ifdef JO_DEBUG
-    if (sound == JO_NULL)
-    {
+    if (sound == JO_NULL) {
         jo_core_error("sound is null");
         return;
     }
-    if (sound->current_playing_channel >= JO_SOUND_MAX_CHANNEL)
-    {
+    if (sound->current_playing_channel >= JO_SOUND_MAX_CHANNEL) {
         jo_core_error("channel (%d) is too high (max=%d)", sound->current_playing_channel, JO_SOUND_MAX_CHANNEL);
         return;
     }
 #endif
     if (!slPCMStat(&__jo_internal_pcm[(int)sound->current_playing_channel]))
-        return ;
+        return;
     slPCMOff(&__jo_internal_pcm[(int)sound->current_playing_channel]);
 }
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-static void         __jo_audio_load_pcm_async_callback(char *contents, int length, int optional_token)
-{
-    jo_sound        *sound;
+static void __jo_audio_load_pcm_async_callback(char *contents, int length, int optional_token) {
+    jo_sound *sound;
 
     sound = (jo_sound *)optional_token;
     sound->data_length = length;
@@ -253,11 +230,9 @@ static void         __jo_audio_load_pcm_async_callback(char *contents, int lengt
     sound->volume = JO_MAX_AUDIO_VOLUME;
 }
 
-bool                jo_audio_load_pcm_async(const char * const filename, const jo_sound_mode mode, jo_sound *sound)
-{
+bool jo_audio_load_pcm_async(const char *const filename, const jo_sound_mode mode, jo_sound *sound) {
 #ifdef JO_DEBUG
-    if (sound == JO_NULL)
-    {
+    if (sound == JO_NULL) {
         jo_core_error("sound is null");
         return (false);
     }
@@ -268,14 +243,12 @@ bool                jo_audio_load_pcm_async(const char * const filename, const j
     return true;
 }
 
-bool                jo_audio_load_pcm(const char * const filename, const jo_sound_mode mode, jo_sound *sound)
-{
-    char            *pcm;
-    int             len;
+bool jo_audio_load_pcm(const char *const filename, const jo_sound_mode mode, jo_sound *sound) {
+    char *pcm;
+    int len;
 
 #ifdef JO_DEBUG
-    if (sound == JO_NULL)
-    {
+    if (sound == JO_NULL) {
         jo_core_error("sound is null");
         return (false);
     }

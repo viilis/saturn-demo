@@ -46,9 +46,9 @@
 
 #ifdef JO_COMPILE_WITH_VIDEO_SUPPORT
 
-#define	PCM_ADDR				((void*)0x25a20000)
-#define	PCM_SIZE				(4096L*16)
-#define	RING_BUF_SIZ			(1024L*100)
+#define PCM_ADDR ((void *)0x25a20000)
+#define PCM_SIZE (4096L * 16)
+#define RING_BUF_SIZ (1024L * 100)
 
 int __jo_video_sprite_id;
 void *__jo_pcm_buffer;
@@ -57,76 +57,64 @@ int __jo_vblank_id;
 
 typedef struct
 {
-    void                        *movie_buffer;
-    void                        *decode_buffer;
-    unsigned int                decode_buffer_size;
-    void                        *work_buffer;
-    jo_img                      img;
-    GfsHn                       gfs;
-    CpkHn                       cpk;
-    int                         event_id;
-    jo_video_onstop_callback    onstop;
-}                               jo_video_cpk;
+    void *movie_buffer;
+    void *decode_buffer;
+    unsigned int decode_buffer_size;
+    void *work_buffer;
+    jo_img img;
+    GfsHn gfs;
+    CpkHn cpk;
+    int event_id;
+    jo_video_onstop_callback onstop;
+} jo_video_cpk;
 
-static jo_video_cpk             __jo_video_cpk;
+static jo_video_cpk __jo_video_cpk;
 
-void             jo_video_stop(void)
-{
-    if (__jo_video_cpk.cpk != JO_NULL)
-    {
+void jo_video_stop(void) {
+    if (__jo_video_cpk.cpk != JO_NULL) {
         CPK_Stop(__jo_video_cpk.cpk);
         __jo_video_cpk.cpk = JO_NULL;
     }
-    if (__jo_video_cpk.event_id != -1)
-    {
+    if (__jo_video_cpk.event_id != -1) {
         jo_core_remove_callback(__jo_video_cpk.event_id);
         __jo_video_cpk.event_id = -1;
     }
-    if (__jo_video_cpk.gfs != JO_NULL)
-    {
+    if (__jo_video_cpk.gfs != JO_NULL) {
         GFS_Close(__jo_video_cpk.gfs);
         __jo_video_cpk.gfs = JO_NULL;
     }
-    if (__jo_video_cpk.decode_buffer != JO_NULL)
-    {
+    if (__jo_video_cpk.decode_buffer != JO_NULL) {
         jo_free(__jo_video_cpk.decode_buffer);
         __jo_video_cpk.decode_buffer = JO_NULL;
     }
-    if (__jo_video_cpk.work_buffer != JO_NULL)
-    {
+    if (__jo_video_cpk.work_buffer != JO_NULL) {
         jo_free(__jo_video_cpk.work_buffer);
         __jo_video_cpk.work_buffer = JO_NULL;
     }
-    if (__jo_video_cpk.movie_buffer != JO_NULL)
-    {
+    if (__jo_video_cpk.movie_buffer != JO_NULL) {
         jo_free(__jo_video_cpk.movie_buffer);
         __jo_video_cpk.movie_buffer = JO_NULL;
     }
-    if (__jo_pcm_buffer != NULL)
-    {
+    if (__jo_pcm_buffer != NULL) {
         jo_free(__jo_pcm_buffer);
         __jo_pcm_buffer = NULL;
     }
 
-    if (__jo_ring_buffer != NULL)
-    {
+    if (__jo_ring_buffer != NULL) {
         jo_free(__jo_ring_buffer);
         __jo_ring_buffer = NULL;
-    }     
-    if (__jo_video_cpk.onstop != JO_NULL)
-    {
+    }
+    if (__jo_video_cpk.onstop != JO_NULL) {
         jo_sprite_free_all();
-        jo_core_remove_vblank_callback(__jo_vblank_id);        
+        jo_core_remove_vblank_callback(__jo_vblank_id);
         __jo_video_cpk.onstop();
         __jo_video_cpk.onstop = JO_NULL;
     }
 }
 
-static void			__jo_internal_cpk(void)
-{
+static void __jo_internal_cpk(void) {
     CPK_Task(__jo_video_cpk.cpk);
-    if (CPK_IsDispTime(__jo_video_cpk.cpk) == TRUE)
-    {
+    if (CPK_IsDispTime(__jo_video_cpk.cpk) == TRUE) {
         __jo_video_cpk.img.data = __jo_video_cpk.decode_buffer;
         jo_sprite_replace(&__jo_video_cpk.img, __jo_video_sprite_id);
         CPK_CompleteDisp(__jo_video_cpk.cpk);
@@ -135,41 +123,36 @@ static void			__jo_internal_cpk(void)
         jo_video_stop();
 }
 
-bool					jo_video_open_file(const char *const filename)
-{
-    Sint32              fid;
-    CpkHeader           *header;
-    CpkCreatePara       para;
-    CpkColorType        color_mode;
+bool jo_video_open_file(const char *const filename) {
+    Sint32 fid;
+    CpkHeader *header;
+    CpkCreatePara para;
+    CpkColorType color_mode;
 
     __jo_pcm_buffer = jo_malloc(PCM_SIZE);
-    __jo_ring_buffer = jo_malloc(RING_BUF_SIZ);     
+    __jo_ring_buffer = jo_malloc(RING_BUF_SIZ);
     jo_video_stop();
     fid = GFS_NameToId((Sint8 *)filename);
-    if (fid < 0)
-    {
+    if (fid < 0) {
 #ifdef JO_DEBUG
         jo_core_error("%s: File not found", filename);
 #endif
         return (false);
     }
-    if ((__jo_video_cpk.gfs = GFS_Open(fid)) == JO_NULL)
-    {
+    if ((__jo_video_cpk.gfs = GFS_Open(fid)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("%s: GFS_Open() failed", filename);
 #endif
         return (false);
     }
-    if ((__jo_video_cpk.movie_buffer = jo_malloc_with_behaviour(RING_BUF_SIZ, JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL)
-    {
+    if ((__jo_video_cpk.movie_buffer = jo_malloc_with_behaviour(RING_BUF_SIZ, JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("%s: Out of memory #1", filename);
 #endif
         jo_video_stop();
         return (false);
     }
-    if ((__jo_video_cpk.work_buffer = jo_malloc_with_behaviour(CPK_15WORK_BSIZE * sizeof(unsigned int), JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL)
-    {
+    if ((__jo_video_cpk.work_buffer = jo_malloc_with_behaviour(CPK_15WORK_BSIZE * sizeof(unsigned int), JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("%s: Out of memory #2", filename);
 #endif
@@ -182,30 +165,27 @@ bool					jo_video_open_file(const char *const filename)
     CPK_PARA_BUF_SIZE(&para) = RING_BUF_SIZ;
     CPK_PARA_PCM_ADDR(&para) = PCM_ADDR;
     CPK_PARA_PCM_SIZE(&para) = PCM_SIZE;
-    if ((__jo_video_cpk.cpk = CPK_CreateGfsMovie(&para, __jo_video_cpk.gfs)) == JO_NULL)
-    {
+    if ((__jo_video_cpk.cpk = CPK_CreateGfsMovie(&para, __jo_video_cpk.gfs)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("CPK_CreateGfsMovie() failed");
 #endif
         jo_video_stop();
         return (false);
     }
-   
+
     color_mode = CPK_COLOR_15BIT;
     CPK_SetColor(__jo_video_cpk.cpk, color_mode);
     CPK_PreloadHeader(__jo_video_cpk.cpk);
     header = CPK_GetHeader(__jo_video_cpk.cpk);
 #ifdef JO_DEBUG
-    if (JO_MOD_POW2(header->width, 8) != 0)
-    {
+    if (JO_MOD_POW2(header->width, 8) != 0) {
         jo_core_error("%s: Video width must be a multiple of 8", filename);
         jo_video_stop();
         return (false);
     }
 #endif
     __jo_video_cpk.decode_buffer_size = header->width * header->height * (color_mode == CPK_COLOR_15BIT ? 2 : 3); // Thanks to tarceri for the tip!
-    if ((__jo_video_cpk.decode_buffer = jo_malloc_with_behaviour(__jo_video_cpk.decode_buffer_size, JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL)
-    {
+    if ((__jo_video_cpk.decode_buffer = jo_malloc_with_behaviour(__jo_video_cpk.decode_buffer_size, JO_MALLOC_TRY_REUSE_BLOCK)) == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("%s: Out of memory #3", filename);
 #endif
@@ -219,8 +199,7 @@ bool					jo_video_open_file(const char *const filename)
         __jo_video_sprite_id = jo_sprite_add(&__jo_video_cpk.img);
     else
         __jo_video_sprite_id = jo_sprite_replace(&__jo_video_cpk.img, __jo_video_sprite_id);
-    if (__jo_video_sprite_id < 0)
-    {
+    if (__jo_video_sprite_id < 0) {
         jo_video_stop();
         return (false);
     }
@@ -228,10 +207,8 @@ bool					jo_video_open_file(const char *const filename)
     return (true);
 }
 
-bool                    jo_video_pause(void)
-{
-    if (__jo_video_cpk.cpk == JO_NULL)
-    {
+bool jo_video_pause(void) {
+    if (__jo_video_cpk.cpk == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Video not ready");
 #endif
@@ -241,20 +218,16 @@ bool                    jo_video_pause(void)
     return (true);
 }
 
-bool                    jo_video_play(const jo_video_onstop_callback onstop)
-{
-    if (__jo_video_cpk.cpk == JO_NULL)
-    {
+bool jo_video_play(const jo_video_onstop_callback onstop) {
+    if (__jo_video_cpk.cpk == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Video not ready");
 #endif
         return (false);
     }
-    if (__jo_video_cpk.event_id < 0)
-    {
+    if (__jo_video_cpk.event_id < 0) {
         __jo_video_cpk.event_id = jo_core_add_callback(__jo_internal_cpk);
-        if (__jo_video_cpk.event_id < 0)
-        {
+        if (__jo_video_cpk.event_id < 0) {
 #ifdef JO_DEBUG
             jo_core_error("Fail to create video callback");
 #endif
@@ -269,16 +242,14 @@ bool                    jo_video_play(const jo_video_onstop_callback onstop)
 
 #ifdef JO_DEBUG
 
-static void     __jo_cpk_error_handling(void *obj, Sint32 error_code)
-{
+static void __jo_cpk_error_handling(void *obj, Sint32 error_code) {
     JO_UNUSED_ARG(obj);
     jo_core_error("Cinepak Error 0x%x", (CpkErrCode)error_code);
 }
 
 #endif
 
-bool		                        jo_video_init(void)
-{
+bool jo_video_init(void) {
     __jo_video_cpk.decode_buffer = JO_NULL;
     __jo_video_cpk.work_buffer = JO_NULL;
     __jo_video_cpk.movie_buffer = JO_NULL;

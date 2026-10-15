@@ -46,40 +46,34 @@
 #include "jo/palette.h"
 #include "jo/vdp2_malloc.h"
 
-extern int          __jo_current_palette_id;
+extern int __jo_current_palette_id;
 
-void                jo_create_palette(jo_palette * const output)
-{
+void jo_create_palette(jo_palette *const output) {
 #ifdef JO_DEBUG
-    if (output == JO_NULL)
-    {
+    if (output == JO_NULL) {
         jo_core_error("output is null");
-        return ;
+        return;
     }
 #endif
     output->data = jo_vdp2_malloc_autosize(JO_VDP2_RAM_COLOR);
     output->id = __jo_current_palette_id;
 }
 
-void        jo_set_palette_register(const unsigned short palette_index, const jo_color color)
-{
+void jo_set_palette_register(const unsigned short palette_index, const jo_color color) {
 #ifdef JO_DEBUG
-    if (palette_index < 1)
-    {
+    if (palette_index < 1) {
         jo_core_error("palette_index too low");
-        return ;
+        return;
     }
-    if (palette_index >= 2048)
-    {
+    if (palette_index >= 2048) {
         jo_core_error("palette_index too high");
-        return ;
+        return;
     }
 #endif
     *(((jo_color *)(JO_VDP2_CRAM)) + palette_index) = color;
 }
 
-jo_color    jo_get_palette_register(const unsigned short palette_index)
-{
+jo_color jo_get_palette_register(const unsigned short palette_index) {
     return *(((jo_color *)(JO_VDP2_CRAM)) + palette_index);
 }
 

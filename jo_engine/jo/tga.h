@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_TGA_H__
-# define __JO_TGA_H__
+#define __JO_TGA_H__
 
 #ifdef JO_COMPILE_WITH_TGA_SUPPORT
 
@@ -41,29 +41,28 @@
 ** TYPEDEFS
 */
 /** @brief Function prototype for () */
-typedef jo_palette*	(*jo_tga_palette_handling_callback)(void);
+typedef jo_palette *(*jo_tga_palette_handling_callback)(void);
 
 /** @brief tga error code */
-typedef enum
-{
+typedef enum {
     JO_TGA_OK = 0,
     JO_TGA_FILE_NOT_FOUND = 1,
     JO_TGA_UNSUPPORTED_FORMAT = 2,
     JO_TGA_OUT_OF_MEMORY = 3
-}					t_tga_error_code;
+} t_tga_error_code;
 
 /** @brief Set the callback to handle TGA palette for 8 bits image
  *  @param callback The callback
  *  @warning This function is mandatory if you use 8 bits TGA (but you can use jo_set_tga_default_palette() instead)
  */
-void                    jo_set_tga_palette_handling(jo_tga_palette_handling_callback callback);
+void jo_set_tga_palette_handling(jo_tga_palette_handling_callback callback);
 
 /** @brief Set the palette to use for 8 bits image
  *  @param palette The Palette
  *  @warning This function is mandatory if you use 8 bits TGA (but you can use jo_set_tga_palette_handling() instead)
  *  @warning The content of the palette will be filled when the image is loaded
  */
-void                    jo_set_tga_default_palette(jo_palette *palette);
+void jo_set_tga_default_palette(jo_palette *palette);
 
 /** @brief Load a TGA image from stream
  *  @param img Image (set data to NULL for dynamic allocation)
@@ -73,14 +72,14 @@ void                    jo_set_tga_default_palette(jo_palette *palette);
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return t_tga_error_code
  */
-t_tga_error_code		jo_tga_loader_from_stream(jo_img *img, char *stream, const jo_color transparent_color);
+t_tga_error_code jo_tga_loader_from_stream(jo_img *img, char *stream, const jo_color transparent_color);
 
 /** @brief Add a sprite from a TGA stream
  *  @param stream Raw TGA contents
  *  @param transparent_color Transparent color (see colors.h). Use JO_COLOR_Transparent by default
  *  @return Sprite Id or -1 if failed
  */
-int     jo_sprite_add_tga_from_stream(char *stream, const jo_color transparent_color);
+int jo_sprite_add_tga_from_stream(char *stream, const jo_color transparent_color);
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
@@ -92,7 +91,7 @@ int     jo_sprite_add_tga_from_stream(char *stream, const jo_color transparent_c
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return Sprite Id or -1 if failed
  */
-int		jo_sprite_add_tga(const char * const sub_dir, const char * const filename, const jo_color transparent_color);
+int jo_sprite_add_tga(const char *const sub_dir, const char *const filename, const jo_color transparent_color);
 
 /** @brief Load a TGA image
  *  @param img Image (set data to NULL for dynamic allocation)
@@ -103,7 +102,7 @@ int		jo_sprite_add_tga(const char * const sub_dir, const char * const filename, 
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return t_tga_error_code
  */
-t_tga_error_code		jo_tga_loader(jo_img *img, const char * const sub_dir, const char *const filename, const jo_color transparent_color);
+t_tga_error_code jo_tga_loader(jo_img *img, const char *const sub_dir, const char *const filename, const jo_color transparent_color);
 
 /** @brief Load a 8 bits 255 colors max TGA image
  *  @param img Image (set data to NULL for dynamic allocation)
@@ -114,7 +113,7 @@ t_tga_error_code		jo_tga_loader(jo_img *img, const char * const sub_dir, const c
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return t_tga_error_code
  */
-t_tga_error_code        jo_tga_8bits_loader(jo_img_8bits *img, const char * const sub_dir, const char * const filename, const int transparent_color_index_in_palette);
+t_tga_error_code jo_tga_8bits_loader(jo_img_8bits *img, const char *const sub_dir, const char *const filename, const int transparent_color_index_in_palette);
 
 /** @brief Load a 8 bits 255 colors max TGA image
  *  @param img Image (set data to NULL for dynamic allocation)
@@ -124,7 +123,7 @@ t_tga_error_code        jo_tga_8bits_loader(jo_img_8bits *img, const char * cons
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return t_tga_error_code
  */
-t_tga_error_code		jo_tga_8bits_loader_from_stream(jo_img_8bits *img, char *stream, const int transparent_color_index_in_palette);
+t_tga_error_code jo_tga_8bits_loader_from_stream(jo_img_8bits *img, char *stream, const int transparent_color_index_in_palette);
 
 /** @brief Load a tileset TGA image
  *  @param sub_dir Sub directory name (use JO_ROOT_DIR if the file is on the root directory)
@@ -137,7 +136,7 @@ t_tga_error_code		jo_tga_8bits_loader_from_stream(jo_img_8bits *img, char *strea
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return t_tga_error_code
  */
-t_tga_error_code            jo_tga_8bits_tileset_loader(const char * const sub_dir, const char * const filename, const jo_color transparent_color, const jo_tile * const tileset, const unsigned int tile_count, jo_raw_img *output_tiles);
+t_tga_error_code jo_tga_8bits_tileset_loader(const char *const sub_dir, const char *const filename, const jo_color transparent_color, const jo_tile *const tileset, const unsigned int tile_count, jo_raw_img *output_tiles);
 
 /** @brief Add tileset sprites from a TGA file
  *  @param sub_dir Sub directory name (use JO_ROOT_DIR if the file is on the root directory)
@@ -149,7 +148,7 @@ t_tga_error_code            jo_tga_8bits_tileset_loader(const char * const sub_d
  *  @warning The palette of 8 bits TGA must be 255 colors max not 256
  *  @return Sprite Id of the first image or -1 if failed
  */
-int		jo_sprite_add_tga_tileset(const char * const sub_dir, const char * const filename, const jo_color transparent_color, const jo_tile * const tileset, const unsigned int tile_count);
+int jo_sprite_add_tga_tileset(const char *const sub_dir, const char *const filename, const jo_color transparent_color, const jo_tile *const tileset, const unsigned int tile_count);
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 

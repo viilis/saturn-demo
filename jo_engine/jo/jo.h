@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_H__
-# define __JO_H__
+#define __JO_H__
 
 /*
 ** INCLUDES

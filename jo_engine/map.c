@@ -49,105 +49,87 @@
 #include "jo/list.h"
 #include "jo/3d.h"
 
-#define JO_MAP_PARSER_BUF_SIZE	(8)
+#define JO_MAP_PARSER_BUF_SIZE (8)
 
-extern jo_texture_definition    __jo_sprite_def[JO_MAX_SPRITE];
-extern jo_picture_definition    __jo_sprite_pic[JO_MAX_SPRITE];
+extern jo_texture_definition __jo_sprite_def[JO_MAX_SPRITE];
+extern jo_picture_definition __jo_sprite_pic[JO_MAX_SPRITE];
 
 /** @brief Map tile structure */
 typedef struct
 {
-    short			x;
-    short			y;
-    short			real_x;
-    short			real_y;
-    short			width;
-    short			height;
+    short x;
+    short y;
+    short real_x;
+    short real_y;
+    short width;
+    short height;
 
 #if JO_MAX_SPRITE > 255
     unsigned short
 #else
     unsigned char
 #endif
-    sprite_or_anim_id;
-    unsigned char   attribute;
-    bool            is_animated;
-    bool            is_visible_on_screen;
-    jo_pos3D        pos;
-}					jo_map_tile;
+        sprite_or_anim_id;
+    unsigned char attribute;
+    bool is_animated;
+    bool is_visible_on_screen;
+    jo_pos3D pos;
+} jo_map_tile;
 
-static jo_map_tile                      *gl_map[JO_MAP_MAX_LAYER];
-static unsigned short                   gl_map_tile_count[JO_MAP_MAX_LAYER];
-static int                              gl_map_depth_fixed[JO_MAP_MAX_LAYER];
+static jo_map_tile *gl_map[JO_MAP_MAX_LAYER];
+static unsigned short gl_map_tile_count[JO_MAP_MAX_LAYER];
+static int gl_map_depth_fixed[JO_MAP_MAX_LAYER];
 
-int                                     jo_map_per_pixel_vertical_collision(const unsigned int layer, int x, int y, unsigned char * restrict attribute)
-{
-    register jo_map_tile                *current_tile;
-    register int                        i;
-    register int                        distance;
-    unsigned short                      *img_data;
-    unsigned char                       *img_data_8bits;
-    jo_picture_definition               *current_pic;
+int jo_map_per_pixel_vertical_collision(const unsigned int layer, int x, int y, unsigned char *restrict attribute) {
+    register jo_map_tile *current_tile;
+    register int i;
+    register int distance;
+    unsigned short *img_data;
+    unsigned char *img_data_8bits;
+    jo_picture_definition *current_pic;
 
-    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i)
-    {
+    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i) {
         current_tile = &gl_map[layer][i];
-        if (jo_square_intersect(current_tile->real_x, current_tile->real_y, current_tile->width, current_tile->height, x, y, 1, 1))
-        {
+        if (jo_square_intersect(current_tile->real_x, current_tile->real_y, current_tile->width, current_tile->height, x, y, 1, 1)) {
             if (attribute != JO_NULL)
                 *attribute = current_tile->attribute;
             current_pic = &__jo_sprite_pic[current_tile->is_animated ? jo_get_anim_sprite(current_tile->sprite_or_anim_id) : current_tile->sprite_or_anim_id];
             x -= current_tile->real_x;
             y -= current_tile->real_y;
-            if (current_pic->color_mode == COL_256)
-            {
+            if (current_pic->color_mode == COL_256) {
                 img_data_8bits = ((unsigned char *)current_pic->data);
-                if (jo_sprite_get_pixel_palette_index(img_data_8bits, x, y, current_tile->width) == 0)
-                {
-                    for (distance = 1; distance < current_tile->height; ++distance)
-                    {
+                if (jo_sprite_get_pixel_palette_index(img_data_8bits, x, y, current_tile->width) == 0) {
+                    for (distance = 1; distance < current_tile->height; ++distance) {
                         if (jo_sprite_get_pixel_palette_index(img_data_8bits, x, y + distance, current_tile->width) != 0)
                             return distance;
                     }
                     return (JO_MAP_NO_COLLISION);
-                }
-                else
-                {
+                } else {
                     distance = y;
-                    do
-                    {
+                    do {
                         --y;
                         if (jo_sprite_get_pixel_palette_index(img_data_8bits, x, y, current_tile->width) == 0)
                             break;
 
-                    }
-                    while (y > 0);
+                    } while (y > 0);
                     return (y - distance + 1);
                 }
-            }
-            else
-            {
+            } else {
                 img_data = ((unsigned short *)current_pic->data);
-                if (jo_sprite_is_pixel_transparent(img_data, x, y, current_tile->width))
-                {
-                    for (distance = 1; distance < current_tile->height; ++distance)
-                    {
+                if (jo_sprite_is_pixel_transparent(img_data, x, y, current_tile->width)) {
+                    for (distance = 1; distance < current_tile->height; ++distance) {
                         if (!jo_sprite_is_pixel_transparent(img_data, x, y + distance, current_tile->width))
                             return distance;
                     }
                     return (JO_MAP_NO_COLLISION);
-                }
-                else
-                {
+                } else {
                     distance = y;
-                    do
-                    {
+                    do {
                         --y;
                         if (jo_sprite_is_pixel_transparent(img_data, x, y, current_tile->width))
                             break;
 
-                    }
-                    while (y > 0);
+                    } while (y > 0);
                     return (y - distance + 1);
                 }
             }
@@ -156,13 +138,11 @@ int                                     jo_map_per_pixel_vertical_collision(cons
     return (JO_MAP_NO_COLLISION);
 }
 
-int                                     jo_map_hitbox_detection_custom_boundaries(const unsigned int layer, const int x, const int y, const int w, const int h)
-{
-    register jo_map_tile                *current_tile;
-    register int                        i;
+int jo_map_hitbox_detection_custom_boundaries(const unsigned int layer, const int x, const int y, const int w, const int h) {
+    register jo_map_tile *current_tile;
+    register int i;
 
-    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i)
-    {
+    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i) {
         current_tile = &gl_map[layer][i];
         if (jo_square_intersect(current_tile->real_x, current_tile->real_y, current_tile->width, current_tile->height, x, y, w, h))
             return (current_tile->attribute);
@@ -170,13 +150,11 @@ int                                     jo_map_hitbox_detection_custom_boundarie
     return (JO_MAP_NO_COLLISION);
 }
 
-bool					                    jo_map_create(const unsigned int layer, const unsigned short max_tile_count, const short depth)
-{
+bool jo_map_create(const unsigned int layer, const unsigned short max_tile_count, const short depth) {
     gl_map_depth_fixed[layer] = depth;
     JO_ZERO(gl_map_tile_count[layer]);
     gl_map[layer] = (jo_map_tile *)jo_malloc(max_tile_count * sizeof(jo_map_tile));
-    if (gl_map[layer] == JO_NULL)
-    {
+    if (gl_map[layer] == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory");
 #endif
@@ -185,17 +163,16 @@ bool					                    jo_map_create(const unsigned int layer, const unsig
     return (true);
 }
 
-static void             __internal_jo_map_add_tile(const unsigned int layer, const short x, const short y,
+static void __internal_jo_map_add_tile(const unsigned int layer, const short x, const short y,
 #if JO_MAX_SPRITE > 255
-        const unsigned short sprite_or_anim_id,
+                                       const unsigned short sprite_or_anim_id,
 #else
-        const unsigned char sprite_or_anim_id,
+                                       const unsigned char sprite_or_anim_id,
 #endif
-        const bool is_animated,
-        const unsigned char attribute)
-{
-    int					                sprite_id;
-    register jo_map_tile                *new_tile;
+                                       const bool is_animated,
+                                       const unsigned char attribute) {
+    int sprite_id;
+    register jo_map_tile *new_tile;
 
     new_tile = &gl_map[layer][gl_map_tile_count[layer]];
     new_tile->pos.z = gl_map_depth_fixed[layer];
@@ -216,48 +193,42 @@ static void             __internal_jo_map_add_tile(const unsigned int layer, con
     ++gl_map_tile_count[layer];
 }
 
-void                        jo_map_add_tile(const unsigned int layer, const short x, const short y,
+void jo_map_add_tile(const unsigned int layer, const short x, const short y,
 #if JO_MAX_SPRITE > 255
-        const unsigned short sprite_id,
+                     const unsigned short sprite_id,
 #else
-        const unsigned char sprite_id,
+                     const unsigned char sprite_id,
 #endif
-        const unsigned char attribute)
-{
+                     const unsigned char attribute) {
     __internal_jo_map_add_tile(layer, x, y, sprite_id, false, attribute);
 }
 
-void                        jo_map_add_animated_tile(const unsigned int layer, const short x, const short y, const unsigned char anim_id, const unsigned char attribute)
-{
+void jo_map_add_animated_tile(const unsigned int layer, const short x, const short y, const unsigned char anim_id, const unsigned char attribute) {
     __internal_jo_map_add_tile(layer, x, y, anim_id, true, attribute);
 }
 
-void						jo_map_draw_background(const unsigned int layer, const short x, const short y)
-{
-    register jo_map_tile    *current_tile;
-    register int            i;
-    jo_img                  img;
+void jo_map_draw_background(const unsigned int layer, const short x, const short y) {
+    register jo_map_tile *current_tile;
+    register int i;
+    jo_img img;
 
-    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i)
-    {
+    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i) {
         current_tile = &gl_map[layer][i];
         img.width = current_tile->width;
-        img.height =  current_tile->height;
+        img.height = current_tile->height;
         img.data = __jo_sprite_pic[current_tile->sprite_or_anim_id].data;
         jo_vdp2_set_nbg1_image(&img,
-                                 x + current_tile->real_x,
-                                 y + current_tile->real_y);
+                               x + current_tile->real_x,
+                               y + current_tile->real_y);
     }
 }
 
 #ifdef JO_COMPILE_WITH_3D_SUPPORT
-void						jo_map_3d_draw(const unsigned int layer, const int x, const int y, const int z)
-{
-    register int		    i;
-    register jo_map_tile    *current_tile;
+void jo_map_3d_draw(const unsigned int layer, const int x, const int y, const int z) {
+    register int i;
+    register jo_map_tile *current_tile;
 
-    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i)
-    {
+    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i) {
         current_tile = &gl_map[layer][i];
         if (current_tile->is_animated)
             jo_3d_draw_sprite_at(jo_get_anim_sprite(current_tile->sprite_or_anim_id), current_tile->x - x, current_tile->y - y, z);
@@ -267,17 +238,14 @@ void						jo_map_3d_draw(const unsigned int layer, const int x, const int y, con
 }
 #endif /* !JO_COMPILE_WITH_3D_SUPPORT */
 
-void						jo_map_draw(const unsigned int layer, const short screen_x, const short screen_y)
-{
-    register int		    i;
-    register jo_map_tile    *current_tile;
+void jo_map_draw(const unsigned int layer, const short screen_x, const short screen_y) {
+    register int i;
+    register jo_map_tile *current_tile;
 
-    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i)
-    {
+    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i) {
         current_tile = &gl_map[layer][i];
         current_tile->is_visible_on_screen = jo_square_intersect(current_tile->real_x, current_tile->real_y, current_tile->width, current_tile->height, screen_x, screen_y, JO_TV_WIDTH, JO_TV_HEIGHT);
-        if (current_tile->is_visible_on_screen)
-        {
+        if (current_tile->is_visible_on_screen) {
             current_tile->pos.x = current_tile->x - screen_x;
             current_tile->pos.y = current_tile->y - screen_y;
             if (current_tile->is_animated)
@@ -288,25 +256,23 @@ void						jo_map_draw(const unsigned int layer, const short screen_x, const shor
     }
 }
 
-void					jo_map_free(const unsigned int layer)
-{
+void jo_map_free(const unsigned int layer) {
     jo_free(gl_map[layer]);
 }
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-bool                    jo_map_load_from_file(const unsigned int layer, const short depth, const char *const sub_dir, const char *const filename)
-{
-    char*				stream;
-    char                *stream_begin;
-    char*				tmp;
-    int					tile_count;
-    char				sprite[JO_MAX_FILENAME_LENGTH];
-    char				x[JO_MAP_PARSER_BUF_SIZE];
-    char				y[JO_MAP_PARSER_BUF_SIZE];
-    char				attribute[JO_MAP_PARSER_BUF_SIZE];
-    unsigned char       attribute_value;
-    register int		i;
+bool jo_map_load_from_file(const unsigned int layer, const short depth, const char *const sub_dir, const char *const filename) {
+    char *stream;
+    char *stream_begin;
+    char *tmp;
+    int tile_count;
+    char sprite[JO_MAX_FILENAME_LENGTH];
+    char x[JO_MAP_PARSER_BUF_SIZE];
+    char y[JO_MAP_PARSER_BUF_SIZE];
+    char attribute[JO_MAP_PARSER_BUF_SIZE];
+    unsigned char attribute_value;
+    register int i;
 
     if ((stream = jo_fs_read_file_in_dir(filename, sub_dir, 0)) == JO_NULL)
         return (false);
@@ -315,31 +281,25 @@ bool                    jo_map_load_from_file(const unsigned int layer, const sh
     for (tmp = stream; *tmp; ++tmp)
         if (*tmp == '\n')
             ++tile_count;
-    if (tile_count <= 0)
-    {
+    if (tile_count <= 0) {
         jo_free(stream_begin);
         return (false);
     }
-    if (!jo_map_create(layer, tile_count, depth))
-    {
+    if (!jo_map_create(layer, tile_count, depth)) {
         jo_free(stream_begin);
         return (false);
     }
-    while (*stream)
-    {
+    while (*stream) {
         JO_ZERO(attribute_value);
         while (*stream && jo_tools_is_whitespace(*stream))
             ++stream;
-        if (!*stream)
-        {
+        if (!*stream) {
             jo_free(stream_begin);
             return (true);
         }
-        for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i)
-        {
+        for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i) {
 #ifdef JO_DEBUG
-            if (i >= JO_MAX_FILENAME_LENGTH)
-            {
+            if (i >= JO_MAX_FILENAME_LENGTH) {
                 jo_core_error("Filename too long: %s", stream);
                 jo_free(stream_begin);
                 return (0);
@@ -350,11 +310,9 @@ bool                    jo_map_load_from_file(const unsigned int layer, const sh
         JO_ZERO(sprite[i]);
         while (*stream && jo_tools_is_whitespace(*stream))
             ++stream;
-        for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i)
-        {
+        for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i) {
 #ifdef JO_DEBUG
-            if (i >= JO_MAP_PARSER_BUF_SIZE)
-            {
+            if (i >= JO_MAP_PARSER_BUF_SIZE) {
                 jo_core_error("X coord too big");
                 jo_free(stream);
                 return (0);
@@ -365,11 +323,9 @@ bool                    jo_map_load_from_file(const unsigned int layer, const sh
         JO_ZERO(x[i]);
         while (*stream && jo_tools_is_whitespace(*stream))
             ++stream;
-        for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i)
-        {
+        for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i) {
 #ifdef JO_DEBUG
-            if (i >= JO_MAP_PARSER_BUF_SIZE)
-            {
+            if (i >= JO_MAP_PARSER_BUF_SIZE) {
                 jo_core_error("Y coord too big");
                 jo_free(stream_begin);
                 return (0);
@@ -378,15 +334,12 @@ bool                    jo_map_load_from_file(const unsigned int layer, const sh
             y[i] = *stream++;
         }
         JO_ZERO(y[i]);
-        if (*stream && *stream != '\r' && *stream != '\n')
-        {
+        if (*stream && *stream != '\r' && *stream != '\n') {
             while (*stream && jo_tools_is_whitespace(*stream))
                 ++stream;
-            for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i)
-            {
+            for (JO_ZERO(i); *stream && !jo_tools_is_whitespace(*stream); ++i) {
 #ifdef JO_DEBUG
-                if (i >= JO_MAP_PARSER_BUF_SIZE)
-                {
+                if (i >= JO_MAP_PARSER_BUF_SIZE) {
                     jo_core_error("Attribute too big");
                     jo_free(stream_begin);
                     return (0);
@@ -410,23 +363,19 @@ bool                    jo_map_load_from_file(const unsigned int layer, const sh
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
-void                        jo_map_move_tiles_by_attribute(const unsigned int layer, const unsigned char attribute_filter, const short incr_x, const short incr_y)
-{
-    register int            i;
-    register jo_map_tile    *current_tile;
+void jo_map_move_tiles_by_attribute(const unsigned int layer, const unsigned char attribute_filter, const short incr_x, const short incr_y) {
+    register int i;
+    register jo_map_tile *current_tile;
 
-    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i)
-    {
+    for (JO_ZERO(i); i < gl_map_tile_count[layer]; ++i) {
         current_tile = &gl_map[layer][i];
         if (current_tile->attribute != attribute_filter)
             continue;
-        if (incr_y != 0)
-        {
+        if (incr_y != 0) {
             current_tile->y += incr_y;
             current_tile->real_y += incr_y;
         }
-        if (incr_x != 0)
-        {
+        if (incr_x != 0) {
             current_tile->x += incr_x;
             current_tile->real_x += incr_x;
         }

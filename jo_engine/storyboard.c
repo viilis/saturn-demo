@@ -44,25 +44,22 @@
 
 #ifdef JO_COMPILE_WITH_STORYBOARD_SUPPORT
 
-jo_list                             __storyboards;
+jo_list __storyboards;
 
-void                                jo_init_storyboards(void)
-{
+void jo_init_storyboards(void) {
 #ifdef JO_DEBUG
-    if (!JO_IS_PTR_INSIDE_USER_RAM_AREA(&__storyboards))
-    {
+    if (!JO_IS_PTR_INSIDE_USER_RAM_AREA(&__storyboards)) {
         jo_core_error("Please reduce JO_GLOBAL_MEMORY_SIZE_FOR_MALLOC");
         jo_goto_boot_menu();
-        return ;
+        return;
     }
 #endif
     jo_list_init(&__storyboards);
     jo_list_set_allocation_behaviour(&__storyboards, JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE);
 }
 
-jo_storyboard                       *jo_storyboard_create(const bool autoplay, const bool repeat)
-{
-    jo_storyboard                   *storyboard  = (jo_storyboard *)jo_malloc_with_behaviour(sizeof(*storyboard), JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE);
+jo_storyboard *jo_storyboard_create(const bool autoplay, const bool repeat) {
+    jo_storyboard *storyboard = (jo_storyboard *)jo_malloc_with_behaviour(sizeof(*storyboard), JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE);
 
     storyboard->pause = !autoplay;
     storyboard->repeat = repeat;
@@ -72,118 +69,98 @@ jo_storyboard                       *jo_storyboard_create(const bool autoplay, c
     return storyboard;
 }
 
-void                                jo_storyboard_destroy(jo_storyboard * const storyboard)
-{
+void jo_storyboard_destroy(jo_storyboard *const storyboard) {
     jo_list_free_and_clear(&storyboard->objects);
     jo_list_free_and_clear(&storyboard->animations);
     jo_list_remove_first_value(&__storyboards, (jo_list_data)(void *)storyboard);
 }
 
-static void                         animate_object(jo_animation * const animation, jo_storyboard_object_cache * const object)
-{
+static void animate_object(jo_animation *const animation, jo_storyboard_object_cache *const object) {
     if (animation->rotation_speed)
         object->user->rz += animation->rotation_speed;
-    if (animation->cos_radius)
-    {
+    if (animation->cos_radius) {
         object->user->x = jo_cos_mult(animation->cos_radius, object->current_cos);
         if (object->dx)
             object->user->x += JO_DIV_BY_8(object->dx);
         object->current_cos += animation->translation_speed_x;
-    }
-    else if (animation->translation_speed_x)
-    {
+    } else if (animation->translation_speed_x) {
         if (animation->direction == 0)
             object->user->x += animation->translation_speed_x;
         else if (animation->direction == 180)
             object->user->x -= animation->translation_speed_x;
-        else if (animation->direction != 90 && animation->direction != 270)
-        {
+        else if (animation->direction != 90 && animation->direction != 270) {
             object->dx += jo_cos_mult(2 + animation->translation_speed_x, animation->direction);
             object->user->x = JO_DIV_BY_8(object->dx);
         }
     }
-    if (animation->sin_radius)
-    {
+    if (animation->sin_radius) {
         object->user->y = jo_sin_mult(animation->sin_radius, object->current_sin);
         if (object->dy)
             object->user->y += JO_DIV_BY_8(object->dy);
         object->current_sin += animation->translation_speed_y;
-    }
-    else if (animation->translation_speed_y)
-    {
+    } else if (animation->translation_speed_y) {
         if (animation->direction == 90)
             object->user->y += animation->translation_speed_y;
         else if (animation->direction == 270)
             object->user->y -= animation->translation_speed_y;
-        else if (animation->direction != 0 && animation->direction != 180)
-        {
+        else if (animation->direction != 0 && animation->direction != 180) {
             object->dy += jo_sin_mult(2 + animation->translation_speed_y, animation->direction);
             object->user->y = JO_DIV_BY_8(object->dy);
         }
     }
 }
 
-static void                         jo_reset_storyboard(jo_storyboard * const storyboard)
-{
-    jo_node                         *tmp;
+static void jo_reset_storyboard(jo_storyboard *const storyboard) {
+    jo_node *tmp;
 
     for (tmp = storyboard->animations.first; tmp != JO_NULL; tmp = tmp->next)
         ((jo_animation *)tmp->data.ptr)->disabled = false;
 }
 
-static void                         do_storyboard(jo_storyboard * const storyboard)
-{
-    jo_node                         *animation_node;
-    jo_node                         *object_node;
-    jo_animation                    *animation;
+static void do_storyboard(jo_storyboard *const storyboard) {
+    jo_node *animation_node;
+    jo_node *object_node;
+    jo_animation *animation;
 
-    for (animation_node = storyboard->animations.first; animation_node != JO_NULL; animation_node = animation_node->next)
-    {
+    for (animation_node = storyboard->animations.first; animation_node != JO_NULL; animation_node = animation_node->next) {
         animation = (jo_animation *)animation_node->data.ptr;
         if (animation->disabled)
             continue;
-        if (animation->frame >= animation->frame_skip)
-        {
+        if (animation->frame >= animation->frame_skip) {
             JO_ZERO(animation->frame);
             for (object_node = storyboard->objects.first; object_node != JO_NULL; object_node = object_node->next)
                 animate_object(animation, (jo_storyboard_object_cache *)object_node->data.ptr);
-            if (animation->limit)
-            {
+            if (animation->limit) {
                 ++animation->count;
-                if (animation->count >= animation->limit)
-                {
+                if (animation->count >= animation->limit) {
                     JO_ZERO(animation->count);
                     // TODO RESET
                     animation->disabled = true;
                 }
             }
-        }
-        else
+        } else
             ++animation->frame;
-        return ;
+        return;
     }
     if (storyboard->repeat)
         jo_reset_storyboard(storyboard);
 }
 
-void                                jo_execute_storyboards(void)
-{
-    jo_node                         *storyboard_node;
-    jo_storyboard                   *storyboard;
+void jo_execute_storyboards(void) {
+    jo_node *storyboard_node;
+    jo_storyboard *storyboard;
 
-    for (storyboard_node = __storyboards.first; storyboard_node != JO_NULL; storyboard_node = storyboard_node->next)
-    {
+    for (storyboard_node = __storyboards.first; storyboard_node != JO_NULL; storyboard_node = storyboard_node->next) {
         storyboard = (jo_storyboard *)storyboard_node->data.ptr;
         if (!storyboard->pause && storyboard->objects.count)
             do_storyboard(storyboard);
     }
 }
 
-jo_animation                        *jo_storyboard_create_animation(jo_storyboard *const storyboard,
-                                                                    const unsigned char frame_skip,
-                                                                    const unsigned int duration)
-{
-    jo_animation                    *tmp = (jo_animation *)jo_malloc_with_behaviour(sizeof(*tmp), JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE);
+jo_animation *jo_storyboard_create_animation(jo_storyboard *const storyboard,
+                                             const unsigned char frame_skip,
+                                             const unsigned int duration) {
+    jo_animation *tmp = (jo_animation *)jo_malloc_with_behaviour(sizeof(*tmp), JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE);
 
     jo_memset(tmp, 0, sizeof(*tmp));
     tmp->frame_skip = frame_skip;

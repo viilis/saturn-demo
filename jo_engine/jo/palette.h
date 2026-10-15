@@ -33,32 +33,32 @@
  */
 
 #ifndef __JO_PALETTE_H__
-# define __JO_PALETTE_H__
+#define __JO_PALETTE_H__
 
 /** @brief Define the maximum of color entry available on each palette
  *  @warning MC Hammer: don't touch this
-*/
-# define JO_PALETTE_MAX_COLORS              (255)
+ */
+#define JO_PALETTE_MAX_COLORS (255)
 
 /** @brief Define the maximum of palette
  *  @warning MC Hammer: don't touch this
-*/
-# define JO_PALETTE_MAX                     (8)
+ */
+#define JO_PALETTE_MAX (8)
 
 /** @brief Create a new palette with 255 entries maximum
  *  @param output The new palette
  *  @details See also jo_sprite_set_palette_id()
  */
-void                jo_create_palette(jo_palette * const output);
+void jo_create_palette(jo_palette *const output);
 
 /** @brief Copies the image palette data to CRAM
  *  @param data Data source
  *  @param cram_addr Color RAM address
  *  @param size Data size
  */
-static  __jo_force_inline void    jo_palette_to_cram(unsigned short * restrict data, unsigned short * restrict cram_addr, unsigned int size)
-{
-    while (size-- > 0) *(cram_addr++) = *(data++);
+static __jo_force_inline void jo_palette_to_cram(unsigned short *restrict data, unsigned short *restrict cram_addr, unsigned int size) {
+    while (size-- > 0)
+        *(cram_addr++) = *(data++);
 }
 
 /** @brief Create a new palette from existing data
@@ -67,8 +67,7 @@ static  __jo_force_inline void    jo_palette_to_cram(unsigned short * restrict d
  *  @param size Data size
  *  @details See also jo_sprite_set_palette_id()
  */
-static  __jo_force_inline void        jo_create_palette_from(jo_palette * const output, unsigned short *data, unsigned int size)
-{
+static __jo_force_inline void jo_create_palette_from(jo_palette *const output, unsigned short *data, unsigned int size) {
     jo_create_palette(output);
     jo_palette_to_cram(data, output->data, size);
 }
@@ -77,22 +76,21 @@ static  __jo_force_inline void        jo_create_palette_from(jo_palette * const 
  *  @param palette_index palette Index
  *  @param color Color
  */
-void                jo_set_palette_register(const unsigned short palette_index, const jo_color color);
+void jo_set_palette_register(const unsigned short palette_index, const jo_color color);
 
 /** @brief Get palette color from index
  *  @param palette_index palette Index
  *  @return color Color
  */
-jo_color            jo_get_palette_register(const unsigned short palette_index);
+jo_color jo_get_palette_register(const unsigned short palette_index);
 
 #ifdef JO_COMPILE_WITH_PRINTF_SUPPORT
 
 /** @brief Set foreground palette color for the specific index
-  * @param index Palette index (0 and 1 are reserved)
-  * @param color Color (Example: JO_COLOR_Red)
-  */
-static  __jo_force_inline void        jo_set_printf_palette_color(const unsigned short index, const unsigned short color)
-{
+ * @param index Palette index (0 and 1 are reserved)
+ * @param color Color (Example: JO_COLOR_Red)
+ */
+static __jo_force_inline void jo_set_printf_palette_color(const unsigned short index, const unsigned short color) {
     jo_set_palette_register(1 + JO_MULT_BY_256(index), color);
 }
 

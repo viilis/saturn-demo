@@ -41,18 +41,16 @@
 #include "jo/math.h"
 #include "jo/list.h"
 
-void	jo_list_init(jo_list * const list)
-{
+void jo_list_init(jo_list *const list) {
     JO_ZERO(list->count);
     list->last = JO_NULL;
     list->first = JO_NULL;
     list->allocation_behaviour = JO_MALLOC_TRY_REUSE_SAME_BLOCK_SIZE;
 }
 
-jo_node             *jo_list_insert_at(jo_list * const list, const jo_list_data data, const int index)
-{
-    jo_node         *next_node;
-    jo_node         *node;
+jo_node *jo_list_insert_at(jo_list *const list, const jo_list_data data, const int index) {
+    jo_node *next_node;
+    jo_node *node;
 
     if (index >= list->count)
         return jo_list_add(list, data);
@@ -60,8 +58,7 @@ jo_node             *jo_list_insert_at(jo_list * const list, const jo_list_data 
     if (next_node == JO_NULL)
         return jo_list_add(list, data);
     node = (jo_node *)jo_malloc_with_behaviour(sizeof(jo_node), list->allocation_behaviour);
-    if (node == JO_NULL)
-    {
+    if (node == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory");
 #endif
@@ -69,13 +66,10 @@ jo_node             *jo_list_insert_at(jo_list * const list, const jo_list_data 
     }
     ++list->count;
     node->data = data;
-    if (next_node->prev != JO_NULL)
-    {
+    if (next_node->prev != JO_NULL) {
         next_node->prev->next = node;
         node->prev = next_node->prev;
-    }
-    else
-    {
+    } else {
         node->prev = JO_NULL;
         list->first = node;
     }
@@ -84,28 +78,23 @@ jo_node             *jo_list_insert_at(jo_list * const list, const jo_list_data 
     return (node);
 }
 
-jo_node             *jo_list_add(jo_list * const list, const jo_list_data data)
-{
-    jo_node         *node;
+jo_node *jo_list_add(jo_list *const list, const jo_list_data data) {
+    jo_node *node;
 
     node = (jo_node *)jo_malloc_with_behaviour(sizeof(jo_node), list->allocation_behaviour);
-    if (node == JO_NULL)
-    {
+    if (node == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory");
 #endif
         return (node);
     }
     node->data = data;
-    if (list->last == JO_NULL)
-    {
+    if (list->last == JO_NULL) {
         node->prev = JO_NULL;
         node->next = JO_NULL;
         list->first = node;
         list->last = node;
-    }
-    else
-    {
+    } else {
         node->next = JO_NULL;
         list->last->next = node;
         node->prev = list->last;
@@ -115,35 +104,25 @@ jo_node             *jo_list_add(jo_list * const list, const jo_list_data data)
     return (node);
 }
 
-void            jo_list_remove(jo_list * const list, const jo_node * const node_to_delete)
-{
-    jo_node     *prev;
-    jo_node     *next;
+void jo_list_remove(jo_list *const list, const jo_node *const node_to_delete) {
+    jo_node *prev;
+    jo_node *next;
 
     prev = node_to_delete->prev;
     next = node_to_delete->next;
-    if (prev != JO_NULL)
-    {
-        if (next != JO_NULL)
-        {
+    if (prev != JO_NULL) {
+        if (next != JO_NULL) {
             prev->next = next;
             next->prev = prev;
-        }
-        else
-        {
+        } else {
             prev->next = JO_NULL;
             list->last = prev;
         }
-    }
-    else
-    {
-        if (next != JO_NULL)
-        {
+    } else {
+        if (next != JO_NULL) {
             next->prev = JO_NULL;
             list->first = next;
-        }
-        else
-        {
+        } else {
             list->first = JO_NULL;
             list->last = JO_NULL;
         }

@@ -36,23 +36,23 @@
  */
 
 #ifndef __JO_PHYSICS_H__
-# define __JO_PHYSICS_H__
+#define __JO_PHYSICS_H__
 
 typedef struct
 {
-    bool    is_in_air;
-    float   air_acceleration_strength;
-    float   acceleration_strength;
-    float   friction;
-    float   deceleration_strength;
-    float   max_speed;
-    float   max_speed_y;
-    float   braking_animation_speed;
-    float   gravity;
-    float   jump_speed_y;
-    float   speed;
-    float   speed_y;
-}           jo_sidescroller_physics_params;
+    bool is_in_air;
+    float air_acceleration_strength;
+    float acceleration_strength;
+    float friction;
+    float deceleration_strength;
+    float max_speed;
+    float max_speed_y;
+    float braking_animation_speed;
+    float gravity;
+    float jump_speed_y;
+    float speed;
+    float speed_y;
+} jo_sidescroller_physics_params;
 
 /*
 ** PHYSICS COMPUTATIONS
@@ -61,24 +61,21 @@ typedef struct
 /** @brief Friction computation
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void              jo_physics_apply_friction(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline void jo_physics_apply_friction(jo_sidescroller_physics_params *physics) {
     physics->speed -= JO_MIN(JO_ABS(physics->speed), physics->friction) * (physics->speed > 0 ? 1 : -1);
 }
 
 /** @brief Jump computation
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_jump(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline void jo_physics_jump(jo_sidescroller_physics_params *physics) {
     physics->speed_y = physics->jump_speed_y;
 }
 
 /** @brief Gravity computation
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_apply_gravity(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline void jo_physics_apply_gravity(jo_sidescroller_physics_params *physics) {
     physics->speed_y += physics->gravity;
     if (physics->speed_y > physics->max_speed_y)
         physics->speed_y = physics->max_speed_y;
@@ -87,8 +84,7 @@ static  __jo_force_inline void            jo_physics_apply_gravity(jo_sidescroll
 /** @brief Acceleration computation when going to the right
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_accelerate_right(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline void jo_physics_accelerate_right(jo_sidescroller_physics_params *physics) {
     physics->speed += (physics->is_in_air ? physics->air_acceleration_strength : physics->acceleration_strength);
     physics->speed = JO_MIN(physics->speed, physics->max_speed);
 }
@@ -96,8 +92,7 @@ static  __jo_force_inline void            jo_physics_accelerate_right(jo_sidescr
 /** @brief Acceleration computation when going to the left
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_accelerate_left(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline void jo_physics_accelerate_left(jo_sidescroller_physics_params *physics) {
     physics->speed -= (physics->is_in_air ? physics->air_acceleration_strength : physics->acceleration_strength);
     physics->speed = JO_MAX(physics->speed, JO_CHANGE_SIGN(physics->max_speed));
 }
@@ -105,18 +100,16 @@ static  __jo_force_inline void            jo_physics_accelerate_left(jo_sidescro
 /** @brief Deceleration computation when going to the right
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_decelerate_left(jo_sidescroller_physics_params *physics)
-{
-    physics->speed -=  physics->deceleration_strength;
+static __jo_force_inline void jo_physics_decelerate_left(jo_sidescroller_physics_params *physics) {
+    physics->speed -= physics->deceleration_strength;
     physics->speed = JO_MAX(0, physics->speed);
 }
 
 /** @brief Deceleration computation when going to the left
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_decelerate_right(jo_sidescroller_physics_params *physics)
-{
-    physics->speed +=  physics->deceleration_strength;
+static __jo_force_inline void jo_physics_decelerate_right(jo_sidescroller_physics_params *physics) {
+    physics->speed += physics->deceleration_strength;
     physics->speed = JO_MIN(physics->speed, 0);
 }
 
@@ -128,8 +121,7 @@ static  __jo_force_inline void            jo_physics_decelerate_right(jo_sidescr
  *  @param physics Sidescroller physics properties
  *  @return true if we doesn't move otherwise false
  */
-static  __jo_force_inline bool            jo_physics_is_standing(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline bool jo_physics_is_standing(jo_sidescroller_physics_params *physics) {
     return (jo_is_float_equals_zero(physics->speed));
 }
 
@@ -138,8 +130,7 @@ static  __jo_force_inline bool            jo_physics_is_standing(jo_sidescroller
  *  @param tolerance Tolerance
  *  @return true if we almost doesn't move otherwise false
  */
-static  __jo_force_inline bool            jo_physics_is_almost_standing(jo_sidescroller_physics_params *physics, float tolerance)
-{
+static __jo_force_inline bool jo_physics_is_almost_standing(jo_sidescroller_physics_params *physics, float tolerance) {
     return (JO_ABS(physics->speed) < tolerance);
 }
 
@@ -147,8 +138,7 @@ static  __jo_force_inline bool            jo_physics_is_almost_standing(jo_sides
  *  @param physics Sidescroller physics properties
  *  @return true if we going on the right otherwise false
  */
-static  __jo_force_inline bool            jo_physics_is_going_on_the_right(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline bool jo_physics_is_going_on_the_right(jo_sidescroller_physics_params *physics) {
     return (physics->speed > 0.0f);
 }
 
@@ -156,8 +146,7 @@ static  __jo_force_inline bool            jo_physics_is_going_on_the_right(jo_si
  *  @param physics Sidescroller physics properties
  *  @return true if we going on the left otherwise false
  */
-static  __jo_force_inline bool            jo_physics_is_going_on_the_left(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline bool jo_physics_is_going_on_the_left(jo_sidescroller_physics_params *physics) {
     return (physics->speed < 0.0f);
 }
 
@@ -165,8 +154,7 @@ static  __jo_force_inline bool            jo_physics_is_going_on_the_left(jo_sid
  *  @param physics Sidescroller physics properties
  *  @return true if we should brake depending on the direction otherwise false
  */
-static  __jo_force_inline bool            jo_physics_should_brake(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline bool jo_physics_should_brake(jo_sidescroller_physics_params *physics) {
     if (jo_physics_is_going_on_the_left(physics))
         return (physics->speed >= physics->braking_animation_speed);
     return (physics->speed <= JO_CHANGE_SIGN(physics->braking_animation_speed));
@@ -179,8 +167,7 @@ static  __jo_force_inline bool            jo_physics_should_brake(jo_sidescrolle
 /** @brief Init physics engine for a Sonic like game
  *  @param physics Sidescroller physics properties
  */
-static  __jo_force_inline void            jo_physics_init_for_sonic(jo_sidescroller_physics_params *physics)
-{
+static __jo_force_inline void jo_physics_init_for_sonic(jo_sidescroller_physics_params *physics) {
     physics->air_acceleration_strength = 0.09375f;
     physics->acceleration_strength = 0.046875f;
     physics->friction = 0.046875f;

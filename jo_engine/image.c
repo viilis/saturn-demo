@@ -46,14 +46,13 @@
 #include "jo/tga.h"
 
 #ifdef JO_COMPILE_WITH_SPRITE_HASHTABLE
-extern int      __jo_hash_table[JO_MAX_SPRITE];
+extern int __jo_hash_table[JO_MAX_SPRITE];
 #endif
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-unsigned short      *__jo_bin_load(jo_img *img, const char * const sub_dir, const char * const filename)
-{
-    unsigned short  *stream;
+unsigned short *__jo_bin_load(jo_img *img, const char *const sub_dir, const char *const filename) {
+    unsigned short *stream;
 
     stream = (unsigned short *)jo_fs_read_file_in_dir(filename, sub_dir, JO_NULL);
     if (stream == JO_NULL)
@@ -62,8 +61,7 @@ unsigned short      *__jo_bin_load(jo_img *img, const char * const sub_dir, cons
     img->height = jo_swap_endian_ushort(*(stream + 1));
     if (img->data == JO_NULL)
         img->data = stream;
-    if (img->data == JO_NULL)
-    {
+    if (img->data == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory");
 #endif
@@ -75,30 +73,26 @@ unsigned short      *__jo_bin_load(jo_img *img, const char * const sub_dir, cons
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
-void	                jo_free_img(void * const img)
-{
+void jo_free_img(void *const img) {
 #ifdef JO_DEBUG
-    if (img == JO_NULL)
-    {
+    if (img == JO_NULL) {
         jo_core_error("img is null");
-        return ;
+        return;
     }
 #endif
     jo_free(((jo_raw_img *)img)->data);
     ((jo_raw_img *)img)->data = JO_NULL;
 }
 
-bool                    jo_bin_loader_from_stream(jo_img *img, char *stream, const jo_color transparent_color)
-{
-    register int        i;
-    register int        size;
+bool jo_bin_loader_from_stream(jo_img *img, char *stream, const jo_color transparent_color) {
+    register int i;
+    register int size;
 
     img->width = jo_swap_endian_ushort(*stream);
     img->height = jo_swap_endian_ushort(*(stream + 1));
     if (img->data == JO_NULL)
         img->data = (unsigned short *)jo_malloc(img->height * img->width * sizeof(*img->data));
-    if (img->data == JO_NULL)
-    {
+    if (img->data == JO_NULL) {
 #ifdef JO_DEBUG
         jo_core_error("Out of memory");
 #endif
@@ -106,8 +100,7 @@ bool                    jo_bin_loader_from_stream(jo_img *img, char *stream, con
     }
     stream += 2; /* Jump header */
     size = img->width * img->height;
-    for (JO_ZERO(i); i < size; ++i)
-    {
+    for (JO_ZERO(i); i < size; ++i) {
         img->data[i] = jo_swap_endian_ushort(*(stream + i));
         if (transparent_color != JO_COLOR_Transparent && img->data[i] == transparent_color)
             img->data[i] = JO_COLOR_Transparent;
@@ -117,12 +110,11 @@ bool                    jo_bin_loader_from_stream(jo_img *img, char *stream, con
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-bool                    jo_bin_loader(jo_img *img, const char * const sub_dir, const char *const filename, const jo_color transparent_color)
-{
-    register int        i;
-    register int        size;
-    unsigned short      *stream;
-    unsigned short      *stream_begin;
+bool jo_bin_loader(jo_img *img, const char *const sub_dir, const char *const filename, const jo_color transparent_color) {
+    register int i;
+    register int size;
+    unsigned short *stream;
+    unsigned short *stream_begin;
 
     stream = __jo_bin_load(img, sub_dir, filename);
     if (stream == JO_NULL)
@@ -130,8 +122,7 @@ bool                    jo_bin_loader(jo_img *img, const char * const sub_dir, c
     stream_begin = stream;
     stream += 2; /* Jump header */
     size = img->width * img->height;
-    for (JO_ZERO(i); i < size; ++i)
-    {
+    for (JO_ZERO(i); i < size; ++i) {
         img->data[i] = jo_swap_endian_ushort(*(stream + i));
         if (transparent_color != JO_COLOR_Transparent && img->data[i] == transparent_color)
             img->data[i] = JO_COLOR_Transparent;
@@ -143,15 +134,13 @@ bool                    jo_bin_loader(jo_img *img, const char * const sub_dir, c
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
-void	                jo_replace_color(const jo_img * const img, const jo_color src_color, const jo_color dest_color)
-{
-    register int        i;
-    register int        end;
+void jo_replace_color(const jo_img *const img, const jo_color src_color, const jo_color dest_color) {
+    register int i;
+    register int end;
 #ifdef JO_DEBUG
-    if (img == JO_NULL)
-    {
+    if (img == JO_NULL) {
         jo_core_error("img is null");
-        return ;
+        return;
     }
 #endif
     end = img->width * img->height;
@@ -162,37 +151,33 @@ void	                jo_replace_color(const jo_img * const img, const jo_color s
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-int		                    jo_sprite_add_bin_tileset(const char * const sub_dir, const char * const filename, const jo_color transparent_color, const jo_tile * const tileset, const unsigned int tile_count)
-{
-    unsigned short          *stream;
-    unsigned short          *stream_begin;
-    jo_img                  full_image;
-    jo_img                  tile_image;
-    register int		    x;
-    register int		    y;
-    register int		    idx;
-    register unsigned int   i;
-    int						first_id;
+int jo_sprite_add_bin_tileset(const char *const sub_dir, const char *const filename, const jo_color transparent_color, const jo_tile *const tileset, const unsigned int tile_count) {
+    unsigned short *stream;
+    unsigned short *stream_begin;
+    jo_img full_image;
+    jo_img tile_image;
+    register int x;
+    register int y;
+    register int idx;
+    register unsigned int i;
+    int first_id;
 
 #ifdef JO_DEBUG
-    if (filename == JO_NULL)
-    {
+    if (filename == JO_NULL) {
         jo_core_error("filename is null");
         return (-1);
     }
 #endif
-    full_image.data = (unsigned short *)-1;/* Disable allocation in __jo_bin_load() */
+    full_image.data = (unsigned short *)-1; /* Disable allocation in __jo_bin_load() */
     stream = __jo_bin_load(&full_image, sub_dir, filename);
     if (stream == JO_NULL)
         return (-1);
     stream_begin = stream;
     stream += 2; /* Jump header */
     first_id = -1;
-    for (JO_ZERO(i); i < tile_count; ++i)
-    {
+    for (JO_ZERO(i); i < tile_count; ++i) {
 #ifdef JO_DEBUG
-        if (JO_MOD_POW2(tileset[i].width, 8) != 0)
-        {
+        if (JO_MOD_POW2(tileset[i].width, 8) != 0) {
             jo_core_error("%s: Image width must be a multiple of 8", filename);
             jo_free(stream_begin);
             return (-1);
@@ -201,18 +186,15 @@ int		                    jo_sprite_add_bin_tileset(const char * const sub_dir, c
         tile_image.width = tileset[i].width;
         tile_image.height = tileset[i].height;
         tile_image.data = (unsigned short *)jo_malloc_with_behaviour(tile_image.height * tile_image.width * sizeof(*tile_image.data), JO_MALLOC_TRY_REUSE_BLOCK);
-        if (tile_image.data == JO_NULL)
-        {
+        if (tile_image.data == JO_NULL) {
 #ifdef JO_DEBUG
             jo_core_error("%s: Out of memory", filename);
 #endif
             jo_free(stream_begin);
             return (-1);
         }
-        for (JO_ZERO(y); y < tile_image.height; ++y)
-        {
-            for (JO_ZERO(x); x < tile_image.width; ++x)
-            {
+        for (JO_ZERO(y); y < tile_image.height; ++y) {
+            for (JO_ZERO(x); x < tile_image.width; ++x) {
                 idx = x + y * tile_image.width;
                 tile_image.data[idx] = jo_swap_endian_ushort(stream[(x + tileset[i].x) + (y + tileset[i].y) * full_image.width]);
                 if (transparent_color != JO_COLOR_Transparent && tile_image.data[idx] == transparent_color)
@@ -228,14 +210,12 @@ int		                    jo_sprite_add_bin_tileset(const char * const sub_dir, c
     return (first_id);
 }
 
-int						jo_sprite_add_bin(const char * const sub_dir, const char * const filename, const jo_color transparent_color)
-{
-    jo_img				img;
-    int					id;
+int jo_sprite_add_bin(const char *const sub_dir, const char *const filename, const jo_color transparent_color) {
+    jo_img img;
+    int id;
 
 #ifdef JO_DEBUG
-    if (filename == JO_NULL)
-    {
+    if (filename == JO_NULL) {
         jo_core_error("filename is null");
         return (-1);
     }
@@ -244,8 +224,7 @@ int						jo_sprite_add_bin(const char * const sub_dir, const char * const filena
     if (!jo_bin_loader(&img, sub_dir, filename, transparent_color))
         return (-1);
 #ifdef JO_DEBUG
-    if (JO_MOD_POW2(img.width, 8) != 0)
-    {
+    if (JO_MOD_POW2(img.width, 8) != 0) {
         jo_core_error("%s: Image width must be a multiple of 8", filename);
         jo_free(img.data);
         return (-1);
@@ -262,14 +241,12 @@ int						jo_sprite_add_bin(const char * const sub_dir, const char * const filena
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
-int						jo_sprite_add_bin_from_stream(char *stream, const jo_color transparent_color)
-{
-    jo_img				img;
-    int					id;
+int jo_sprite_add_bin_from_stream(char *stream, const jo_color transparent_color) {
+    jo_img img;
+    int id;
 
 #ifdef JO_DEBUG
-    if (stream == JO_NULL)
-    {
+    if (stream == JO_NULL) {
         jo_core_error("stream is null");
         return (-1);
     }
@@ -278,8 +255,7 @@ int						jo_sprite_add_bin_from_stream(char *stream, const jo_color transparent_
     if (!jo_bin_loader_from_stream(&img, stream, transparent_color))
         return (-1);
 #ifdef JO_DEBUG
-    if (JO_MOD_POW2(img.width, 8) != 0)
-    {
+    if (JO_MOD_POW2(img.width, 8) != 0) {
         jo_core_error("Image width must be a multiple of 8");
         jo_free(img.data);
         return (-1);
@@ -292,15 +268,14 @@ int						jo_sprite_add_bin_from_stream(char *stream, const jo_color transparent_
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
-int							jo_sprite_add_image_pack(const char * const sub_dir, const char * const filename, const jo_color transparent_color)
-{
-    char                    *stream_begin;
-    char                    *stream;
-    register int			i;
-    int						first_id;
-    int						res;
-    int						count;
-    char                    filenames[JO_MAX_FILE_IN_IMAGE_PACK][JO_MAX_FILENAME_LENGTH];
+int jo_sprite_add_image_pack(const char *const sub_dir, const char *const filename, const jo_color transparent_color) {
+    char *stream_begin;
+    char *stream;
+    register int i;
+    int first_id;
+    int res;
+    int count;
+    char filenames[JO_MAX_FILE_IN_IMAGE_PACK][JO_MAX_FILENAME_LENGTH];
 
     first_id = -1;
     JO_ZERO(count);
@@ -308,15 +283,13 @@ int							jo_sprite_add_image_pack(const char * const sub_dir, const char * cons
     if ((stream = jo_fs_read_file_in_dir(filename, sub_dir, 0)) == JO_NULL)
         return (-1);
     stream_begin = stream;
-    while (*stream)
-    {
+    while (*stream) {
         while (*stream && jo_tools_is_whitespace(*stream))
             ++stream;
         if (!*stream)
             break;
 #ifdef JO_DEBUG
-        if (count >= JO_MAX_FILE_IN_IMAGE_PACK)
-        {
+        if (count >= JO_MAX_FILE_IN_IMAGE_PACK) {
             jo_core_error("Please increase JO_MAX_FILE_IN_IMAGE_PACK");
             jo_free(stream_begin);
             return (-1);
@@ -327,8 +300,7 @@ int							jo_sprite_add_image_pack(const char * const sub_dir, const char * cons
         JO_ZERO(filenames[count][i]);
         ++count;
     }
-    for (JO_ZERO(i); i < count; ++i)
-    {
+    for (JO_ZERO(i); i < count; ++i) {
         if (jo_endwith(filenames[i], ".BIN"))
             res = jo_sprite_add_bin(sub_dir, filenames[i], transparent_color);
 #ifdef JO_COMPILE_WITH_TGA_SUPPORT

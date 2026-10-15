@@ -33,12 +33,12 @@
  */
 
 #ifndef __JO_MAP_H__
-# define __JO_MAP_H__
+#define __JO_MAP_H__
 
 /** @brief Value returned by jo_map_hitbox_detection_custom_boundaries();
     @warning  Don't change this value
 */
-# define    JO_MAP_NO_COLLISION     (-2147483647)
+#define JO_MAP_NO_COLLISION (-2147483647)
 
 /** @brief Method to get vertical distance between our point (x, y) and the surface of the map (example: hill)
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
@@ -56,7 +56,7 @@
  *  @warning if distance <= 0 then you are under the surface of the sprite
  *  @warning Don't use this method if you don't have transparent pixel or if the surface is concave
  */
-int         jo_map_per_pixel_vertical_collision(const unsigned int layer, int x, int y, unsigned char *attribute);
+int jo_map_per_pixel_vertical_collision(const unsigned int layer, int x, int y, unsigned char *attribute);
 
 /** @brief Fast method to get if a square intersects with the map (HitBox processing) based on screen coord
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
@@ -66,7 +66,7 @@ int         jo_map_per_pixel_vertical_collision(const unsigned int layer, int x,
  *  @param h Height of the square
  *  @return The attribute of the tile if square collides otherwise JO_MAP_NO_COLLISION
  */
-int         jo_map_hitbox_detection_custom_boundaries(const unsigned int layer, const int x, const int y, const int w, const int h);
+int jo_map_hitbox_detection_custom_boundaries(const unsigned int layer, const int x, const int y, const int w, const int h);
 
 #ifdef JO_COMPILE_WITH_FS_SUPPORT
 
@@ -84,7 +84,7 @@ int         jo_map_hitbox_detection_custom_boundaries(const unsigned int layer, 
  *  @remarks use JoMapEditor to create map file
  *  @return true if successful otherwise false (use jo_get_last_error())
  */
-bool            jo_map_load_from_file(const unsigned int layer, const short depth, const char * const sub_dir, const char * const filename);
+bool jo_map_load_from_file(const unsigned int layer, const short depth, const char *const sub_dir, const char *const filename);
 
 #endif /* !JO_COMPILE_WITH_FS_SUPPORT */
 
@@ -94,7 +94,7 @@ bool            jo_map_load_from_file(const unsigned int layer, const short dept
  *  @param depth Z index (ex 500)
  *  @return true if successful otherwise false (use jo_get_last_error())
  */
-bool             jo_map_create(const unsigned int layer, const unsigned short max_tile_count, const short depth);
+bool jo_map_create(const unsigned int layer, const unsigned short max_tile_count, const short depth);
 
 /** @brief Add a tile on the specific layer
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
@@ -103,13 +103,13 @@ bool             jo_map_create(const unsigned int layer, const unsigned short ma
  *  @param sprite_id Sprite ID
  *  @param attribute User attribute (it's for you)
  */
-void            jo_map_add_tile(const unsigned int layer, const short x, const short y,
+void jo_map_add_tile(const unsigned int layer, const short x, const short y,
 #if JO_MAX_SPRITE > 255
-                                const unsigned short sprite_id,
+                     const unsigned short sprite_id,
 #else
-                                const unsigned char sprite_id,
+                     const unsigned char sprite_id,
 #endif
-                                const unsigned char attribute);
+                     const unsigned char attribute);
 
 /** @brief Add an animated tile on the specific layer
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
@@ -118,19 +118,19 @@ void            jo_map_add_tile(const unsigned int layer, const short x, const s
  *  @param anim_id Animation ID
  *  @param attribute User attribute (it's for you)
  */
-void            jo_map_add_animated_tile(const unsigned int layer, const short x, const short y, const unsigned char anim_id, const unsigned char attribute);
+void jo_map_add_animated_tile(const unsigned int layer, const short x, const short y, const unsigned char anim_id, const unsigned char attribute);
 
 /** @brief Destroy the specific layer
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
  */
-void			jo_map_free(const unsigned int layer);
+void jo_map_free(const unsigned int layer);
 
 /** @brief Display the specific layer
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
  *  @param screen_x relative horizontal position between the screen and the map
  *  @param screen_y relative vertical position between the screen and the map
  */
-void			jo_map_draw(const unsigned int layer, const short screen_x, const short screen_y);
+void jo_map_draw(const unsigned int layer, const short screen_x, const short screen_y);
 
 /** @brief Draw the specific layer on the background (NBG1)
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
@@ -139,7 +139,7 @@ void			jo_map_draw(const unsigned int layer, const short screen_x, const short s
  *  @warning Only works with full color images (not 8 bits)
  *  @todo Handle NBG1 Zoom
  */
-void            jo_map_draw_background(const unsigned int layer, const short x, const short y);
+void jo_map_draw_background(const unsigned int layer, const short x, const short y);
 
 /** @brief Draw the specific layer on the background (NBG1)
  *  @param layer layer level (between 0 and JO_MAP_MAX_LAYER)
@@ -148,8 +148,7 @@ void            jo_map_draw_background(const unsigned int layer, const short x, 
  *  @warning Only works with full color images (not 8 bits)
  *  @todo Handle NBG1 Zoom
  */
-static  __jo_force_inline void	jo_vdp2_map_draw_nbg1(const unsigned int layer, const short x, const short y)
-{
+static __jo_force_inline void jo_vdp2_map_draw_nbg1(const unsigned int layer, const short x, const short y) {
     jo_map_draw_background(layer, x, y);
 }
 
@@ -159,10 +158,10 @@ static  __jo_force_inline void	jo_vdp2_map_draw_nbg1(const unsigned int layer, c
  *  @param incr_x Horizontal position incrementation
  *  @param incr_y Vertical position incrementation
  */
-void            jo_map_move_tiles_by_attribute(const unsigned int layer, const unsigned char attribute_filter, const short incr_x, const short incr_y);
+void jo_map_move_tiles_by_attribute(const unsigned int layer, const unsigned char attribute_filter, const short incr_x, const short incr_y);
 
 #ifdef JO_COMPILE_WITH_3D_SUPPORT
-void            jo_map_3d_draw(const unsigned int layer, const int x, const int y, const int z);
+void jo_map_3d_draw(const unsigned int layer, const int x, const int y, const int z);
 #endif // JO_COMPILE_WITH_3D_SUPPORT
 
 #endif /* !__JO_MAP_H__ */

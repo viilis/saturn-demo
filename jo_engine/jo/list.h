@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_LIST_H__
-# define __JO_LIST_H__
+#define __JO_LIST_H__
 
 /** @brief Node type */
 typedef struct __jo_node jo_node;
@@ -45,43 +45,41 @@ typedef void (*jo_node_callback)(jo_node *node);
 typedef bool (*jo_node_any_callback)(jo_node *node, void *extra);
 
 /** @brief Node data (4 bytes) */
-typedef union
-{
-    char            c;
-    unsigned char   uc;
+typedef union {
+    char c;
+    unsigned char uc;
     struct
     {
-        short       x;
-        short       y;
-    }               coord;
-    char            str[4];
-    bool            booleans[4];
-    void            *ptr;
-    char            *ch_arr;
-    int             integer;
-}                   jo_list_data;
+        short x;
+        short y;
+    } coord;
+    char str[4];
+    bool booleans[4];
+    void *ptr;
+    char *ch_arr;
+    int integer;
+} jo_list_data;
 
 /** @brief Node struct */
-struct              __jo_node
-{
-    jo_list_data    data;
-    jo_node         *prev;
-    jo_node         *next;
+struct __jo_node {
+    jo_list_data data;
+    jo_node *prev;
+    jo_node *next;
 };
 
 /** @brief List struct */
 typedef struct
 {
-    int                     count;
-    jo_node                 *first;
-    jo_node                 *last;
-    jo_malloc_behaviour     allocation_behaviour;
-}                           jo_list;
+    int count;
+    jo_node *first;
+    jo_node *last;
+    jo_malloc_behaviour allocation_behaviour;
+} jo_list;
 
 /** @brief Init a list
  *  @param list List pointer
  */
-void	                            jo_list_init(jo_list * const list);
+void jo_list_init(jo_list *const list);
 
 /** @brief Insert an item on the list at specific index
  *  @param list List
@@ -89,22 +87,21 @@ void	                            jo_list_init(jo_list * const list);
  *  @param index Node index
  *  @return Created node on the list
  */
-jo_node                             *jo_list_insert_at(jo_list * const list, const jo_list_data data, const int index);
+jo_node *jo_list_insert_at(jo_list *const list, const jo_list_data data, const int index);
 
 /** @brief Add an item on the list
  *  @param list List
  *  @param data item to add
  *  @return Created node on the list
  */
-jo_node                             *jo_list_add(jo_list * const list, const jo_list_data data);
+jo_node *jo_list_add(jo_list *const list, const jo_list_data data);
 
 /** @brief Add a pointer on the list
  *  @param list List
  *  @param ptr Pointer to add <=> jo_list_data:ptr
  *  @return Created node on the list
  */
-static  __jo_force_inline jo_node   *jo_list_add_ptr(jo_list * const list, void *ptr)
-{
+static __jo_force_inline jo_node *jo_list_add_ptr(jo_list *const list, void *ptr) {
     return (jo_list_add(list, (jo_list_data)ptr));
 }
 
@@ -112,15 +109,14 @@ static  __jo_force_inline jo_node   *jo_list_add_ptr(jo_list * const list, void 
  *  @param list List
  *  @param node_to_delete Node to remove
  */
-void                                jo_list_remove(jo_list * const list, const jo_node * const node_to_delete);
+void jo_list_remove(jo_list *const list, const jo_node *const node_to_delete);
 
 /** @brief Get node at index
  *  @remarks Returns first or last node if out of bounds
  *  @param list List
  *  @param index Node index
  */
-static  __jo_force_inline jo_node   *jo_list_at(jo_list * const list, int index)
-{
+static __jo_force_inline jo_node *jo_list_at(jo_list *const list, int index) {
     jo_node *tmp;
     for (tmp = list->first; tmp != JO_NULL && index > 0; tmp = tmp->next)
         --index;
@@ -131,8 +127,7 @@ static  __jo_force_inline jo_node   *jo_list_at(jo_list * const list, int index)
  *  @param list List
  *  @param index Node index
  */
-static  __jo_force_inline void      jo_list_remove_at(jo_list * const list, const int index)
-{
+static __jo_force_inline void jo_list_remove_at(jo_list *const list, const int index) {
     jo_list_remove(list, jo_list_at(list, index));
 }
 
@@ -140,20 +135,19 @@ static  __jo_force_inline void      jo_list_remove_at(jo_list * const list, cons
  *  @param list List
  *  @param node_to_delete Node to remove
  */
-static  __jo_force_inline void	    jo_list_free_and_remove(jo_list * const list, const jo_node * const node_to_delete)
-{
-    if (node_to_delete->data.ptr != JO_NULL) jo_free(node_to_delete->data.ptr);
+static __jo_force_inline void jo_list_free_and_remove(jo_list *const list, const jo_node *const node_to_delete) {
+    if (node_to_delete->data.ptr != JO_NULL)
+        jo_free(node_to_delete->data.ptr);
     jo_list_remove(list, node_to_delete);
 }
 
 /** @brief Free node pointers and remove all item
  *  @param list List
  */
-static  __jo_force_inline void	    jo_list_free_and_clear(jo_list * const list)
-{
-    while (list->first != JO_NULL)
-    {
-        if (list->first->data.ptr != JO_NULL) jo_free(list->first->data.ptr);
+static __jo_force_inline void jo_list_free_and_clear(jo_list *const list) {
+    while (list->first != JO_NULL) {
+        if (list->first->data.ptr != JO_NULL)
+            jo_free(list->first->data.ptr);
         jo_list_remove(list, list->first);
     }
 }
@@ -161,56 +155,50 @@ static  __jo_force_inline void	    jo_list_free_and_clear(jo_list * const list)
 /** @brief Free and remove the last item from the list
  *  @param list List
  */
-static  __jo_force_inline void      jo_list_free_and_remove_last(jo_list * const list)
-{
+static __jo_force_inline void jo_list_free_and_remove_last(jo_list *const list) {
     jo_list_free_and_remove(list, list->last);
 }
 
 /** @brief Free and remove the last item from the list
  *  @param list List
  */
-static  __jo_force_inline void      jo_list_remove_last(jo_list * const list)
-{
+static __jo_force_inline void jo_list_remove_last(jo_list *const list) {
     jo_list_remove(list, list->last);
 }
 
 /** @brief Free and remove the first item from the list
  *  @param list List
  */
-static  __jo_force_inline void      jo_list_free_and_remove_first(jo_list * const list)
-{
+static __jo_force_inline void jo_list_free_and_remove_first(jo_list *const list) {
     jo_list_free_and_remove(list, list->first);
 }
 
 /** @brief Free and remove the first item from the list
  *  @param list List
  */
-static  __jo_force_inline void      jo_list_remove_first(jo_list * const list)
-{
+static __jo_force_inline void jo_list_remove_first(jo_list *const list) {
     jo_list_remove(list, list->first);
 }
 
 /** @brief Remove all item
  *  @param list List
  */
-static  __jo_force_inline void	    jo_list_clear(jo_list * const list)
-{
-    while (list->first != JO_NULL) jo_list_remove(list, list->first);
+static __jo_force_inline void jo_list_clear(jo_list *const list) {
+    while (list->first != JO_NULL)
+        jo_list_remove(list, list->first);
 }
 
 /** @brief Get first item
  *  @param list List
  */
-static  __jo_force_inline jo_node   *jo_list_first(jo_list * const list)
-{
+static __jo_force_inline jo_node *jo_list_first(jo_list *const list) {
     return (list->first);
 }
 
 /** @brief Get last item
  *  @param list List
  */
-static  __jo_force_inline jo_node   *jo_list_last(jo_list * const list)
-{
+static __jo_force_inline jo_node *jo_list_last(jo_list *const list) {
     return list->last;
 }
 
@@ -218,10 +206,10 @@ static  __jo_force_inline jo_node   *jo_list_last(jo_list * const list)
  *  @param list List
  *  @param callback callback for each node
  */
-static  __jo_force_inline void	    jo_list_foreach(jo_list * const list, jo_node_callback callback)
-{
+static __jo_force_inline void jo_list_foreach(jo_list *const list, jo_node_callback callback) {
     jo_node *tmp;
-    for (tmp = list->first; tmp != JO_NULL; tmp = tmp->next) callback(tmp);
+    for (tmp = list->first; tmp != JO_NULL; tmp = tmp->next)
+        callback(tmp);
 }
 
 /** @brief Find if any element of the list satisfy the condition (callback)
@@ -230,10 +218,11 @@ static  __jo_force_inline void	    jo_list_foreach(jo_list * const list, jo_node
  *  @param callback callback for each node
  *  @return true if any element satisfy the condition otherwise false
  */
-static  __jo_force_inline bool	    jo_list_any(jo_list * const list, jo_node_any_callback callback, void *extra)
-{
+static __jo_force_inline bool jo_list_any(jo_list *const list, jo_node_any_callback callback, void *extra) {
     jo_node *tmp;
-    for (tmp = list->first; tmp != JO_NULL; tmp = tmp->next) if (callback(tmp, extra)) return true;
+    for (tmp = list->first; tmp != JO_NULL; tmp = tmp->next)
+        if (callback(tmp, extra))
+            return true;
     return false;
 }
 
@@ -241,8 +230,7 @@ static  __jo_force_inline bool	    jo_list_any(jo_list * const list, jo_node_any
  *  @param list List pointer
  *  @param behaviour Allocation behaviour
  */
-static  __jo_force_inline void      jo_list_set_allocation_behaviour(jo_list * const list, jo_malloc_behaviour behaviour)
-{
+static __jo_force_inline void jo_list_set_allocation_behaviour(jo_list *const list, jo_malloc_behaviour behaviour) {
     list->allocation_behaviour = behaviour;
 }
 
@@ -250,12 +238,10 @@ static  __jo_force_inline void      jo_list_set_allocation_behaviour(jo_list * c
  *  @param list List
  *  @param data Node DATA
  */
-static  __jo_force_inline bool	    jo_list_remove_first_value(jo_list * const list, jo_list_data data)
-{
+static __jo_force_inline bool jo_list_remove_first_value(jo_list *const list, jo_list_data data) {
     jo_node *tmp;
     for (tmp = list->first; tmp != JO_NULL; tmp = tmp->next)
-        if (tmp->data.integer == data.integer)
-        {
+        if (tmp->data.integer == data.integer) {
             jo_list_remove(list, tmp);
             return (true);
         }
@@ -266,8 +252,7 @@ static  __jo_force_inline bool	    jo_list_remove_first_value(jo_list * const li
  *  @param list List
  *  @param data Node DATA
  */
-static  __jo_force_inline void	    jo_list_remove_all_value(jo_list * const list, jo_list_data data)
-{
+static __jo_force_inline void jo_list_remove_all_value(jo_list *const list, jo_list_data data) {
     while (jo_list_remove_first_value(list, data))
         ;
 }
@@ -276,8 +261,7 @@ static  __jo_force_inline void	    jo_list_remove_all_value(jo_list * const list
  *  @param list List
  *  @param output Output list
  */
-static  __jo_force_inline void	    jo_list_append(const jo_list * const list, jo_list * const output)
-{
+static __jo_force_inline void jo_list_append(const jo_list *const list, jo_list *const output) {
     jo_node *tmp;
     for (tmp = list->first; tmp != JO_NULL; tmp = tmp->next)
         jo_list_add(output, tmp->data);

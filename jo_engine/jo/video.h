@@ -36,7 +36,7 @@
  */
 
 #ifndef __JO_VIDEO_H__
-# define __JO_VIDEO_H__
+#define __JO_VIDEO_H__
 
 #ifdef JO_COMPILE_WITH_VIDEO_SUPPORT
 
@@ -44,41 +44,40 @@
 ** TYPEDEFS
 */
 /** @brief Function prototype for jo_video_play() */
-typedef void	(*jo_video_onstop_callback)(void);
+typedef void (*jo_video_onstop_callback)(void);
 
 /** @brief Error handling (Internal usage)
  *  @warning MC Hammer: don't touch this
  */
-extern int  __jo_video_sprite_id;
+extern int __jo_video_sprite_id;
 
 /** @brief Open a Sega FILM / Cinepak
  *  @param filename Filename (upper case and shorter as possible like "A.CPK")
  *  @return true if succeeded
  */
-bool					        jo_video_open_file(const char *const filename);
+bool jo_video_open_file(const char *const filename);
 
 /** @brief Play the movie previously loaded
  *  @return true if succeeded
  */
-bool                            jo_video_play(const jo_video_onstop_callback onstop);
+bool jo_video_play(const jo_video_onstop_callback onstop);
 
 /** @brief Pause the movie (must be called after jo_video_play())
  *  @warning To play the movie again, you must reopen the movie (jo_video_open_file())
  *  @return true if succeeded
  */
-bool                            jo_video_pause(void);
+bool jo_video_pause(void);
 
 /** @brief Stop the movie (must be called after jo_video_play())
  *  @return true if succeeded
  *  @warning To play the movie again, you must reopen the movie (jo_video_open_file())
  */
-void                            jo_video_stop(void);
+void jo_video_stop(void);
 
 /** @brief Get video sprite Id
  *  @return sprite Id
  */
-static  __jo_force_inline int   jo_get_video_sprite(void)
-{
+static __jo_force_inline int jo_get_video_sprite(void) {
     return (__jo_video_sprite_id);
 }
 

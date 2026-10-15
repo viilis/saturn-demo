@@ -33,7 +33,7 @@
  */
 
 #ifndef __JO_CONSOLE_H__
-# define __JO_CONSOLE_H__
+#define __JO_CONSOLE_H__
 
 #ifdef JO_COMPILE_WITH_CONSOLE_SUPPORT
 
@@ -56,11 +56,11 @@
  *  @param argv Arguments
  *  @param vertical_output Indicate where you can start writing to the console using jo_printf(0, vertical_output, "my output")
  *  @param exit Set the value behind the pointer to true to exit console
-*/
-typedef bool	(*jo_console_command_callback)(int argc, char **argv, int vertical_output, bool *exit);
+ */
+typedef bool (*jo_console_command_callback)(int argc, char **argv, int vertical_output, bool *exit);
 
-void        jo_console_register_command_handling(const jo_console_command_callback callback);
-void        jo_console_show_dialog(void);
+void jo_console_register_command_handling(const jo_console_command_callback callback);
+void jo_console_show_dialog(void);
 
 #endif /* !JO_COMPILE_WITH_CONSOLE_SUPPORT */
 

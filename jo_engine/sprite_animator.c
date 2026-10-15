@@ -40,41 +40,33 @@
 #include "jo/math.h"
 #include "jo/sprite_animator.h"
 
-jo_sprite_anim		__jo_sprite_anim_tab[JO_MAX_SPRITE_ANIM];
-static int			__jo_sprite_anim_id = -1;
-static char			__jo_sprite_anim_callback_event_id = 0;
+jo_sprite_anim __jo_sprite_anim_tab[JO_MAX_SPRITE_ANIM];
+static int __jo_sprite_anim_id = -1;
+static char __jo_sprite_anim_callback_event_id = 0;
 
-static void			__jo_internal_frame_animator(void)
-{
-    register int	i;
+static void __jo_internal_frame_animator(void) {
+    register int i;
 
-    for (JO_ZERO(i); i <= __jo_sprite_anim_id; ++i)
-    {
+    for (JO_ZERO(i); i <= __jo_sprite_anim_id; ++i) {
         if (__jo_sprite_anim_tab[i].action == JO_SPRITE_ANIM_STOP)
             continue;
-        if (__jo_sprite_anim_tab[i].frame_skip >= __jo_sprite_anim_tab[i].frame_rate)
-        {
+        if (__jo_sprite_anim_tab[i].frame_skip >= __jo_sprite_anim_tab[i].frame_rate) {
             JO_ZERO(__jo_sprite_anim_tab[i].frame_skip);
-            if ((__jo_sprite_anim_tab[i].cur_frame + 1) >= __jo_sprite_anim_tab[i].frame_count)
-            {
+            if ((__jo_sprite_anim_tab[i].cur_frame + 1) >= __jo_sprite_anim_tab[i].frame_count) {
                 if (__jo_sprite_anim_tab[i].action == JO_SPRITE_ANIM_STOP_AT_LAST_FRAME)
                     __jo_sprite_anim_tab[i].action = JO_SPRITE_ANIM_STOP;
                 else
                     JO_ZERO(__jo_sprite_anim_tab[i].cur_frame);
-            }
-            else
+            } else
                 ++__jo_sprite_anim_tab[i].cur_frame;
-        }
-        else
+        } else
             ++__jo_sprite_anim_tab[i].frame_skip;
     }
 }
 
-int			jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate)
-{
+int jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate) {
 #ifdef JO_DEBUG
-    if (at >= __jo_sprite_anim_id)
-    {
+    if (at >= __jo_sprite_anim_id) {
         jo_core_error("at (%d) is too high (max=%d)", (int)at, (int)__jo_sprite_anim_id);
         return (-1);
     }
@@ -85,11 +77,9 @@ int			jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const
     __jo_sprite_anim_tab[at].frame_count = frame_count;
     __jo_sprite_anim_tab[at].frame0_sprite_id = sprite_id;
     __jo_sprite_anim_tab[at].frame_rate = frame_rate;
-    if (!__jo_sprite_anim_callback_event_id)
-    {
+    if (!__jo_sprite_anim_callback_event_id) {
         __jo_sprite_anim_callback_event_id = jo_core_add_callback(__jo_internal_frame_animator);
-        if (!__jo_sprite_anim_callback_event_id)
-        {
+        if (!__jo_sprite_anim_callback_event_id) {
 #ifdef JO_DEBUG
             jo_core_error("Event creation failed");
 #endif
@@ -99,12 +89,10 @@ int			jo_replace_sprite_anim(const int at, const unsigned short sprite_id, const
     return (at);
 }
 
-int			jo_create_sprite_anim(const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate)
-{
+int jo_create_sprite_anim(const unsigned short sprite_id, const unsigned short frame_count, const unsigned char frame_rate) {
     ++__jo_sprite_anim_id;
 #ifdef JO_DEBUG
-    if (__jo_sprite_anim_id >= JO_MAX_SPRITE_ANIM)
-    {
+    if (__jo_sprite_anim_id >= JO_MAX_SPRITE_ANIM) {
         --__jo_sprite_anim_id;
         jo_core_error("Too many animation");
         return (-1);
@@ -116,11 +104,9 @@ int			jo_create_sprite_anim(const unsigned short sprite_id, const unsigned short
     __jo_sprite_anim_tab[__jo_sprite_anim_id].frame_count = frame_count;
     __jo_sprite_anim_tab[__jo_sprite_anim_id].frame0_sprite_id = sprite_id;
     __jo_sprite_anim_tab[__jo_sprite_anim_id].frame_rate = frame_rate;
-    if (!__jo_sprite_anim_callback_event_id)
-    {
+    if (!__jo_sprite_anim_callback_event_id) {
         __jo_sprite_anim_callback_event_id = jo_core_add_callback(__jo_internal_frame_animator);
-        if (!__jo_sprite_anim_callback_event_id)
-        {
+        if (!__jo_sprite_anim_callback_event_id) {
             --__jo_sprite_anim_id;
 #ifdef JO_DEBUG
             jo_core_error("Event creation failed");
@@ -131,33 +117,28 @@ int			jo_create_sprite_anim(const unsigned short sprite_id, const unsigned short
     return (__jo_sprite_anim_id);
 }
 
-void jo_remove_sprite_anim(const int anim_id)
-{
+void jo_remove_sprite_anim(const int anim_id) {
     if (anim_id < 0 || anim_id > __jo_sprite_anim_id)
         return;
 
     jo_memset(&__jo_sprite_anim_tab[anim_id], 0, sizeof(jo_sprite_anim));
 
-    if (anim_id == __jo_sprite_anim_id)
-    {
+    if (anim_id == __jo_sprite_anim_id) {
         while (__jo_sprite_anim_id >= 0 &&
-               __jo_sprite_anim_tab[__jo_sprite_anim_id].frame_count == 0)
-        {
+               __jo_sprite_anim_tab[__jo_sprite_anim_id].frame_count == 0) {
             --__jo_sprite_anim_id;
         }
 
-        if (__jo_sprite_anim_id < 0 && __jo_sprite_anim_callback_event_id > 0)
-        {
+        if (__jo_sprite_anim_id < 0 && __jo_sprite_anim_callback_event_id > 0) {
             jo_core_remove_callback(__jo_sprite_anim_callback_event_id);
             JO_ZERO(__jo_sprite_anim_callback_event_id);
         }
     }
 }
 
-void    jo_clear_all_sprite_anim(void)
-{
+void jo_clear_all_sprite_anim(void) {
     __jo_sprite_anim_id = -1;
-    if (__jo_sprite_anim_callback_event_id > 0)  // Avoid calling with an invalid value.
+    if (__jo_sprite_anim_callback_event_id > 0) // Avoid calling with an invalid value.
     {
         jo_core_remove_callback(__jo_sprite_anim_callback_event_id);
         JO_ZERO(__jo_sprite_anim_callback_event_id); // Prevents reuse of an invalid value.

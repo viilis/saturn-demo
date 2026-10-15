@@ -34,20 +34,20 @@
  */
 
 #ifndef __JO_INPUT_H__
-# define __JO_INPUT_H__
+#define __JO_INPUT_H__
 
-# define JO_INPUT_MAX_DEVICE            (12)
+#define JO_INPUT_MAX_DEVICE (12)
 
 // This device ID is not present in SGL header files
-#define	PER_ID_NightsPad	0x16	/* Nights 3D pad */
-#define	PER_ID_MissionStick	0x15	/* Mission-stick */
-#define	PER_ID_Racing	    0x13	/* Racing wheel */
+#define PER_ID_NightsPad 0x16    /* Nights 3D pad */
+#define PER_ID_MissionStick 0x15 /* Mission-stick */
+#define PER_ID_Racing 0x13       /* Racing wheel */
 
 #if JO_COMPILE_USING_SGL
-extern PerDigital                       jo_inputs[JO_INPUT_MAX_DEVICE];
-# define __JO_KEY_PRESSED(PORT, KEY)    ((jo_inputs[PORT].data & KEY) == 0)
+extern PerDigital jo_inputs[JO_INPUT_MAX_DEVICE];
+#define __JO_KEY_PRESSED(PORT, KEY) ((jo_inputs[PORT].data & KEY) == 0)
 #else
-# define __JO_KEY_PRESSED(PORT, KEY)    ((jo_inputs[PORT].pressed & KEY) == KEY)
+#define __JO_KEY_PRESSED(PORT, KEY) ((jo_inputs[PORT].pressed & KEY) == KEY)
 #endif
 
 #if !JO_COMPILE_USING_SGL
@@ -57,26 +57,25 @@ extern PerDigital                       jo_inputs[JO_INPUT_MAX_DEVICE];
  */
 typedef struct
 {
-    unsigned char               id;
-    unsigned short              pressed;
-    unsigned short              on_keydown;
-    unsigned short              on_keyup;
-}                               jo_input;
+    unsigned char id;
+    unsigned short pressed;
+    unsigned short on_keydown;
+    unsigned short on_keyup;
+} jo_input;
 
 /** @brief Input status (internal engine usage)
  *  @warning MC Hammer: don't touch this
  */
-extern jo_input                        jo_inputs[JO_INPUT_MAX_DEVICE];
+extern jo_input jo_inputs[JO_INPUT_MAX_DEVICE];
 
 #endif
 
 /** @brief Input keys
  */
 #if JO_COMPILE_USING_SGL
-typedef enum
-{
+typedef enum {
     JO_KEY_RIGHT = 1 << 15,
-    JO_KEY_LEFT	= 1 << 14,
+    JO_KEY_LEFT = 1 << 14,
     JO_KEY_DOWN = 1 << 13,
     JO_KEY_UP = 1 << 12,
     JO_KEY_START = 1 << 11,
@@ -93,12 +92,11 @@ typedef enum
     JO_MOUSE_LEFT_BUTTON = 1 << 10,
     JO_MOUSE_MIDDLE_BUTTON = 1 << 8,
     JO_MOUSE_RIGHT_BUTTON = 1 << 9
-}           jo_gamepad_keys;
+} jo_gamepad_keys;
 #else
-typedef enum
-{
+typedef enum {
     JO_KEY_RIGHT = 1 << 7,
-    JO_KEY_LEFT	= 1 << 6,
+    JO_KEY_LEFT = 1 << 6,
     JO_KEY_DOWN = 1 << 5,
     JO_KEY_UP = 1 << 4,
     JO_KEY_START = 1 << 11,
@@ -115,13 +113,12 @@ typedef enum
     JO_MOUSE_LEFT_BUTTON = 1 << 10,
     JO_MOUSE_MIDDLE_BUTTON = 1 << 8,
     JO_MOUSE_RIGHT_BUTTON = 1 << 9
-}           jo_gamepad_keys;
+} jo_gamepad_keys;
 #endif
 
 /** @brief Input type
  */
-typedef enum
-{
+typedef enum {
     JoNotConnectedGamepad = -1,
     JoUnsupportedGamepad = 0,
     JoRegularGamepad = 1,
@@ -129,75 +126,71 @@ typedef enum
     JoShuttleMouse = 3,
     JoRegularKeyboard = 4,
 
-	/** @brief Nights 3D pad, Axis1 and Axis2 are analog stick, Axis3 is right trigger and Axis4 is left trigger
-	 */
-	JoNightsPad = 5,
-    
-	/** @brief Mission stick, Axis1 and Axis2 are the analog stick, Axis3 is throttle
-	 */
-	JoMissionStick = 6,
-    
-	/** @brief Racing wheel, Axis1 is the wheel
-	 */
-	JoRacingWheel = 7
-}           jo_gamepad_type;
+    /** @brief Nights 3D pad, Axis1 and Axis2 are analog stick, Axis3 is right trigger and Axis4 is left trigger
+     */
+    JoNightsPad = 5,
+
+    /** @brief Mission stick, Axis1 and Axis2 are the analog stick, Axis3 is throttle
+     */
+    JoMissionStick = 6,
+
+    /** @brief Racing wheel, Axis1 is the wheel
+     */
+    JoRacingWheel = 7
+} jo_gamepad_type;
 
 /** @brief Input axis type
  */
-typedef enum
-{
+typedef enum {
     JoAxis1 = 0,
     JoAxis2 = 1,
     JoAxis3 = 2,
     JoAxis4 = 3,
     JoAxis5 = 4,
     JoAxis6 = 5,
-}           jo_input_axis;	
+} jo_input_axis;
 
 /** @brief Get input type for the given port
  *  @param port Gamepad port
  *  @return Input type (Pad, Mouse, etc)
  */
-jo_gamepad_type                 jo_get_input_type(const int port);
+jo_gamepad_type jo_get_input_type(const int port);
 
 /** @brief Check if connected input is analog
  *  @param port input port
  *  @return true if connected controller has analog axies
  */
-static __jo_force_inline bool	jo_is_input_analog(const int port)
-{
-	// TODO: Add other analog devices (wheel, mission stick)
-	return (jo_inputs[port].id == PER_ID_NightsPad);
+static __jo_force_inline bool jo_is_input_analog(const int port) {
+    // TODO: Add other analog devices (wheel, mission stick)
+    return (jo_inputs[port].id == PER_ID_NightsPad);
 }
 
 /** @brief Check if the input is available for the given port
  *  @param port Gamepad port
  *  @return true if the input is available otherwise false
  */
-static  __jo_force_inline bool	jo_is_input_available(const int port)
-{
+static __jo_force_inline bool jo_is_input_available(const int port) {
     return (jo_inputs[port].id != PER_ID_NotConnect);
 }
 
 /** @brief Get the number of input available
  *  @return Input count
  */
-int                             jo_get_input_count(void);
+int jo_get_input_count(void);
 
 /** @brief Get analog axis value
  *  @param port Gamepad port
  *  @param axis Analog axis
  *  @return Analog axis value
  */
-unsigned char                   jo_get_input_axis(const int port, const jo_input_axis axis);
+unsigned char jo_get_input_axis(const int port, const jo_input_axis axis);
 
 /** @brief Check if the key is pressed for the given port
  *  @param port Gamepad port
  *  @param key Key value
  *  @return true if the key is pressed otherwise false
  */
-static  __jo_force_inline bool	jo_is_input_key_pressed(const int port, const jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_input_key_pressed(const int port, const jo_gamepad_keys key) {
     return __JO_KEY_PRESSED(port, key);
 }
 
@@ -205,18 +198,15 @@ static  __jo_force_inline bool	jo_is_input_key_pressed(const int port, const jo_
  *  @param port Gamepad port
  *  @return jo_8_directions
  */
-static  __jo_force_inline jo_8_directions	jo_get_input_direction_pressed(const int port)
-{
-    if (__JO_KEY_PRESSED(port, JO_KEY_UP))
-    {
+static __jo_force_inline jo_8_directions jo_get_input_direction_pressed(const int port) {
+    if (__JO_KEY_PRESSED(port, JO_KEY_UP)) {
         if (__JO_KEY_PRESSED(port, JO_KEY_LEFT))
             return (UP_LEFT);
         if (__JO_KEY_PRESSED(port, JO_KEY_RIGHT))
             return (UP_RIGHT);
         return (UP);
     }
-    if (__JO_KEY_PRESSED(port, JO_KEY_DOWN))
-    {
+    if (__JO_KEY_PRESSED(port, JO_KEY_DOWN)) {
         if (__JO_KEY_PRESSED(port, JO_KEY_LEFT))
             return (DOWN_LEFT);
         if (__JO_KEY_PRESSED(port, JO_KEY_RIGHT))
@@ -234,8 +224,7 @@ static  __jo_force_inline jo_8_directions	jo_get_input_direction_pressed(const i
  *  @param port Gamepad port
  *  @return Raw input data
  */
-static  __jo_force_inline unsigned short	jo_get_raw_input_key_pressed(const int port)
-{
+static __jo_force_inline unsigned short jo_get_raw_input_key_pressed(const int port) {
 #if JO_COMPILE_USING_SGL
     return ((unsigned short)jo_inputs[port].data);
 #else
@@ -248,8 +237,7 @@ static  __jo_force_inline unsigned short	jo_get_raw_input_key_pressed(const int 
  *  @param key Key value
  *  @return true if the key is down otherwise false
  */
-static  __jo_force_inline bool	jo_is_input_key_down(const int port, const jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_input_key_down(const int port, const jo_gamepad_keys key) {
 #if JO_COMPILE_USING_SGL
     return ((jo_inputs[port].push & key) == 0);
 #else
@@ -264,8 +252,7 @@ static  __jo_force_inline bool	jo_is_input_key_down(const int port, const jo_gam
  *  @param key Key value
  *  @return true if the key is up otherwise false
  */
-static  __jo_force_inline bool	jo_is_input_key_up(const int port, const jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_input_key_up(const int port, const jo_gamepad_keys key) {
     return ((jo_inputs[port].on_keyup & key) == key);
 }
 #endif
@@ -276,8 +263,7 @@ static  __jo_force_inline bool	jo_is_input_key_up(const int port, const jo_gamep
  *  @param port Gamepad port
  *  @return X coordinate
  */
-static  __jo_force_inline int	jo_get_mouse_pos_x(const int port)
-{
+static __jo_force_inline int jo_get_mouse_pos_x(const int port) {
     return (JO_DIV_BY_65536(jo_inputs[port].dummy2[0]));
 }
 
@@ -285,8 +271,7 @@ static  __jo_force_inline int	jo_get_mouse_pos_x(const int port)
  *  @param port Gamepad port
  *  @return Y coordinate
  */
-static  __jo_force_inline int	jo_get_mouse_pos_y(const int port)
-{
+static __jo_force_inline int jo_get_mouse_pos_y(const int port) {
     return (JO_DIV_BY_65536((JO_MULT_BY_65536(jo_inputs[port].dummy2[0]))));
 }
 
@@ -299,16 +284,14 @@ static  __jo_force_inline int	jo_get_mouse_pos_y(const int port)
 /** @brief Check if the first gamepad is plugged
  *  @return true if the first gamepad is plugged otherwise false
  */
-static  __jo_force_inline bool	jo_is_pad1_available(void)
-{
+static __jo_force_inline bool jo_is_pad1_available(void) {
     return jo_is_input_available(0);
 }
 
 /** @brief Check if the second gamepad is plugged
  *  @return true if the second gamepad is plugged otherwise false
  */
-static  __jo_force_inline bool	jo_is_pad2_available(void)
-{
+static __jo_force_inline bool jo_is_pad2_available(void) {
     return jo_is_input_available(1);
 }
 
@@ -316,8 +299,7 @@ static  __jo_force_inline bool	jo_is_pad2_available(void)
  *  @param key Key value
  *  @return true if the key is pressed on the first gamepad otherwise false
  */
-static  __jo_force_inline bool	jo_is_pad1_key_pressed(jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_pad1_key_pressed(jo_gamepad_keys key) {
     return (jo_is_input_key_pressed(0, key));
 }
 
@@ -325,8 +307,7 @@ static  __jo_force_inline bool	jo_is_pad1_key_pressed(jo_gamepad_keys key)
  *  @param key Key value
  *  @return true if the key is down on the first gamepad otherwise false
  */
-static  __jo_force_inline bool	jo_is_pad1_key_down(jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_pad1_key_down(jo_gamepad_keys key) {
     return (jo_is_input_key_down(0, key));
 }
 
@@ -334,8 +315,7 @@ static  __jo_force_inline bool	jo_is_pad1_key_down(jo_gamepad_keys key)
  *  @param key Key value
  *  @return true if the key is pressed on the second gamepad otherwise false
  */
-static  __jo_force_inline bool	jo_is_pad2_key_pressed(jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_pad2_key_pressed(jo_gamepad_keys key) {
     return (jo_is_input_key_pressed(1, key));
 }
 
@@ -343,8 +323,7 @@ static  __jo_force_inline bool	jo_is_pad2_key_pressed(jo_gamepad_keys key)
  *  @param key Key value
  *  @return true if the key is down on the second gamepad otherwise false
  */
-static  __jo_force_inline bool	jo_is_pad2_key_down(jo_gamepad_keys key)
-{
+static __jo_force_inline bool jo_is_pad2_key_down(jo_gamepad_keys key) {
     return (jo_is_input_key_down(1, key));
 }
 
