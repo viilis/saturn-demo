@@ -26,15 +26,11 @@ void create_plane(void) {
 // void draw_ghost(void) {
 //     static bool sens = true;
 //     static int distance = -40;
-
 //     jo_3d_push_matrix();
-
 //     jo_3d_translate_matrix_y(10);
 //     jo_3d_translate_matrix_z(distance);
 //     jo_3d_draw_sprite(2);
-
 //     jo_3d_pop_matrix();
-
 //     if (sens) {
 //         --distance;
 //         if (distance < -55)
@@ -69,8 +65,8 @@ void draw_cube(void) {
     jo_3d_pop_matrix();
 }
 
-void my_draw(void) {
-    jo_printf(12, 1, "Simple 3D demo :DD");
+void draw(void) {
+    jo_printf(12, 1, "3D demo");
 
     jo_3d_camera_look_at(&cam);
 
@@ -86,6 +82,7 @@ void update(void) {
 
 void start(void) {
     jo_3d_camera_init(&cam);
+    jo_3d_perspective_angle(80);
 
     jo_sprite_add_tga(JO_ROOT_DIR, "BOX.TGA", JO_COLOR_Transparent);
     jo_sprite_add_tga(JO_ROOT_DIR, "FLR.TGA", JO_COLOR_Transparent);
@@ -104,7 +101,7 @@ void jo_main(void) {
     start();
 
     // Draw cycle
-    jo_core_add_callback(my_draw);
+    jo_core_add_callback(draw);
 
     // Update cycle
     jo_core_add_callback(update);
