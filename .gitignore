@@ -18,4 +18,4 @@ game.map
 *.layout
 bios.bin
 logs.txt
-Doxygen/output
+output/
