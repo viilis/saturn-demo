@@ -19,39 +19,39 @@ void create_plane(void) {
     jo_3d_set_texture(&plane, 1);
 }
 
-void create_ghost(void) {
-    jo_3d_set_transparency(jo_3d_get_sprite_quad(2), true);
-}
+// void create_ghost(void) {
+//     jo_3d_set_transparency(jo_3d_get_sprite_quad(2), true);
+// }
 
-void draw_ghost(void) {
-    static bool sens = true;
-    static int distance = -40;
+// void draw_ghost(void) {
+//     static bool sens = true;
+//     static int distance = -40;
 
-    jo_3d_push_matrix();
+//     jo_3d_push_matrix();
 
-    jo_3d_translate_matrix_y(10);
-    jo_3d_translate_matrix_z(distance);
-    jo_3d_draw_sprite(2);
+//     jo_3d_translate_matrix_y(10);
+//     jo_3d_translate_matrix_z(distance);
+//     jo_3d_draw_sprite(2);
 
-    jo_3d_pop_matrix();
+//     jo_3d_pop_matrix();
 
-    if (sens) {
-        --distance;
-        if (distance < -55)
-            sens ^= true;
-    } else {
-        ++distance;
-        if (distance > -40)
-            sens ^= true;
-    }
-}
+//     if (sens) {
+//         --distance;
+//         if (distance < -55)
+//             sens ^= true;
+//     } else {
+//         ++distance;
+//         if (distance > -40)
+//             sens ^= true;
+//     }
+// }
 
 void draw_floor(void) {
     jo_3d_push_matrix();
-
-    jo_3d_rotate_matrix_x(-65);
-    jo_3d_draw(&plane);
-
+    {
+        jo_3d_rotate_matrix_x(-65);
+        jo_3d_draw(&plane);
+    }
     jo_3d_pop_matrix();
 }
 
@@ -59,7 +59,6 @@ void draw_cube(void) {
     static short rx, ry, rz;
 
     jo_3d_push_matrix();
-
     {
         jo_3d_rotate_matrix(rx, ry, rz);
         rx += 3;
@@ -67,25 +66,25 @@ void draw_cube(void) {
         rz += 1;
         jo_3d_draw_array(cube_quads, 6);
     }
-
     jo_3d_pop_matrix();
 }
 
 void my_draw(void) {
-    jo_printf(12, 1, "*Simple 3D demo*");
+    jo_printf(12, 1, "Simple 3D demo :DD");
 
     jo_3d_camera_look_at(&cam);
 
     draw_floor();
-    draw_ghost();
+    // draw_ghost();
     draw_cube();
 
-    jo_printf(0, 28, "Polygon count: %d  ", jo_3d_get_polygon_count());
+    jo_printf(0, 20, "Polygon count: %d  ", jo_3d_get_polygon_count());
 }
 
-void jo_main(void) {
-    jo_core_init(JO_COLOR_Black);
+void update(void) {
+}
 
+void start(void) {
     jo_3d_camera_init(&cam);
 
     jo_sprite_add_tga(JO_ROOT_DIR, "BOX.TGA", JO_COLOR_Transparent);
@@ -93,9 +92,22 @@ void jo_main(void) {
     jo_sprite_add_tga(JO_ROOT_DIR, "G.TGA", JO_COLOR_Green);
 
     create_cube();
-    create_ghost();
+    // create_ghost();
     create_plane();
+}
 
+void jo_main(void) {
+    // Setup Saturn console
+    jo_core_init(JO_COLOR_Black);
+
+    // Run game logic start once
+    start();
+
+    // Draw cycle
     jo_core_add_callback(my_draw);
+
+    // Update cycle
+    jo_core_add_callback(update);
+
     jo_core_run();
 }
