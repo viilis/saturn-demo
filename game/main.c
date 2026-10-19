@@ -19,29 +19,6 @@ void create_plane(void) {
     jo_3d_set_texture(&plane, 1);
 }
 
-// void create_ghost(void) {
-//     jo_3d_set_transparency(jo_3d_get_sprite_quad(2), true);
-// }
-
-// void draw_ghost(void) {
-//     static bool sens = true;
-//     static int distance = -40;
-//     jo_3d_push_matrix();
-//     jo_3d_translate_matrix_y(10);
-//     jo_3d_translate_matrix_z(distance);
-//     jo_3d_draw_sprite(2);
-//     jo_3d_pop_matrix();
-//     if (sens) {
-//         --distance;
-//         if (distance < -55)
-//             sens ^= true;
-//     } else {
-//         ++distance;
-//         if (distance > -40)
-//             sens ^= true;
-//     }
-// }
-
 void draw_floor(void) {
     jo_3d_push_matrix();
     {
@@ -86,7 +63,6 @@ void start(void) {
 
     jo_sprite_add_tga(JO_ROOT_DIR, "BOX.TGA", JO_COLOR_Transparent);
     jo_sprite_add_tga(JO_ROOT_DIR, "FLR.TGA", JO_COLOR_Transparent);
-    jo_sprite_add_tga(JO_ROOT_DIR, "G.TGA", JO_COLOR_Green);
 
     create_cube();
     // create_ghost();
