@@ -3,12 +3,12 @@
         {
             "name": "Saturn - Linux",
             "includePath": [
-                "${workspaceFolder}/jo_engine/",
-                "${workspaceFolder}/Compiler/COMMON/SGL_302j/INC",
-                "${workspaceFolder}/Compiler/LINUX/sh-none-elf/include"
+                "${workspaceFolder}/engine/jo_engine/",
+                "${workspaceFolder}/engine/Compiler/COMMON/SGL_302j/INC",
+                "${workspaceFolder}/engine/Compiler/LINUX/sh-none-elf/include"
             ],
             "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
-            "compilerPath": "${workspaceFolder}/Compiler/LINUX/bin/sh-none-elf-gcc-8.2.0",
+            "compilerPath": "${workspaceFolder}/engine/Compiler/LINUX/bin/sh-none-elf-gcc-8.2.0",
             "compilerArgs": [
                 "-m2",
                 "-fms-extensions"

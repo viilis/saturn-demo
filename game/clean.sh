@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -f ./cd/0.bin
 rm -f *.o
-rm -f ../jo_engine/*.o
+rm -f ../engine/jo_engine/*.o
 rm -f ./*.bin
 rm -f ./*.raw
 rm -f ./*.coff

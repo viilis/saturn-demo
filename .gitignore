@@ -13,17 +13,17 @@ game.iso
 game.cue
 game.map
 
-/[jJ]o_engine/*.o
+/engine/jo_engine/*.o
 /[gG]ame/*.o
-/[sS]amples/*/*.o
+/engine/samples/*/*.o
 
 *.layout
 bios.bin
 logs.txt
 output/
 
-Compiler/COMMON/SGL_302j/
-Compiler/COMMON/IP.BIN
+engine/Compiler/COMMON/SGL_302j/
+engine/Compiler/COMMON/IP.BIN
 
 compile_commands.json
-[Ss]amples/
+engine/samples/
