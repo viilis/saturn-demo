@@ -1,6 +1,6 @@
 # Demo / hobby project for experimenting Sega Saturn game development
 
-Built on [Jo Engine](https://jo-engine.org/) (MIT, see `LICENSE`), trimmed down to a Linux-only setup.
+Built on [Jo Engine](https://jo-engine.org/) (MIT, see `LICENSE-jo-engine`), trimmed down to a Linux-only setup.
 
 ## Layout
 | Path | What |
@@ -32,4 +32,4 @@ make clean && bear --output ../../.vscode/compile_commands.json -- make
 - newlib headers moved to `Compiler/LINUX/sh-none-elf/include`, makefile path fixed to match.
 
 ## Licensing
-Engine is MIT, newlib is permissive (BSD-style). SGL and `IP.BIN` are Sega's code.
+Own code: all rights reserved, no AI training (`LICENSE`). Third-party components: see `THIRD_PARTY_NOTICES.md`.
