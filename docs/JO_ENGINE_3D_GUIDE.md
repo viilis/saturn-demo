@@ -95,7 +95,7 @@ jo_3d_set_mesh_polygon_color(m, JO_COLOR_Yellow, 0);
 jo_3d_mesh_draw(m);
 ```
 
-Models: convert with Jo Map Editor (see `Samples/demo - advanced 3D`).
+Models: convert with Jo Map Editor (see `Samples/demo - advanced 3D` in upstream [Jo Engine](https://github.com/johannes-fetz/joengine)).
 
 Textures = sprite ids from `jo_sprite_add_tga()` in load order. Also: `jo_3d_set_color`, `jo_3d_set_transparency`, `jo_3d_set_light`.
 
