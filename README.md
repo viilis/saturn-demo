@@ -23,7 +23,7 @@ cd game
 ./compile.sh
 ```
 
-Output: `game.iso` + `game.cue`, run in a Saturn emulator.
+Output: `game.iso` + `game.cue`, run in a [Saturn emulator](https://github.com/ymir-emu/Ymir).
 
 ## Editor (VS Code)
 IntelliSense reads flags from `.vscode/compile_commands.json`. Regenerate after changing the makefile:
