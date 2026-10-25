@@ -1,10 +1,14 @@
 #include <jo/jo.h>
+#include "src/player/player.h"
 
 jo_camera cam;
 jo_vertice cube_vertices[] = JO_3D_CUBE_VERTICES(32);
 jo_3d_quad cube_quads[6];
 jo_vertice plane_vertices[] = JO_3D_PLANE_VERTICES(104);
 jo_3d_quad plane;
+
+// Create player and attach camera to it
+player p = {true, {-100, 0, 0}, &cam};
 
 void create_cube(void) {
     jo_3d_create_cube(cube_quads, cube_vertices);
@@ -22,7 +26,10 @@ void create_plane(void) {
 void draw_floor(void) {
     jo_3d_push_matrix();
     {
-        jo_3d_rotate_matrix_x(-65);
+        jo_3d_rotate_matrix_x(0);
+        jo_3d_draw(&plane);
+
+        jo_3d_rotate_matrix_y(90);
         jo_3d_draw(&plane);
     }
     jo_3d_pop_matrix();
@@ -34,8 +41,8 @@ void draw_cube(void) {
     jo_3d_push_matrix();
     {
         jo_3d_rotate_matrix(rx, ry, rz);
-        rx += 3;
-        ry += 2;
+        rx += 1;
+        ry += 1;
         rz += 1;
         jo_3d_draw_array(cube_quads, 6);
     }
@@ -43,18 +50,17 @@ void draw_cube(void) {
 }
 
 void draw(void) {
-    jo_printf(12, 1, "3D demo");
-
     jo_3d_camera_look_at(&cam);
 
     draw_floor();
-    // draw_ghost();
     draw_cube();
 
     jo_printf(0, 20, "Polygon count: %d  ", jo_3d_get_polygon_count());
+    jo_printf(0, 21, "Sprite usage: %d", jo_sprite_usage_percent());
 }
 
 void update(void) {
+    player_move(&p);
 }
 
 void start(void) {
@@ -65,22 +71,21 @@ void start(void) {
     jo_sprite_add_tga(JO_ROOT_DIR, "FLR.TGA", JO_COLOR_Transparent);
 
     create_cube();
-    // create_ghost();
     create_plane();
 }
 
 void jo_main(void) {
     // Setup Saturn console
-    jo_core_init(JO_COLOR_Black);
+    jo_core_init(JO_COLOR_Gray);
 
     // Run game logic start once
     start();
 
-    // Draw cycle
-    jo_core_add_callback(draw);
-
     // Update cycle
     jo_core_add_callback(update);
+
+    // Draw cycle
+    jo_core_add_callback(draw);
 
     jo_core_run();
 }

@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euxo pipefail
+
 rm -f ./cd/0.bin
 rm -f *.o
 rm -f ../engine/jo_engine/*.o

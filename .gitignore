@@ -5,6 +5,8 @@ sl_coff.coff
 sl_coff.iso
 sl_coff.cue
 sl_coff.map
+
+# builds
 game.bin
 game.raw
 game.coff
@@ -14,16 +16,19 @@ game.cue
 game.map
 
 /engine/jo_engine/*.o
-/[gG]ame/*.o
-/engine/samples/*/*.o
+/[gG]ame/**/*.o
 
 *.layout
 bios.bin
 logs.txt
+
+# doxygen output
 output/
 
+# lets not redistribute Segas stuff :)
 engine/Compiler/COMMON/SGL_302j/
 engine/Compiler/COMMON/IP.BIN
-
-compile_commands.json
 engine/samples/
+
+# developer specific
+compile_commands.json

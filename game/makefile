@@ -7,7 +7,7 @@ JO_COMPILE_WITH_PSEUDO_MODE7_MODULE = 0
 JO_COMPILE_WITH_EFFECTS_MODULE = 0
 JO_COMPILE_WITH_FAST_BUT_LESS_ACCURATE_MATH = 0
 JO_DEBUG = 1
-SRCS=main.c
+SRCS=main.c src/player/player.c
 JO_ENGINE_SRC_DIR=../engine/jo_engine
 COMPILER_DIR=../engine/Compiler
 include $(COMPILER_DIR)/COMMON/jo_engine_makefile
