@@ -7,8 +7,7 @@ jo_3d_quad cube_quads[6];
 jo_vertice plane_vertices[] = JO_3D_PLANE_VERTICES(104);
 jo_3d_quad plane;
 
-// Create player and attach camera to it
-player p = {true, {-100, 0, 0}, &cam};
+player p;
 
 void create_cube(void) {
     jo_3d_create_cube(cube_quads, cube_vertices);
@@ -66,6 +65,8 @@ void update(void) {
 void start(void) {
     jo_3d_camera_init(&cam);
     jo_3d_perspective_angle(80);
+
+    p = player_init(&cam);
 
     jo_sprite_add_tga(JO_ROOT_DIR, "BOX.TGA", JO_COLOR_Transparent);
     jo_sprite_add_tga(JO_ROOT_DIR, "FLR.TGA", JO_COLOR_Transparent);

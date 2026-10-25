@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/engine/jo_engine/",
                 "${workspaceFolder}/engine/Compiler/COMMON/SGL_302j/INC",
-                "${workspaceFolder}/engine/Compiler/LINUX/sh-none-elf/include"
+                "${workspaceFolder}/engine/Compiler/LINUX/sh-none-elf/include",
+                "${workspaceFolder}/game/src"
             ],
             "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
             "compilerPath": "${workspaceFolder}/engine/Compiler/LINUX/bin/sh-none-elf-gcc-8.2.0",
