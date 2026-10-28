@@ -7,5 +7,6 @@
 | Binutils 2.31 (c) FSF | `engine/Compiler/LINUX/bin/`, `engine/Compiler/LINUX/sh-none-elf/bin/` | GPL-3.0+ | https://ftp.gnu.org/gnu/binutils/ |
 | newlib 3.3.0 | `engine/Compiler/LINUX/sh-none-elf/` | BSD-style | https://sourceware.org/newlib/ |
 | CueMaker (c) Dirk Petrautzki | `engine/Compiler/LINUX/Other Utilities/` | Unknown | Bundled with Jo Engine |
+| nomap 0.2.1 (c) 2020 Simon Kunze | `editor/nomap/` | MIT (`editor/nomap/LICENSE`); crate declares MIT OR Apache-2.0 | https://github.com/reslario/nomap |
 
 **GPL source:** Toolchain binaries are from Jo Engine's `engine/Compiler/LINUX`; corresponding source is available from the GNU links above and https://github.com/johannes-fetz/joengine.

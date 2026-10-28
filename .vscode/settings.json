@@ -3,5 +3,8 @@
     "editor.defaultFormatter": "ms-vscode.cpptools",
     "files.associations": {
         "*.h": "c"
-    }
+    },
+    "rust-analyzer.linkedProjects": [
+        "${workspaceFolder}/editor/nomap/Cargo.toml"
+    ]
 }
