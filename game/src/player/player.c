@@ -69,7 +69,7 @@ void player_move(player *const p) {
         cam->viewpoint_pos.z = p->playerPos.z;
 
         // forward direction vec
-        jo_vector_fixed forwardVecF = {jo_sin(p->playerCam.cameraRot.ry), jo_sin(p->playerCam.cameraRot.rx), jo_cos(p->playerCam.cameraRot.ry)};
+        jo_vector_fixed forwardVecF = {.x = jo_sin(p->playerCam.cameraRot.ry), .y = jo_sin(p->playerCam.cameraRot.rx), .z = jo_cos(p->playerCam.cameraRot.ry)};
         jo_vector_fixed scaledForwardF = {0};
 
         // https://learnopengl.com/Getting-started/Camera
@@ -77,7 +77,7 @@ void player_move(player *const p) {
         jo_vector_fixed_muls(&forwardVecF, p->playerCam.lookDistance, &scaledForwardF);
 
         jo_vector_fixed targetVecF = {0};
-        jo_vector_fixed vpVecF = {p->playerPos.x, p->playerPos.y, p->playerPos.z};
+        jo_vector_fixed vpVecF = {.x = p->playerPos.x, .y = p->playerPos.y, .z = p->playerPos.z};
         // Adds fixed viewpoint vec into scaled forward, writes result down
         jo_vector_fixed_add(&vpVecF, &scaledForwardF, &targetVecF);
 
