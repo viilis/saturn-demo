@@ -4,7 +4,7 @@
 
 player player_init(jo_camera *const cam) {
     return (player){
-        .debug = true,
+        .debug = false,
         .playerPos = {JO_INT_TO_FIXED(0), JO_INT_TO_FIXED(0), JO_INT_TO_FIXED(-100)},
         .playerMov = {.speed = JO_INT_TO_FIXED(1)},
         .playerCam = {

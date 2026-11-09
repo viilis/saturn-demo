@@ -1,11 +1,14 @@
 #include <jo/jo.h>
 #include "src/player/player.h"
+#include "src/mesh/obj_to_mesh.h"
 
 jo_camera cam;
 jo_vertice cube_vertices[] = JO_3D_CUBE_VERTICES(32);
 jo_3d_quad cube_quads[6];
 jo_vertice plane_vertices[] = JO_3D_PLANE_VERTICES(104);
 jo_3d_quad plane;
+
+jo_3d_mesh *otm;
 
 player p;
 
@@ -51,9 +54,14 @@ void draw_cube(void) {
 void draw(void) {
     jo_3d_camera_look_at(&cam);
 
-    draw_floor();
+    // draw_floor();
     draw_cube();
 
+    jo_3d_push_matrix();
+    {
+        jo_3d_mesh_draw(otm);
+    }
+    jo_3d_pop_matrix();
     jo_printf(0, 20, "Polygon count: %d  ", jo_3d_get_polygon_count());
     jo_printf(0, 21, "Sprite usage: %d", jo_sprite_usage_percent());
 }
@@ -68,11 +76,13 @@ void start(void) {
 
     p = player_init(&cam);
 
-    jo_sprite_add_tga(JO_ROOT_DIR, "BOX.TGA", JO_COLOR_Transparent);
-    jo_sprite_add_tga(JO_ROOT_DIR, "FLR.TGA", JO_COLOR_Transparent);
+    jo_sprite_add_tga("TEX", "BOX.TGA", JO_COLOR_Transparent);
+    jo_sprite_add_tga("TEX", "FLR.TGA", JO_COLOR_Transparent);
 
     create_cube();
     create_plane();
+
+    otm = obj_to_mesh("UNNAMED.OBJ", "OBJ");
 }
 
 void jo_main(void) {
